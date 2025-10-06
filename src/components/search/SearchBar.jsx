@@ -110,7 +110,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
   }, [searchQuery]);
 
   return (
-    <div ref={searchRef} className="relative w-full z-30">
+    <div ref={searchRef} className="relative w-full z-[70]">
       <form onSubmit={handleSubmit} className="relative">
         <input
           type="text"
@@ -169,7 +169,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
 
       {/* Suggestions or History Dropdown */}
       {isOpen && (
-        <>
+        <div className="absolute left-0 right-0 mt-1 z-[80]">
           <SearchSuggestions
             ref={suggestionsRef}
             suggestions={suggestions}
@@ -183,7 +183,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
               onClear={() => localStorage.removeItem('searchHistory')}
             />
           )}
-        </>
+        </div>
       )}
     </div>
   );

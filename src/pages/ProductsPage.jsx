@@ -12,6 +12,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -37,6 +38,7 @@ export default function ProductsPage() {
           response = await apiService.searchProducts(q.trim());
           setProducts(response.products);
           setPagination({});
+          setCurrentPage(1);
         } else {
           const params = { page, limit: 12 };
           if (filters.minPrice) params.minPrice = filters.minPrice;
@@ -50,6 +52,7 @@ export default function ProductsPage() {
           response = await apiService.filterProducts(params);
           setProducts(response.products);
           setPagination(response.pagination || {});
+          setCurrentPage(response?.pagination?.page || page || 1);
         }
       } catch (err) {
         setError(err.message);
@@ -108,20 +111,48 @@ export default function ProductsPage() {
       </div>
 
       {pagination.totalPages > 1 && (
-        <div className="flex justify-center mt-8 space-x-2">
-          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+        <div className="flex justify-center mt-8 flex-wrap gap-2">
+          <button
+            onClick={() => loadProducts(1)}
+            disabled={currentPage <= 1}
+            className={`px-3 py-2 rounded border ${currentPage <= 1 ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+          >
+            First
+          </button>
+          <button
+            onClick={() => loadProducts(Math.max(1, currentPage - 1))}
+            disabled={currentPage <= 1}
+            className={`px-3 py-2 rounded border ${currentPage <= 1 ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+          >
+            Prev
+          </button>
+          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNum) => (
             <button
-              key={page}
-              onClick={() => loadProducts(page)}
-              className={`px-3 py-2 rounded ${
-                page === pagination.page
-                  ? 'bg-blue-600 text-white'
+              key={pageNum}
+              onClick={() => loadProducts(pageNum)}
+              className={`px-3 py-2 rounded border ${
+                pageNum === currentPage
+                  ? 'bg-blue-600 text-white border-blue-600'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               }`}
             >
-              {page}
+              {pageNum}
             </button>
           ))}
+          <button
+            onClick={() => loadProducts(Math.min(pagination.totalPages, currentPage + 1))}
+            disabled={currentPage >= pagination.totalPages}
+            className={`px-3 py-2 rounded border ${currentPage >= pagination.totalPages ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => loadProducts(pagination.totalPages)}
+            disabled={currentPage >= pagination.totalPages}
+            className={`px-3 py-2 rounded border ${currentPage >= pagination.totalPages ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+          >
+            Last
+          </button>
         </div>
       )}
     </div>
