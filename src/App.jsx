@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import NotFound from './pages/NotFound.jsx';
+import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import ProductManagement from './pages/admin/ProductManagement.jsx';
 
 export default function App() {
   const handleSearch = (query) => {
@@ -14,14 +16,39 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Layout onSearch={handleSearch}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        {/* Public routes wrapped in site Layout */}
+        <Route
+          path="/"
+          element={
+            <Layout onSearch={handleSearch}>
+              <HomePage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <Layout onSearch={handleSearch}>
+              <ProductsPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/product/:id"
+          element={
+            <Layout onSearch={handleSearch}>
+              <ProductPage />
+            </Layout>
+          }
+        />
+
+        {/* Admin routes use their own layout */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/products" element={<ProductManagement />} />
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </BrowserRouter>
   );
 }
