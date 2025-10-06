@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { formatPrice, formatDate } from '../utils/formatters.js';
+import RelatedProducts from './RelatedProducts.jsx';
 
 export default function ProductDetail({ product, loading, error }) {
   if (loading) {
@@ -236,6 +237,9 @@ export default function ProductDetail({ product, loading, error }) {
           </div>
         </div>
       </div>
+
+      {/* Related Products */}
+      <RelatedProducts product={product} />
     </div>
   );
 }
