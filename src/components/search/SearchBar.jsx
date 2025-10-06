@@ -1,25 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { useState, useRef, useEffect } from "react";
-import { useSearch } from "../../hooks/useSearch.js";
-import SearchSuggestions from "./SearchSuggestions.jsx";
+import { useState, useRef, useEffect } from 'react';
+import { useSearch } from '../../hooks/useSearch.js';
+import SearchSuggestions from './SearchSuggestions.jsx';
+import SearchHistory from './SearchHistory.jsx';
 
-export default function SearchBar({
-  onSearch,
-  placeholder = "Search laptops...",
-}) {
+export default function SearchBar({ onSearch, placeholder = 'Search laptops...' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const searchRef = useRef(null);
   const suggestionsRef = useRef(null);
 
-  const {
-    searchQuery,
-    setSearchQuery,
-    suggestions,
-    generateSuggestions,
-    clearSearch,
-  } = useSearch();
+  const { searchQuery, setSearchQuery, suggestions, generateSuggestions, clearSearch } =
+    useSearch();
 
   // Handle input change
   const handleInputChange = (e) => {
@@ -33,7 +26,14 @@ export default function SearchBar({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      onSearch(searchQuery.trim());
+      const q = searchQuery.trim();
+      // persist to history
+      try {
+        const prev = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+        const next = [q, ...prev.filter((t) => t !== q)].slice(0, 10);
+        localStorage.setItem('searchHistory', JSON.stringify(next));
+      } catch {}
+      onSearch(q);
       setIsOpen(false);
     }
   };
@@ -41,6 +41,12 @@ export default function SearchBar({
   // Handle suggestion selection
   const handleSuggestionSelect = (suggestion) => {
     setSearchQuery(suggestion);
+    // persist to history
+    try {
+      const prev = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+      const next = [suggestion, ...prev.filter((t) => t !== suggestion)].slice(0, 10);
+      localStorage.setItem('searchHistory', JSON.stringify(next));
+    } catch {}
     onSearch(suggestion);
     setIsOpen(false);
   };
@@ -50,17 +56,15 @@ export default function SearchBar({
     if (!isOpen) return;
 
     switch (e.key) {
-      case "ArrowDown":
+      case 'ArrowDown':
         e.preventDefault();
-        setFocusedIndex((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : prev,
-        );
+        setFocusedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         e.preventDefault();
         setFocusedIndex((prev) => (prev > 0 ? prev - 1 : -1));
         break;
-      case "Enter":
+      case 'Enter':
         e.preventDefault();
         if (focusedIndex >= 0) {
           handleSuggestionSelect(suggestions[focusedIndex]);
@@ -68,7 +72,7 @@ export default function SearchBar({
           handleSubmit(e);
         }
         break;
-      case "Escape":
+      case 'Escape':
         setIsOpen(false);
         setFocusedIndex(-1);
         break;
@@ -84,19 +88,19 @@ export default function SearchBar({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
-    <div ref={searchRef} className="relative w-full">
+    <div ref={searchRef} className="relative w-full z-30">
       <form onSubmit={handleSubmit} className="relative">
         <input
           type="text"
           value={searchQuery}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => setIsOpen(searchQuery.length > 0)}
+          onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
           className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
@@ -142,14 +146,23 @@ export default function SearchBar({
         )}
       </form>
 
-      {/* Suggestions Dropdown */}
+      {/* Suggestions or History Dropdown */}
       {isOpen && (
-        <SearchSuggestions
-          ref={suggestionsRef}
-          suggestions={suggestions}
-          focusedIndex={focusedIndex}
-          onSelect={handleSuggestionSelect}
-        />
+        <>
+          <SearchSuggestions
+            ref={suggestionsRef}
+            suggestions={suggestions}
+            focusedIndex={focusedIndex}
+            onSelect={handleSuggestionSelect}
+          />
+          {!searchQuery && (
+            <SearchHistory
+              items={JSON.parse(localStorage.getItem('searchHistory') || '[]')}
+              onSelect={handleSuggestionSelect}
+              onClear={() => localStorage.removeItem('searchHistory')}
+            />
+          )}
+        </>
       )}
     </div>
   );

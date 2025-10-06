@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { apiService } from '../services/api.js';
 import ProductList from '../components/ProductList.jsx';
+import SearchBar from '../components/search/SearchBar.jsx';
 import FilterSidebar from '../components/filters/FilterSidebar.jsx';
 
 export default function ProductsPage() {
@@ -89,40 +90,9 @@ export default function ProductsPage() {
             Filters
           </button>
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSearch(searchQuery);
-          }}
-          className="mt-4 flex gap-2"
-        >
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search laptops (brand, model, CPU)"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Search
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setSearchQuery('');
-              const params = new URLSearchParams(searchParams);
-              params.delete('q');
-              setSearchParams(params);
-              loadProducts(1);
-            }}
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            Clear
-          </button>
-        </form>
+        <div className="mt-4 w-full">
+          <SearchBar onSearch={handleSearch} placeholder="Search laptops (brand, model, CPU)" />
+        </div>
       </div>
 
       <div className="flex">
