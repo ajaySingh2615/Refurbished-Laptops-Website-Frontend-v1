@@ -81,7 +81,7 @@ export default function ProductsPage() {
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">All Products</h2>
         <p className="text-gray-600">Browse all refurbished laptops</p>
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-4 flex items-center gap-2 lg:hidden">
           <button
             type="button"
             onClick={() => setIsFilterOpen(true)}
