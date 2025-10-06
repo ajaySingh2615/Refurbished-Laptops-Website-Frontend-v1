@@ -58,17 +58,25 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
 
   const activeFilters = getActiveFilters();
 
+  // Lock body scroll when sidebar is open (mobile)
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [isOpen]);
+
   return (
     <>
       {/* Mobile Overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={onClose} />
-      )}
+      {isOpen && <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={onClose} />}
 
       {/* Sidebar */}
       <div
         className={`
-        fixed lg:static inset-y-0 left-0 z-20 w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-50 w-4/5 max-w-xs lg:w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
       >
