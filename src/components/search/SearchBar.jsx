@@ -92,6 +92,23 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Debounced live search
+  useEffect(() => {
+    const q = searchQuery.trim();
+    // if cleared, reset immediately
+    if (q.length === 0) {
+      onSearch('');
+      return;
+    }
+    const id = setTimeout(() => {
+      // trigger live search for >=2 chars
+      if (q.length >= 2) {
+        onSearch(q);
+      }
+    }, 300);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
+
   return (
     <div ref={searchRef} className="relative w-full z-30">
       <form onSubmit={handleSubmit} className="relative">
@@ -126,7 +143,11 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
         {searchQuery && (
           <button
             type="button"
-            onClick={clearSearch}
+            onClick={() => {
+              clearSearch();
+              onSearch('');
+              setIsOpen(false);
+            }}
             className="absolute inset-y-0 right-0 pr-3 flex items-center"
           >
             <svg
