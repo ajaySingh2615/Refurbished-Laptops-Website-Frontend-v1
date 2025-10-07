@@ -55,7 +55,7 @@ export default function RelatedProducts({ product }) {
 
         // 2) Relax RAM/Storage
         if (related.length < 4) {
-          const { ramGb, storage, ...rest } = params1;
+          const { ramGb: _ram, storage: _storage, ...rest } = params1;
           related = await attempt(rest);
         }
 
@@ -76,7 +76,7 @@ export default function RelatedProducts({ product }) {
         }
 
         if (isMounted) setItems(related);
-      } catch (e) {
+      } catch {
         if (isMounted) setError('Failed to load related products');
       } finally {
         if (isMounted) setLoading(false);

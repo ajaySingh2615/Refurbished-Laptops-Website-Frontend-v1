@@ -1,18 +1,18 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 export const useFilters = () => {
   const [filters, setFilters] = useState({
     brand: [],
     condition: [],
-    minPrice: "",
-    maxPrice: "",
+    minPrice: '',
+    maxPrice: '',
     ramGb: [],
     storage: [],
     inStock: null,
   });
 
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   // Update a specific filter
   const updateFilter = useCallback((key, value) => {
@@ -37,8 +37,8 @@ export const useFilters = () => {
     setFilters({
       brand: [],
       condition: [],
-      minPrice: "",
-      maxPrice: "",
+      minPrice: '',
+      maxPrice: '',
       ramGb: [],
       storage: [],
       inStock: null,
@@ -49,19 +49,19 @@ export const useFilters = () => {
   const clearFilter = useCallback((key) => {
     setFilters((prev) => ({
       ...prev,
-      [key]: Array.isArray(prev[key]) ? [] : "",
+      [key]: Array.isArray(prev[key]) ? [] : '',
     }));
   }, []);
 
   // Get active filter count
   const getActiveFilterCount = useCallback(() => {
     let count = 0;
-    Object.entries(filters).forEach(([key, value]) => {
+    Object.entries(filters).forEach(([, value]) => {
       if (Array.isArray(value) && value.length > 0) {
         count += value.length;
-      } else if (typeof value === "string" && value.trim()) {
+      } else if (typeof value === 'string' && value.trim()) {
         count += 1;
-      } else if (typeof value === "boolean" && value !== null) {
+      } else if (typeof value === 'boolean' && value !== null) {
         count += 1;
       }
     });
@@ -73,16 +73,14 @@ export const useFilters = () => {
     const active = [];
     Object.entries(filters).forEach(([key, value]) => {
       if (Array.isArray(value) && value.length > 0) {
-        value.forEach((item) =>
-          active.push({ key, value: item, type: "array" }),
-        );
-      } else if (typeof value === "string" && value.trim()) {
-        active.push({ key, value, type: "string" });
-      } else if (typeof value === "boolean" && value !== null) {
+        value.forEach((item) => active.push({ key, value: item, type: 'array' }));
+      } else if (typeof value === 'string' && value.trim()) {
+        active.push({ key, value, type: 'string' });
+      } else if (typeof value === 'boolean' && value !== null) {
         active.push({
           key,
-          value: value ? "In Stock" : "Out of Stock",
-          type: "boolean",
+          value: value ? 'In Stock' : 'Out of Stock',
+          type: 'boolean',
         });
       }
     });
