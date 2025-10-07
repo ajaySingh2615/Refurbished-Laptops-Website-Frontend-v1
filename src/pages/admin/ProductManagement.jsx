@@ -779,8 +779,14 @@ export default function ProductManagement() {
             </div>
             <div className="flex-1 overflow-y-auto p-6" style={{ scrollBehavior: 'auto' }}>
               {/* Category selector - at top for Add Product */}
-              <div className="mb-4">
-                <div className="mb-2 text-sm font-semibold text-slate-900">Category</div>
+              <div className="mb-4 p-4 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm">
+                <div className="mb-2 text-sm font-semibold text-slate-900">
+                  Category & Sub-category
+                </div>
+                <p className="text-xs text-slate-500 mb-3">
+                  Choose a parent category, then select a sub-category (leaf). If no sub-categories
+                  exist, the parent will be used.
+                </p>
                 <input type="hidden" id="admin-add-category-id" defaultValue="" />
                 <CategorySelector
                   value={null}
@@ -868,8 +874,14 @@ export default function ProductManagement() {
             </div>
             <div className="flex-1 overflow-y-auto p-6" style={{ scrollBehavior: 'auto' }}>
               {/* Category selector - moved to top */}
-              <div className="mb-4">
-                <div className="mb-2 text-sm font-semibold text-slate-900">Category</div>
+              <div className="mb-4 p-4 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm">
+                <div className="mb-2 text-sm font-semibold text-slate-900">
+                  Category & Sub-category
+                </div>
+                <p className="text-xs text-slate-500 mb-3">
+                  Choose a parent category, then select a sub-category (leaf). If no sub-categories
+                  exist, the parent will be used.
+                </p>
                 <input
                   type="hidden"
                   id="admin-category-id"
@@ -933,23 +945,6 @@ export default function ProductManagement() {
                   handleSubmission();
                 }}
               />
-
-              {/* Category selector */}
-              <div className="mt-4">
-                <div className="mb-2 text-sm font-semibold text-slate-900">Category</div>
-                <input
-                  type="hidden"
-                  id="admin-category-id"
-                  defaultValue={editingProduct?.categoryId || ''}
-                />
-                <CategorySelector
-                  value={editingProduct?.categoryId || null}
-                  onChange={(id) => {
-                    const el = document.getElementById('admin-category-id');
-                    if (el) el.value = id || '';
-                  }}
-                />
-              </div>
 
               {/* Variants management */}
               <div id="variants-panel" className="mt-8">
