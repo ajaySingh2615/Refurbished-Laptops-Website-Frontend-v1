@@ -1,18 +1,26 @@
-import React from 'react';
+import React from "react";
 
-import { useState, useRef, useEffect } from 'react';
-import { useSearch } from '../../hooks/useSearch.js';
-import SearchSuggestions from './SearchSuggestions.jsx';
-import SearchHistory from './SearchHistory.jsx';
+import { useState, useRef, useEffect } from "react";
+import { useSearch } from "../../hooks/useSearch.js";
+import SearchSuggestions from "./SearchSuggestions.jsx";
+import SearchHistory from "./SearchHistory.jsx";
 
-export default function SearchBar({ onSearch, placeholder = 'Search laptops...' }) {
+export default function SearchBar({
+  onSearch,
+  placeholder = "Search laptops...",
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const searchRef = useRef(null);
   const suggestionsRef = useRef(null);
 
-  const { searchQuery, setSearchQuery, suggestions, generateSuggestions, clearSearch } =
-    useSearch();
+  const {
+    searchQuery,
+    setSearchQuery,
+    suggestions,
+    generateSuggestions,
+    clearSearch,
+  } = useSearch();
 
   // Handle input change
   const handleInputChange = (e) => {
@@ -29,10 +37,12 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
       const q = searchQuery.trim();
       // persist to history
       try {
-        const prev = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+        const prev = JSON.parse(localStorage.getItem("searchHistory") || "[]");
         const next = [q, ...prev.filter((t) => t !== q)].slice(0, 10);
-        localStorage.setItem('searchHistory', JSON.stringify(next));
-      } catch {}
+        localStorage.setItem("searchHistory", JSON.stringify(next));
+      } catch (error) {
+        console.warn("Failed to save search history:", error);
+      }
       onSearch(q);
       setIsOpen(false);
     }
@@ -43,9 +53,12 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
     setSearchQuery(suggestion);
     // persist to history
     try {
-      const prev = JSON.parse(localStorage.getItem('searchHistory') || '[]');
-      const next = [suggestion, ...prev.filter((t) => t !== suggestion)].slice(0, 10);
-      localStorage.setItem('searchHistory', JSON.stringify(next));
+      const prev = JSON.parse(localStorage.getItem("searchHistory") || "[]");
+      const next = [suggestion, ...prev.filter((t) => t !== suggestion)].slice(
+        0,
+        10,
+      );
+      localStorage.setItem("searchHistory", JSON.stringify(next));
     } catch {}
     onSearch(suggestion);
     setIsOpen(false);
@@ -56,15 +69,17 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
     if (!isOpen) return;
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setFocusedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+        setFocusedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev,
+        );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
         setFocusedIndex((prev) => (prev > 0 ? prev - 1 : -1));
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (focusedIndex >= 0) {
           handleSuggestionSelect(suggestions[focusedIndex]);
@@ -72,7 +87,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
           handleSubmit(e);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsOpen(false);
         setFocusedIndex(-1);
         break;
@@ -88,8 +103,8 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Debounced live search
@@ -97,7 +112,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
     const q = searchQuery.trim();
     // if cleared, reset immediately
     if (q.length === 0) {
-      onSearch('');
+      onSearch("");
       return;
     }
     const id = setTimeout(() => {
@@ -145,7 +160,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
             type="button"
             onClick={() => {
               clearSearch();
-              onSearch('');
+              onSearch("");
               setIsOpen(false);
             }}
             className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -178,9 +193,9 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
           />
           {!searchQuery && (
             <SearchHistory
-              items={JSON.parse(localStorage.getItem('searchHistory') || '[]')}
+              items={JSON.parse(localStorage.getItem("searchHistory") || "[]")}
               onSelect={handleSuggestionSelect}
-              onClear={() => localStorage.removeItem('searchHistory')}
+              onClear={() => localStorage.removeItem("searchHistory")}
             />
           )}
         </div>
