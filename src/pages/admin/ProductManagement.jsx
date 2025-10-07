@@ -41,6 +41,11 @@ export default function ProductManagement() {
     buttonText: 'OK',
   });
 
+  // Admin filters
+  const [skuQuery, setSkuQuery] = React.useState('');
+  const [brands, setBrands] = React.useState([]);
+  const [brandFilter, setBrandFilter] = React.useState('');
+
   // Helper functions for showing messages
   const showMessage = React.useCallback((type, title, message, buttonText = 'OK') => {
     setMessageModal({
@@ -143,10 +148,56 @@ export default function ProductManagement() {
       try {
         setLoading(true);
         setError(null);
+        // Priority 1: direct SKU lookup
+        if (skuQuery.trim()) {
+          try {
+            const item = await apiService.getProductBySku(skuQuery.trim());
+            let list = item ? [item] : [];
+            // Apply low stock filter on top if enabled
+            if (showLowStockOnly) {
+              list = list.filter(
+                (product) => product.inStock && product.stockQty <= lowStockThreshold,
+              );
+            }
+            setProducts(list);
+            setPagination({});
+            return;
+          } catch {
+            // Not found or error
+            setProducts([]);
+            setPagination({});
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Priority 2: keyword search
         if (q.trim()) {
           const res = await apiService.searchProducts(q.trim());
-          setProducts(res.products || []);
+          let list = res.products || [];
+          if (showLowStockOnly) {
+            list = list.filter(
+              (product) => product.inStock && product.stockQty <= lowStockThreshold,
+            );
+          }
+          setProducts(list);
           setPagination({});
+        } else if (brandFilter) {
+          // Priority 3: server filtering
+          const filters = {
+            page: String(page),
+            limit: '12',
+          };
+          if (brandFilter) filters.brand = brandFilter;
+          const res = await apiService.filterProducts(filters);
+          let list = res.products || [];
+          if (showLowStockOnly) {
+            list = list.filter(
+              (product) => product.inStock && product.stockQty <= lowStockThreshold,
+            );
+          }
+          setProducts(list);
+          setPagination(res.pagination || {});
         } else {
           const res = await apiService.getProducts(page, 12);
           let filteredProducts = res.products || [];
@@ -164,13 +215,13 @@ export default function ProductManagement() {
           setSelectedIds([]);
           setInlineStock({});
         }
-      } catch (e) {
-        setError(e.message);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     },
-    [q, showLowStockOnly, lowStockThreshold],
+    [skuQuery, q, brandFilter, showLowStockOnly, lowStockThreshold],
   );
 
   // Selection helpers
@@ -246,6 +297,18 @@ export default function ProductManagement() {
   React.useEffect(() => {
     load(1);
   }, [load]);
+
+  // Load brands for filter dropdown
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const list = await apiService.getBrands();
+        setBrands(Array.isArray(list) ? list : []);
+      } catch {
+        // ignore brand load errors in admin filters
+      }
+    })();
+  }, []);
 
   // Update global low stock count
   React.useEffect(() => {
@@ -337,54 +400,110 @@ export default function ProductManagement() {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 flex-wrap">
           {showLowStockOnly && (
             <Button
               variant="outline"
               onClick={() => {
                 setShowLowStockOnly(false);
                 setQ('');
+                setSkuQuery('');
+                setBrandFilter('');
               }}
               className="h-12 px-4 text-slate-600 border-slate-300 hover:bg-slate-50"
             >
               Clear Filter
             </Button>
           )}
-          <div className="relative group">
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search products..."
-              className="pl-12 pr-24 h-12 bg-white/90 backdrop-blur-md border-2 border-slate-200/60 rounded-xl shadow-lg shadow-slate-200/50 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-xl focus:shadow-blue-500/20 transition-all duration-300 text-slate-700 placeholder:text-slate-400 max-w-sm"
-            />
 
-            {/* Search Icon */}
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <div className="p-1 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 shadow-sm">
+          {/* SKU search - Aceternity style */}
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+              <div className="p-1.5 rounded-md bg-gradient-to-r from-blue-500 to-purple-600 shadow-sm">
                 <svg
                   className="h-3.5 w-3.5 text-white"
+                  viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2.5}
+                    strokeWidth={2.2}
+                    d="M3 7h18M3 12h18M3 17h10"
+                  />
+                </svg>
+              </div>
+            </div>
+            <Input
+              value={skuQuery}
+              onChange={(e) => setSkuQuery(e.target.value)}
+              placeholder="Search by SKU"
+              className="pl-12 h-12 w-48"
+            />
+          </div>
+
+          {/* Keyword search - Aceternity style */}
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+              <div className="p-1.5 rounded-md bg-gradient-to-r from-blue-500 to-purple-600 shadow-sm">
+                <svg
+                  className="h-3.5 w-3.5 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.2}
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
               </div>
             </div>
-
-            {/* Search Button */}
-            <Button
-              onClick={() => load(1)}
-              className="absolute inset-y-0 right-0 h-12 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-r-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 border-0 text-sm"
-            >
-              Search
-            </Button>
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search title / brand / CPU"
+              className="pl-12 h-12 w-64"
+            />
           </div>
+
+          {/* Brand - Aceternity style */}
+          <div className="relative">
+            <select
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+              className="h-12 pl-3 pr-9 rounded-lg border-2 border-slate-200/60 bg-white/90 text-sm text-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-sm transition-all"
+            >
+              <option value="">All Brands</option>
+              {brands.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400">
+              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Removed: condition, availability, min/max price filters */}
+
+          <Button
+            onClick={() => load(1)}
+            className="h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all"
+          >
+            Apply
+          </Button>
+
           <Button
             onClick={() => setShowForm(true)}
             className="relative inline-flex items-center gap-3 px-6 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 border-0 overflow-hidden group"
