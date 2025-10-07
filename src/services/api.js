@@ -72,6 +72,29 @@ class ApiService {
   async deleteProduct(id) {
     return this.request(`/api/products/${id}`, { method: 'DELETE' });
   }
+
+  // Variants
+  async createProductVariants(productId, variants) {
+    return this.request(`/api/products/${productId}/variants`, {
+      method: 'POST',
+      body: JSON.stringify({ variants }),
+    });
+  }
+
+  async updateVariant(variantId, body) {
+    return this.request(`/api/products/variants/${variantId}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async deleteVariant(variantId) {
+    return this.request(`/api/products/variants/${variantId}`, { method: 'DELETE' });
+  }
+
+  async getVariantBySku(sku) {
+    return this.request(`/api/products/variants/sku/${encodeURIComponent(sku)}`);
+  }
 }
 
 export const apiService = new ApiService();

@@ -40,6 +40,11 @@ export default function ProductManagement() {
     message: '',
     buttonText: 'OK',
   });
+  // Variant builder state
+  const [vbColors, setVbColors] = React.useState('');
+  const [vbRams, setVbRams] = React.useState('');
+  const [vbStorages, setVbStorages] = React.useState('');
+  const [vbRows, setVbRows] = React.useState([]); // preview rows
 
   // Admin filters
   const [skuQuery, setSkuQuery] = React.useState('');
@@ -679,7 +684,17 @@ export default function ProductManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setEditingProduct(p)}
+                      onClick={async () => {
+                        try {
+                          setSubmitting(true);
+                          const detail = await apiService.getProduct(p.id);
+                          setEditingProduct(detail);
+                        } catch (e) {
+                          showValidationError(e);
+                        } finally {
+                          setSubmitting(false);
+                        }
+                      }}
                       className="h-8 px-3 text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
                     >
                       <svg
@@ -826,6 +841,23 @@ export default function ProductManagement() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-6" style={{ scrollBehavior: 'auto' }}>
+              {/* Edit tabs: Details | Variants */}
+              <div className="mb-4 flex items-center gap-2 border-b border-slate-200">
+                <button className="px-4 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600">
+                  Details
+                </button>
+                <button
+                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-blue-600"
+                  onClick={() =>
+                    document
+                      .getElementById('variants-panel')
+                      ?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                >
+                  Variants
+                </button>
+              </div>
+
               <ProductFormStable
                 key={`edit-product-form-${editingProduct.id}`}
                 initialData={editingProduct}
@@ -839,9 +871,7 @@ export default function ProductManagement() {
                     try {
                       setSubmitting(true);
                       await apiService.updateProduct(editingProduct.id, payload);
-                      setEditingProduct(null);
                       await load(1);
-
                       showSuccess(
                         'Product Updated Successfully! 🎉',
                         `"${payload.title}" has been updated successfully. All changes are now live.`,
@@ -856,6 +886,281 @@ export default function ProductManagement() {
                   handleSubmission();
                 }}
               />
+
+              {/* Variants management */}
+              <div id="variants-panel" className="mt-8">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-bold text-slate-900">Variants</h3>
+                  <span className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    {editingProduct?.variants?.length || 0} total
+                  </span>
+                </div>
+                <p className="text-sm text-slate-600 mb-4">
+                  Manage per-variant price and stock. Use Add Variant to create new combinations
+                  (e.g., different RAM/Storage/Color).
+                </p>
+
+                {/* Variant Builder (no JSON) */}
+                <div className="mb-6 p-4 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm">
+                  <h4 className="text-sm font-semibold text-slate-900 mb-3">Variant Builder</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    <input
+                      value={vbColors}
+                      onChange={(e) => setVbColors(e.target.value)}
+                      placeholder="Colors (comma separated) e.g. Silver, Black"
+                      className="h-11 px-3 rounded border border-slate-300 text-sm"
+                    />
+                    <input
+                      value={vbRams}
+                      onChange={(e) => setVbRams(e.target.value)}
+                      placeholder="RAM (GB, comma separated) e.g. 8, 16, 32"
+                      className="h-11 px-3 rounded border border-slate-300 text-sm"
+                    />
+                    <input
+                      value={vbStorages}
+                      onChange={(e) => setVbStorages(e.target.value)}
+                      placeholder="Storage (comma separated) e.g. 512GB SSD, 1TB NVMe"
+                      className="h-11 px-3 rounded border border-slate-300 text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const colors = vbColors
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter(Boolean);
+                        const rams = vbRams
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter(Boolean);
+                        const storages = vbStorages
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter(Boolean);
+                        const baseSku = (editingProduct?.sku || editingProduct?.model || 'SKU')
+                          .toString()
+                          .toUpperCase();
+                        const rows = [];
+                        const ensure = (arr) => (arr.length ? arr : ['']);
+                        for (const c of ensure(colors))
+                          for (const r of ensure(rams))
+                            for (const st of ensure(storages)) {
+                              const ramCode = r ? `-RAM${r}` : '';
+                              const stCode = st ? `-${st.replace(/\s+/g, '')}` : '';
+                              const colorCode = c ? `-${c.replace(/\s+/g, '').toUpperCase()}` : '';
+                              const sku = `${baseSku}${ramCode}${stCode}${colorCode}`.replace(
+                                /--+/g,
+                                '-',
+                              );
+                              rows.push({
+                                sku,
+                                attributes: {
+                                  color: c || undefined,
+                                  ramGb: r ? Number(r) : undefined,
+                                  storage: st || undefined,
+                                },
+                                price: Number(editingProduct?.price || 0),
+                                stockQty: 0,
+                              });
+                            }
+                        setVbRows(rows);
+                      }}
+                    >
+                      Generate Variants
+                    </Button>
+                    {vbRows.length > 0 && (
+                      <Button
+                        onClick={async () => {
+                          try {
+                            const payload = vbRows.map((row) => ({
+                              sku: row.sku,
+                              attributes: {
+                                ...(row.attributes.color ? { color: row.attributes.color } : {}),
+                                ...(row.attributes.ramGb ? { ramGb: row.attributes.ramGb } : {}),
+                                ...(row.attributes.storage
+                                  ? { storage: row.attributes.storage }
+                                  : {}),
+                              },
+                              price: Number(row.price) || 0,
+                              stockQty: Math.max(0, Number(row.stockQty) || 0),
+                              inStock: (Number(row.stockQty) || 0) > 0,
+                            }));
+                            await apiService.createProductVariants(editingProduct.id, payload);
+                            setVbRows([]);
+                            await load(1);
+                            showSuccess('Variants Created', 'All generated variants were created.');
+                          } catch (e) {
+                            showValidationError(e);
+                          }
+                        }}
+                        className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                      >
+                        Save All
+                      </Button>
+                    )}
+                  </div>
+
+                  {vbRows.length > 0 && (
+                    <div className="mt-4 overflow-x-auto rounded border border-slate-200">
+                      <table className="min-w-full bg-white">
+                        <thead className="bg-slate-50/80">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                              SKU
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                              Attributes
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                              Price
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                              Stock
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                              Remove
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {vbRows.map((row, idx) => (
+                            <tr key={row.sku + idx} className="border-t border-slate-100">
+                              <td className="px-4 py-2 text-sm font-mono text-slate-800">
+                                {row.sku}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-slate-700">
+                                <code className="text-xs bg-slate-50 px-2 py-1 rounded">
+                                  {JSON.stringify(row.attributes)}
+                                </code>
+                              </td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="number"
+                                  value={row.price}
+                                  onChange={(e) => {
+                                    const v = [...vbRows];
+                                    v[idx].price = e.target.value;
+                                    setVbRows(v);
+                                  }}
+                                  className="w-28 h-9 px-3 rounded border border-slate-300 text-sm"
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="number"
+                                  value={row.stockQty}
+                                  onChange={(e) => {
+                                    const v = [...vbRows];
+                                    v[idx].stockQty = e.target.value;
+                                    setVbRows(v);
+                                  }}
+                                  className="w-24 h-9 px-3 rounded border border-slate-300 text-sm"
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setVbRows(vbRows.filter((_, i) => i !== idx))}
+                                >
+                                  Remove
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Existing variants list (if editingProduct has variants loaded on fetch in the page; fallback handled by GET /product detail) */}
+                <div className="overflow-x-auto rounded border border-slate-200">
+                  <table className="min-w-full bg-white">
+                    <thead className="bg-slate-50/80">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                          SKU
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                          Attributes
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                          Price
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                          Stock
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(editingProduct?.variants || []).map((v) => (
+                        <tr key={v.id} className="border-t border-slate-100">
+                          <td className="px-4 py-2 text-sm font-mono text-slate-800">{v.sku}</td>
+                          <td className="px-4 py-2 text-sm text-slate-700">
+                            <code className="text-xs bg-slate-50 px-2 py-1 rounded">
+                              {JSON.stringify(v.attributes)}
+                            </code>
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type="number"
+                              defaultValue={v.price}
+                              onBlur={async (e) => {
+                                const price = Number(e.target.value);
+                                if (!Number.isNaN(price)) {
+                                  await apiService.updateVariant(v.id, { price });
+                                }
+                              }}
+                              className="w-28 h-9 px-3 rounded border border-slate-300 text-sm"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type="number"
+                              defaultValue={v.stockQty}
+                              onBlur={async (e) => {
+                                const stockQty = Math.max(0, Number(e.target.value) || 0);
+                                await apiService.updateVariant(v.id, {
+                                  stockQty,
+                                  inStock: stockQty > 0,
+                                });
+                              }}
+                              className="w-24 h-9 px-3 rounded border border-slate-300 text-sm"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={async () => {
+                                await apiService.deleteVariant(v.id);
+                                await load(1);
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                      {(!editingProduct?.variants || editingProduct?.variants?.length === 0) && (
+                        <tr>
+                          <td className="px-4 py-6 text-sm text-slate-500" colSpan={5}>
+                            No variants yet.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Quick add row removed in favor of Variant Builder */}
+              </div>
             </div>
           </div>
         </div>

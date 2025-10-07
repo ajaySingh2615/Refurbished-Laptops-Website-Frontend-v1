@@ -42,15 +42,70 @@ export default function ProductDetail({ product, loading, error }) {
     );
   }
 
+  // Variant sets from product.variants
+  const variants = Array.isArray(product?.variants) ? product.variants : [];
+  const variantSets = React.useMemo(() => {
+    const colors = new Set();
+    const rams = new Set();
+    const storages = new Set();
+    for (const v of variants) {
+      const a = v.attributes || {};
+      if (a.color) colors.add(a.color);
+      if (typeof a.ramGb === 'number') rams.add(a.ramGb);
+      if (a.storage) storages.add(a.storage);
+    }
+    return {
+      colors: Array.from(colors),
+      rams: Array.from(rams).sort((a, b) => a - b),
+      storages: Array.from(storages),
+    };
+  }, [variants]);
+
+  // Selected attributes/variant
+  const initialSelected = React.useMemo(() => {
+    const pre = product?.selectedVariant;
+    const a = pre?.attributes || {};
+    return {
+      color: a.color || variantSets.colors[0] || null,
+      ramGb: typeof a.ramGb === 'number' ? a.ramGb : variantSets.rams[0] || null,
+      storage: a.storage || variantSets.storages[0] || null,
+    };
+  }, [product?.selectedVariant, variantSets]);
+
+  const [sel, setSel] = React.useState(initialSelected);
+  React.useEffect(() => {
+    setSel(initialSelected);
+  }, [initialSelected]);
+
+  const selectedVariant = React.useMemo(() => {
+    if (!variants.length) return null;
+    return (
+      variants.find((v) => {
+        const a = v.attributes || {};
+        const matchesColor = sel.color ? a.color === sel.color : true;
+        const matchesRam = sel.ramGb ? a.ramGb === sel.ramGb : true;
+        const matchesStorage = sel.storage ? a.storage === sel.storage : true;
+        return matchesColor && matchesRam && matchesStorage;
+      }) || null
+    );
+  }, [variants, sel]);
+
   // Build specification rows
   const specRows = [
     ['Brand', product.brand],
     ['Model', product.model],
-    ['SKU', product.sku],
+    ['SKU', selectedVariant?.sku || product.sku],
     ['CPU', product.cpu],
     ['GPU', product.gpu],
-    ['RAM', product.ramGb ? `${product.ramGb} GB` : undefined],
-    ['Storage', product.storage],
+    [
+      'RAM',
+      selectedVariant?.attributes?.ramGb
+        ? `${selectedVariant.attributes.ramGb} GB`
+        : product.ramGb
+          ? `${product.ramGb} GB`
+          : undefined,
+    ],
+    ['Storage', selectedVariant?.attributes?.storage || product.storage],
     [
       'Display',
       product.displaySizeInches
@@ -71,7 +126,11 @@ export default function ProductDetail({ product, loading, error }) {
   ].filter(([, v]) => v !== undefined && v !== null && v !== '');
 
   const mrp = product.mrp ? Number(product.mrp) : null;
-  const price = product.price ? Number(product.price) : null;
+  const price = selectedVariant?.price
+    ? Number(selectedVariant.price)
+    : product.price
+      ? Number(product.price)
+      : null;
   const discountPct =
     typeof product.discountPercent === 'number'
       ? product.discountPercent
@@ -117,6 +176,64 @@ export default function ProductDetail({ product, loading, error }) {
           </div>
 
           <div className="border rounded-lg p-4 bg-white">
+            {/* Variant selectors */}
+            {variants.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {variantSets.colors.length > 0 && (
+                  <div>
+                    <div className="text-sm font-medium text-gray-800 mb-1">Color</div>
+                    <div className="flex flex-wrap gap-2">
+                      {variantSets.colors.map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => setSel((s) => ({ ...s, color: c }))}
+                          className={`px-3 py-1.5 rounded-full text-sm border ${sel.color === c ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'}`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {variantSets.rams.length > 0 && (
+                  <div>
+                    <div className="text-sm font-medium text-gray-800 mb-1">RAM</div>
+                    <div className="flex flex-wrap gap-2">
+                      {variantSets.rams.map((r) => (
+                        <button
+                          key={r}
+                          onClick={() => setSel((s) => ({ ...s, ramGb: r }))}
+                          className={`px-3 py-1.5 rounded-full text-sm border ${sel.ramGb === r ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'}`}
+                        >
+                          {r} GB
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {variantSets.storages.length > 0 && (
+                  <div>
+                    <div className="text-sm font-medium text-gray-800 mb-1">Storage</div>
+                    <div className="flex flex-wrap gap-2">
+                      {variantSets.storages.map((st) => (
+                        <button
+                          key={st}
+                          onClick={() => setSel((s) => ({ ...s, storage: st }))}
+                          className={`px-3 py-1.5 rounded-full text-sm border ${sel.storage === st ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'}`}
+                        >
+                          {st}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {selectedVariant && (
+                  <div className="text-xs text-gray-600">
+                    Selected SKU: <span className="font-mono">{selectedVariant.sku}</span>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="flex items-end gap-3">
               {price !== null && (
                 <div className="text-3xl font-bold text-gray-900">{formatPrice(price)}</div>
