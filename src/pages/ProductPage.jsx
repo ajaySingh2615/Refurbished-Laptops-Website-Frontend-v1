@@ -5,7 +5,7 @@ import { apiService } from '../services/api.js';
 import ProductDetail from '../components/ProductDetail.jsx';
 
 export default function ProductPage() {
-  const { id } = useParams();
+  const { sku } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ export default function ProductPage() {
       try {
         setLoading(true);
         setError(null);
-        const productData = await apiService.getProduct(id);
+        const productData = await apiService.getProductBySku(sku);
         setProduct(productData);
       } catch (error) {
         setError(error.message);
@@ -24,10 +24,10 @@ export default function ProductPage() {
       }
     };
 
-    if (id) {
+    if (sku) {
       loadProduct();
     }
-  }, [id]);
+  }, [sku]);
 
   return <ProductDetail product={product} loading={loading} error={error} />;
 }

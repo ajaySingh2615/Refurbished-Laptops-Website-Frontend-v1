@@ -34,6 +34,10 @@ class ApiService {
     return this.request(`/api/products/${id}`);
   }
 
+  async getProductBySku(sku) {
+    return this.request(`/api/products/sku/${encodeURIComponent(sku)}`);
+  }
+
   async searchProducts(query) {
     return this.request(`/api/products/search?q=${encodeURIComponent(query)}`);
   }

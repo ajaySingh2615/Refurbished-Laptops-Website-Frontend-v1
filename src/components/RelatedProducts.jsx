@@ -97,7 +97,7 @@ export default function RelatedProducts({ product }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {items.map((item) => (
           <Link
-            to={`/product/${item.id}`}
+            to={`/product/${encodeURIComponent(item.sku)}`}
             key={item.id}
             className="group border rounded-lg p-3 hover:shadow transition-shadow bg-white"
           >

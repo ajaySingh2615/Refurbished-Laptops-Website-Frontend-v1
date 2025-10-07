@@ -36,7 +36,7 @@ export default function App() {
           }
         />
         <Route
-          path="/product/:id"
+          path="/product/:sku"
           element={
             <Layout onSearch={handleSearch}>
               <ProductPage />
