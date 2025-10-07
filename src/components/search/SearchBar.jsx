@@ -1,7 +1,8 @@
 import React from 'react';
-
 import { useState, useRef, useEffect } from 'react';
 import { useSearch } from '../../hooks/useSearch.js';
+import { Input } from '../ui/Input.jsx';
+import { Button } from '../ui/Button.jsx';
 import SearchSuggestions from './SearchSuggestions.jsx';
 import SearchHistory from './SearchHistory.jsx';
 
@@ -117,58 +118,67 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
   return (
     <div ref={searchRef} className="relative w-full z-[70]">
       <form onSubmit={handleSubmit} className="relative">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setIsOpen(true)}
-          placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
+        <div className="relative group">
+          <Input
+            type="text"
+            value={searchQuery}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsOpen(true)}
+            placeholder={placeholder}
+            className="pl-12 pr-24 h-12 bg-white/90 backdrop-blur-md border-2 border-slate-200/60 rounded-xl shadow-lg shadow-slate-200/50 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-xl focus:shadow-blue-500/20 transition-all duration-300 text-slate-700 placeholder:text-slate-400"
+          />
 
-        {/* Search Icon */}
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg
-            className="h-5 w-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
+          {/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 shadow-sm">
+              <svg
+                className="h-4 w-4 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+          </div>
 
-        {/* Clear Button */}
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => {
-              clearSearch();
-              setIsOpen(false);
-            }}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-          >
-            <svg
-              className="h-5 w-5 text-gray-400 hover:text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Clear Button */}
+          {searchQuery && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                clearSearch();
+                setIsOpen(false);
+              }}
+              className="absolute inset-y-0 right-16 h-12 w-12 text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-lg transition-all duration-200"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        )}
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </Button>
+          )}
+
+          {/* Search Button */}
+          <Button
+            type="submit"
+            className="absolute inset-y-0 right-0 h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-r-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 border-0"
+          >
+            Search
+          </Button>
+        </div>
       </form>
 
       {/* Suggestions or History Dropdown */}

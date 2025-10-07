@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { apiService } from '../../services/api.js';
+import { Button } from '../ui/Button.jsx';
 import PriceRangeFilter from './PriceRangeFilter.jsx';
 import BrandFilter from './BrandFilter.jsx';
 import ConditionFilter from './ConditionFilter.jsx';
@@ -90,9 +91,14 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
                   {activeFilters.length}
                 </span>
               )}
-              <button onClick={clearFilters} className="text-sm text-blue-600 hover:text-blue-800">
+              <Button
+                onClick={clearFilters}
+                variant="ghost"
+                size="sm"
+                className="text-blue-600 hover:text-blue-800"
+              >
                 Clear All
-              </button>
+              </Button>
               <button onClick={onClose} className="lg:hidden p-1 hover:bg-gray-100 rounded">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path

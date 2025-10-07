@@ -1,6 +1,48 @@
 import React from 'react';
+import { Input } from '../ui/Input.jsx';
+import { Button } from '../ui/Button.jsx';
+import { cn } from '../../utils/cn.js';
+
+// Individual input component that doesn't re-render
+const StableInput = React.memo(
+  ({ value, onChange, placeholder, type = 'text', className, ...props }) => {
+    return (
+      <Input
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        type={type}
+        className={cn(
+          'h-11 bg-white/80 backdrop-blur-sm border-2 border-slate-200/60 rounded-lg shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-md focus:shadow-blue-500/20 transition-all duration-300 text-slate-700 placeholder:text-slate-400',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
+
+// Individual textarea component that doesn't re-render
+const StableTextarea = React.memo(
+  ({ value, onChange, placeholder, rows = 3, className, ...props }) => {
+    return (
+      <textarea
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        rows={rows}
+        className={cn(
+          'w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-200/60 rounded-lg shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-md focus:shadow-blue-500/20 transition-all duration-300 text-slate-700 placeholder:text-slate-400 resize-none',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 
 export default function ProductForm({ initialData = {}, onSubmit, onCancel, submitting = false }) {
+  const formRef = React.useRef(null);
   const [form, setForm] = React.useState({
     title: '',
     brand: '',
@@ -43,7 +85,21 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
     ...initialData,
   });
 
-  const update = (k, v) => setForm((s) => ({ ...s, [k]: v }));
+  const update = React.useCallback((k, v) => {
+    setForm((s) => ({ ...s, [k]: v }));
+  }, []);
+
+  // Use useRef to store handlers to prevent re-creation
+  const handlersRef = React.useRef({});
+
+  const getHandler = React.useCallback((fieldName) => {
+    if (!handlersRef.current[fieldName]) {
+      handlersRef.current[fieldName] = (e) => {
+        setForm((prev) => ({ ...prev, [fieldName]: e.target.value }));
+      };
+    }
+    return handlersRef.current[fieldName];
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,84 +123,93 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
     onSubmit && onSubmit(payload);
   };
 
-  const Section = ({ title, children }) => (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{children}</div>
+  const Section = React.memo(({ title, children }) => (
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-lg shadow-slate-200/50 p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+        <h3 className="text-xl font-bold text-slate-900">{title}</h3>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</div>
     </div>
-  );
+  ));
 
-  const Field = ({ label, children }) => (
-    <label className="block">
-      <span className="block text-sm font-medium text-gray-700 mb-1">{label}</span>
+  const Field = React.memo(({ label, children, required = false }) => (
+    <label className="block space-y-2">
+      <span className="block text-sm font-semibold text-slate-700">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </span>
       {children}
     </label>
-  );
+  ));
 
-  const Input = (props) => (
-    <input
+  const FormInput = React.memo(({ value, onChange, ...props }) => (
+    <Input
+      value={value}
+      onChange={onChange}
       {...props}
-      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${props.className || 'border-gray-300'}`}
+      className={cn(
+        'h-11 bg-white/80 backdrop-blur-sm border-2 border-slate-200/60 rounded-lg shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-md focus:shadow-blue-500/20 transition-all duration-300 text-slate-700 placeholder:text-slate-400',
+        props.className,
+      )}
     />
-  );
+  ));
 
-  const Textarea = (props) => (
+  const Textarea = React.memo(({ value, onChange, ...props }) => (
     <textarea
+      value={value}
+      onChange={onChange}
       {...props}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      className="w-full h-24 px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-slate-200/60 rounded-lg shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-md focus:shadow-blue-500/20 transition-all duration-300 text-slate-700 placeholder:text-slate-400 resize-none"
     />
-  );
+  ));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Section title="Identity">
-        <Field label="Title">
-          <Input
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+      <Section key="identity-section" title="Identity">
+        <Field label="Title" required>
+          <FormInput
             value={form.title}
-            onChange={(e) => update('title', e.target.value)}
+            onChange={getHandler('title')}
             placeholder="Dell Latitude 7400"
           />
         </Field>
-        <Field label="Brand">
-          <Input
-            value={form.brand}
-            onChange={(e) => update('brand', e.target.value)}
-            placeholder="Dell"
-          />
+        <Field label="Brand" required>
+          <FormInput value={form.brand} onChange={getHandler('brand')} placeholder="Dell" />
         </Field>
-        <Field label="Model">
-          <Input
+        <Field label="Model" required>
+          <FormInput
             value={form.model}
-            onChange={(e) => update('model', e.target.value)}
+            onChange={getHandler('model')}
             placeholder="Latitude 7400"
           />
         </Field>
-        <Field label="SKU">
-          <Input
+        <Field label="SKU" required>
+          <FormInput
             value={form.sku}
-            onChange={(e) => update('sku', e.target.value)}
+            onChange={getHandler('sku')}
             placeholder="DEL-L7400-i5-16-512"
           />
         </Field>
       </Section>
 
-      <Section title="Specifications">
-        <Field label="CPU">
-          <Input
+      <Section key="specifications-section" title="Specifications">
+        <Field label="CPU" required>
+          <FormInput
             value={form.cpu}
             onChange={(e) => update('cpu', e.target.value)}
             placeholder="Intel Core i5-8365U"
           />
         </Field>
         <Field label="GPU">
-          <Input
+          <FormInput
             value={form.gpu}
             onChange={(e) => update('gpu', e.target.value)}
             placeholder="Intel UHD 620 / GTX 1650"
           />
         </Field>
-        <Field label="RAM (GB)">
-          <Input
+        <Field label="RAM (GB)" required>
+          <FormInput
             type="number"
             value={form.ramGb}
             onChange={(e) => update('ramGb', e.target.value)}
@@ -204,7 +269,7 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
         </Field>
       </Section>
 
-      <Section title="Display">
+      <Section key="display-section" title="Display">
         <Field label="Size (inches)">
           <Input
             type="number"
@@ -246,7 +311,7 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
         </Field>
       </Section>
 
-      <Section title="Battery & Condition">
+      <Section key="battery-condition-section" title="Battery & Condition">
         <Field label="Battery Health (%)">
           <Input
             type="number"
@@ -293,7 +358,7 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
         </Field>
       </Section>
 
-      <Section title="Pricing & Availability">
+      <Section key="pricing-availability-section" title="Pricing & Availability">
         <Field label="MRP (₹)">
           <Input
             type="number"
@@ -369,7 +434,7 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
         </Field>
       </Section>
 
-      <Section title="Content & SEO">
+      <Section key="content-seo-section" title="Content & SEO">
         <div className="md:col-span-2">
           <Field label="Highlights (one per line)">
             <Textarea
@@ -410,21 +475,52 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
         </div>
       </Section>
 
-      <div className="flex justify-end gap-2">
-        <button
+      <div className="flex justify-end gap-4 pt-6">
+        <Button
           type="button"
+          variant="outline"
           onClick={onCancel}
-          className="px-4 py-2 border rounded-md hover:bg-gray-50"
+          className="px-6 py-3 h-12 border-2 border-slate-200/60 hover:border-slate-300/60 hover:bg-slate-50/80 transition-all duration-300"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
           disabled={submitting}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          className="relative inline-flex items-center gap-3 px-8 py-3 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 border-0 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitting ? 'Saving...' : 'Save Product'}
-        </button>
+          {/* Animated background effect */}
+          {!submitting && (
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
+          )}
+
+          {/* Loading spinner or icon */}
+          {submitting ? (
+            <div className="relative flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>Saving...</span>
+            </div>
+          ) : (
+            <div className="relative flex items-center gap-2">
+              <div className="flex items-center justify-center w-5 h-5 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors duration-300">
+                <svg
+                  className="h-3 w-3 text-white group-hover:scale-110 transition-transform duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <span>Save Product</span>
+            </div>
+          )}
+        </Button>
       </div>
     </form>
   );

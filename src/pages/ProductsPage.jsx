@@ -5,6 +5,8 @@ import { apiService } from '../services/api.js';
 import ProductList from '../components/ProductList.jsx';
 import SearchBar from '../components/search/SearchBar.jsx';
 import FilterSidebar from '../components/filters/FilterSidebar.jsx';
+import { Pagination } from '../components/ui/Pagination.jsx';
+import { Button } from '../components/ui/Button.jsx';
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,13 +94,22 @@ export default function ProductsPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-2">All Products</h2>
         <p className="text-gray-600">Browse all refurbished laptops</p>
         <div className="mt-4 flex items-center gap-2 lg:hidden">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setIsFilterOpen(true)}
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+            className="flex items-center gap-2"
           >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
+              />
+            </svg>
             Filters
-          </button>
+          </Button>
         </div>
         <div className="mt-4 w-full">
           <SearchBar onSearch={handleSearch} placeholder="Search laptops (brand, model, CPU)" />
@@ -121,48 +132,13 @@ export default function ProductsPage() {
       </div>
 
       {pagination.totalPages > 1 && (
-        <div className="flex justify-center mt-8 flex-wrap gap-2">
-          <button
-            onClick={() => loadProducts(1)}
-            disabled={currentPage <= 1}
-            className={`px-3 py-2 rounded border ${currentPage <= 1 ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-          >
-            First
-          </button>
-          <button
-            onClick={() => loadProducts(Math.max(1, currentPage - 1))}
-            disabled={currentPage <= 1}
-            className={`px-3 py-2 rounded border ${currentPage <= 1 ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-          >
-            Prev
-          </button>
-          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNum) => (
-            <button
-              key={pageNum}
-              onClick={() => loadProducts(pageNum)}
-              className={`px-3 py-2 rounded border ${
-                pageNum === currentPage
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {pageNum}
-            </button>
-          ))}
-          <button
-            onClick={() => loadProducts(Math.min(pagination.totalPages, currentPage + 1))}
-            disabled={currentPage >= pagination.totalPages}
-            className={`px-3 py-2 rounded border ${currentPage >= pagination.totalPages ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-          >
-            Next
-          </button>
-          <button
-            onClick={() => loadProducts(pagination.totalPages)}
-            disabled={currentPage >= pagination.totalPages}
-            className={`px-3 py-2 rounded border ${currentPage >= pagination.totalPages ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-          >
-            Last
-          </button>
+        <div className="mt-8">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={loadProducts}
+            className="justify-center"
+          />
         </div>
       )}
     </div>
