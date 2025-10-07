@@ -90,6 +90,23 @@ export default function ProductDetail({ product, loading, error }) {
     );
   }, [variants, sel]);
 
+  // Effective values from selected variant (fallback to base product)
+  const effPrice = selectedVariant?.price ?? product.price;
+  const effRamGb =
+    typeof selectedVariant?.attributes?.ramGb === 'number'
+      ? selectedVariant.attributes.ramGb
+      : product.ramGb;
+  const effStorage = selectedVariant?.attributes?.storage || product.storage;
+  const effColor = selectedVariant?.attributes?.color || product.color;
+  const effInStock =
+    typeof selectedVariant?.inStock === 'boolean'
+      ? selectedVariant.inStock
+      : typeof selectedVariant?.stockQty === 'number'
+        ? selectedVariant.stockQty > 0
+        : product.inStock;
+  const effStockQty =
+    typeof selectedVariant?.stockQty === 'number' ? selectedVariant.stockQty : product.stockQty;
+
   // Build specification rows
   const specRows = [
     ['Brand', product.brand],
@@ -97,15 +114,9 @@ export default function ProductDetail({ product, loading, error }) {
     ['SKU', selectedVariant?.sku || product.sku],
     ['CPU', product.cpu],
     ['GPU', product.gpu],
-    [
-      'RAM',
-      selectedVariant?.attributes?.ramGb
-        ? `${selectedVariant.attributes.ramGb} GB`
-        : product.ramGb
-          ? `${product.ramGb} GB`
-          : undefined,
-    ],
-    ['Storage', selectedVariant?.attributes?.storage || product.storage],
+    ['RAM', typeof effRamGb === 'number' ? `${effRamGb} GB` : undefined],
+    ['Storage', effStorage],
+    ['Color', effColor],
     [
       'Display',
       product.displaySizeInches
@@ -126,11 +137,7 @@ export default function ProductDetail({ product, loading, error }) {
   ].filter(([, v]) => v !== undefined && v !== null && v !== '');
 
   const mrp = product.mrp ? Number(product.mrp) : null;
-  const price = selectedVariant?.price
-    ? Number(selectedVariant.price)
-    : product.price
-      ? Number(product.price)
-      : null;
+  const price = typeof effPrice !== 'undefined' && effPrice !== null ? Number(effPrice) : null;
   const discountPct =
     typeof product.discountPercent === 'number'
       ? product.discountPercent
