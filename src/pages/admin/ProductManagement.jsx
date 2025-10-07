@@ -133,15 +133,9 @@ export default function ProductManagement() {
     setMessageModal((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
-  // Get low stock products
-  const getLowStockProducts = React.useCallback(() => {
-    return products.filter((product) => product.inStock && product.stockQty <= lowStockThreshold);
-  }, [products, lowStockThreshold]);
-
-  // Get low stock count
-  const lowStockCount = React.useMemo(() => {
-    return getLowStockProducts().length;
-  }, [getLowStockProducts]);
+  // Low stock summary (global)
+  const [lowStockSummary, setLowStockSummary] = React.useState({ count: 0, titles: [] });
+  const lowStockCount = lowStockSummary.count;
 
   const load = React.useCallback(
     async (page = 1) => {
@@ -198,6 +192,11 @@ export default function ProductManagement() {
           }
           setProducts(list);
           setPagination(res.pagination || {});
+        } else if (showLowStockOnly) {
+          // Global low stock list (across all pages)
+          const res = await apiService.getLowStockList(lowStockThreshold);
+          setProducts(res.products || []);
+          setPagination({});
         } else {
           const res = await apiService.getProducts(page, 12);
           let filteredProducts = res.products || [];
@@ -310,10 +309,19 @@ export default function ProductManagement() {
     })();
   }, []);
 
-  // Update global low stock count
+  // Fetch global low stock summary
   React.useEffect(() => {
-    setLowStockCount(lowStockCount);
-  }, [lowStockCount, setLowStockCount]);
+    (async () => {
+      try {
+        const sum = await apiService.getLowStockSummary(lowStockThreshold);
+        setLowStockSummary(sum || { count: 0, titles: [] });
+        setLowStockCount(sum?.count || 0);
+      } catch {
+        setLowStockSummary({ count: 0, titles: [] });
+        setLowStockCount(0);
+      }
+    })();
+  }, [lowStockThreshold, setLowStockCount]);
 
   return (
     <AdminLayout>
@@ -341,11 +349,7 @@ export default function ProductManagement() {
                 Low Stock Alert: {lowStockCount} product{lowStockCount > 1 ? 's' : ''} running low
               </h3>
               <p className="text-sm text-amber-700">
-                {getLowStockProducts()
-                  .slice(0, 3)
-                  .map((p) => p.title)
-                  .join(', ')}{' '}
-                {lowStockCount > 3 && 'and more...'}
+                {lowStockSummary.titles.join(', ')} {lowStockCount > 3 && 'and more...'}
               </p>
             </div>
             <Button

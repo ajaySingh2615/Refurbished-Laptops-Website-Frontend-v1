@@ -47,6 +47,14 @@ class ApiService {
     return this.request(`/api/products/filter?${params}`);
   }
 
+  async getLowStockSummary(threshold = 5) {
+    return this.request(`/api/products/low-stock/summary?threshold=${threshold}`);
+  }
+
+  async getLowStockList(threshold = 5) {
+    return this.request(`/api/products/low-stock/list?threshold=${threshold}`);
+  }
+
   // Brands
   async getBrands() {
     return this.request('/api/brands');
