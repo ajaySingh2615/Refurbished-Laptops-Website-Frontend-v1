@@ -1,12 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion as Motion } from 'framer-motion';
+import { useAdmin } from '../../contexts/AdminContext.jsx';
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
+  const { lowStockCount } = useAdmin();
+
   const navItems = [
     { path: '/admin', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/products', label: 'Products', icon: '💻' },
+    { path: '/admin/products', label: 'Products', icon: '💻', badge: lowStockCount },
   ];
 
   return (
@@ -63,6 +66,11 @@ export default function AdminLayout({ children }) {
                       {item.icon}
                     </span>
                     <span className="flex-1">{item.label}</span>
+                    {item.badge && item.badge > 0 && (
+                      <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full min-w-[20px] h-5 animate-pulse">
+                        {item.badge}
+                      </span>
+                    )}
                     {active && (
                       <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
                     )}

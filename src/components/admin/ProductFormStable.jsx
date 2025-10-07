@@ -70,6 +70,81 @@ export default function ProductFormStable({
 }) {
   const formRef = React.useRef(null);
 
+  // Auto-generate SKU when key fields change
+  React.useEffect(() => {
+    const handleFieldChange = () => {
+      const brand = document.querySelector('[name="brand"]')?.value || '';
+      const model = document.querySelector('[name="model"]')?.value || '';
+      const cpu = document.querySelector('[name="cpu"]')?.value || '';
+      const ramGb = document.querySelector('[name="ramGb"]')?.value || '';
+      const storage = document.querySelector('[name="storage"]')?.value || '';
+
+      // Only auto-generate if we have at least brand and model
+      if (brand && model) {
+        const generatedSKU = generateSKU(brand, model, cpu, ramGb, storage);
+        const skuField = document.getElementById('sku-field');
+        if (skuField && !skuField.value) {
+          skuField.value = generatedSKU;
+        }
+      }
+    };
+
+    // Add event listeners to key fields
+    const fields = ['brand', 'model', 'cpu', 'ramGb', 'storage'];
+    fields.forEach((fieldName) => {
+      const field = document.querySelector(`[name="${fieldName}"]`);
+      if (field) {
+        field.addEventListener('input', handleFieldChange);
+        field.addEventListener('change', handleFieldChange);
+      }
+    });
+
+    // Cleanup event listeners
+    return () => {
+      fields.forEach((fieldName) => {
+        const field = document.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+          field.removeEventListener('input', handleFieldChange);
+          field.removeEventListener('change', handleFieldChange);
+        }
+      });
+    };
+  }, []);
+
+  // Generate SKU automatically based on product details
+  const generateSKU = (brand, model, cpu, ramGb, storage) => {
+    if (!brand || !model) return '';
+
+    // Clean and format inputs
+    const cleanBrand = brand
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toUpperCase()
+      .substring(0, 3);
+    const cleanModel = model
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toUpperCase()
+      .substring(0, 4);
+
+    // Extract CPU info (e.g., "i5-8365U" -> "i5")
+    const cpuMatch = cpu?.match(/(i[0-9]|ryzen|amd)/i);
+    const cpuCode = cpuMatch ? cpuMatch[1].toUpperCase() : 'CPU';
+
+    // Format RAM (e.g., 16 -> "16G")
+    const ramCode = ramGb ? `${ramGb}G` : 'RAM';
+
+    // Extract storage info (e.g., "512GB SSD" -> "512SSD")
+    const storageMatch = storage?.match(/(\d+)\s*(GB|TB)?\s*(SSD|HDD|NVMe)?/i);
+    const storageCode = storageMatch
+      ? `${storageMatch[1]}${storageMatch[3] ? storageMatch[3].toUpperCase() : 'GB'}`
+      : 'STG';
+
+    // Generate timestamp for uniqueness (last 4 digits)
+    const timestamp = Date.now().toString().slice(-4);
+
+    // Format: BRAND-MODEL-CPU-RAM-STORAGE-TIMESTAMP
+    return `${cleanBrand}-${cleanModel}-${cpuCode}-${ramCode}-${storageCode}-${timestamp}`;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -80,18 +155,16 @@ export default function ProductFormStable({
       const title = formData.get('title')?.toString().trim();
       const brand = formData.get('brand')?.toString().trim();
       const model = formData.get('model')?.toString().trim();
-      const sku = formData.get('sku')?.toString().trim();
       const cpu = formData.get('cpu')?.toString().trim();
       const ramGb = formData.get('ramGb')?.toString().trim();
       const price = formData.get('price')?.toString().trim();
 
       // Check required fields
-      if (!title || !brand || !model || !sku || !cpu || !ramGb || !price) {
+      if (!title || !brand || !model || !cpu || !ramGb || !price) {
         const missingFields = [];
         if (!title) missingFields.push('Title');
         if (!brand) missingFields.push('Brand');
         if (!model) missingFields.push('Model');
-        if (!sku) missingFields.push('SKU');
         if (!cpu) missingFields.push('CPU');
         if (!ramGb) missingFields.push('RAM');
         if (!price) missingFields.push('Price');
@@ -164,11 +237,22 @@ export default function ProductFormStable({
         }
       }
 
+      // Auto-generate SKU if not provided
+      let skuValue = formData.get('sku') || '';
+      if (!skuValue) {
+        const brand = formData.get('brand') || '';
+        const model = formData.get('model') || '';
+        const cpu = formData.get('cpu') || '';
+        const ramGb = formData.get('ramGb') || '';
+        const storage = formData.get('storage') || '';
+        skuValue = generateSKU(brand, model, cpu, ramGb, storage);
+      }
+
       const payload = {
         title: formData.get('title') || '',
         brand: formData.get('brand') || '',
         model: formData.get('model') || '',
-        sku: formData.get('sku') || '',
+        sku: skuValue,
         cpu: formData.get('cpu') || '',
         gpu: formData.get('gpu') || '',
         ramGb: formData.get('ramGb') ? Number(formData.get('ramGb')) : null,
@@ -251,11 +335,38 @@ export default function ProductFormStable({
           />
         </Field>
         <Field label="SKU" required>
-          <StableInput
-            name="sku"
-            defaultValue={initialData.sku || ''}
-            placeholder="DEL-L7400-i5-16-512"
-          />
+          <div className="flex gap-2">
+            <StableInput
+              name="sku"
+              id="sku-field"
+              defaultValue={initialData.sku || ''}
+              placeholder="Auto-generated SKU will appear here"
+              readOnly
+              className="flex-1 bg-slate-50 text-slate-600"
+            />
+            <Button
+              type="button"
+              onClick={() => {
+                const brand = document.querySelector('[name="brand"]')?.value || '';
+                const model = document.querySelector('[name="model"]')?.value || '';
+                const cpu = document.querySelector('[name="cpu"]')?.value || '';
+                const ramGb = document.querySelector('[name="ramGb"]')?.value || '';
+                const storage = document.querySelector('[name="storage"]')?.value || '';
+
+                const generatedSKU = generateSKU(brand, model, cpu, ramGb, storage);
+                const skuField = document.getElementById('sku-field');
+                if (skuField) {
+                  skuField.value = generatedSKU;
+                }
+              }}
+              className="px-4 py-2 h-11 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 border-0"
+            >
+              Generate
+            </Button>
+          </div>
+          <p className="text-xs text-slate-500 mt-1">
+            SKU will be auto-generated based on Brand, Model, CPU, RAM, and Storage
+          </p>
         </Field>
       </Section>
 
@@ -312,10 +423,10 @@ export default function ProductFormStable({
         <Field label="Weight (kg)">
           <StableInput
             type="number"
-            step="0.1"
+            step="0.01"
             name="weightKg"
             defaultValue={initialData.weightKg || ''}
-            placeholder="1.5"
+            placeholder="1.32"
           />
         </Field>
         <Field label="Dimensions (mm)">
@@ -331,10 +442,10 @@ export default function ProductFormStable({
         <Field label="Size (inches)">
           <StableInput
             type="number"
-            step="0.1"
+            step="0.01"
             name="displaySizeInches"
             defaultValue={initialData.displaySizeInches || ''}
-            placeholder="14.0"
+            placeholder="14.1"
           />
         </Field>
         <Field label="Resolution">

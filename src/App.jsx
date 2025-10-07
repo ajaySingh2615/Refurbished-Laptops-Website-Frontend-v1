@@ -7,6 +7,7 @@ import ProductPage from './pages/ProductPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
+import { AdminProvider } from './contexts/AdminContext.jsx';
 
 export default function App() {
   const handleSearch = (query) => {
@@ -44,8 +45,22 @@ export default function App() {
         />
 
         {/* Admin routes use their own layout */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/products" element={<ProductManagement />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminProvider>
+              <AdminDashboard />
+            </AdminProvider>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminProvider>
+              <ProductManagement />
+            </AdminProvider>
+          }
+        />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
