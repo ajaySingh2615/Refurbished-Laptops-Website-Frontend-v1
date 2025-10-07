@@ -479,7 +479,7 @@ export default function ProductManagement() {
             <select
               value={brandFilter}
               onChange={(e) => setBrandFilter(e.target.value)}
-              className="h-12 pl-3 pr-9 rounded-lg border-2 border-slate-200/60 bg-white/90 text-sm text-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-sm transition-all"
+              className="h-12 pl-3 pr-9 rounded-lg border-2 border-slate-200/60 bg-white/90 text-sm text-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-sm transition-all appearance-none"
             >
               <option value="">All Brands</option>
               {brands.map((b) => (
