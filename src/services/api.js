@@ -95,6 +95,21 @@ class ApiService {
   async getVariantBySku(sku) {
     return this.request(`/api/products/variants/sku/${encodeURIComponent(sku)}`);
   }
+
+  // Categories
+  async getCategories() {
+    return this.request('/api/categories');
+  }
+
+  async getCategory(slug) {
+    return this.request(`/api/categories/${encodeURIComponent(slug)}`);
+  }
+
+  async getCategoryProducts(slug, { page = 1, limit = 12 } = {}) {
+    return this.request(
+      `/api/categories/${encodeURIComponent(slug)}/products?page=${page}&limit=${limit}`,
+    );
+  }
 }
 
 export const apiService = new ApiService();

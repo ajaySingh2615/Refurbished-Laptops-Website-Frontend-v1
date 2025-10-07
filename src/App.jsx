@@ -4,6 +4,7 @@ import Layout from './components/Layout.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
+import CategoryPage from './pages/CategoryPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
@@ -40,6 +41,14 @@ export default function App() {
           element={
             <Layout onSearch={handleSearch}>
               <ProductPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/c/*"
+          element={
+            <Layout onSearch={handleSearch}>
+              <CategoryPage />
             </Layout>
           }
         />

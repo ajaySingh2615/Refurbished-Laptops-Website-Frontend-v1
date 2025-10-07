@@ -2,6 +2,7 @@ import React from 'react';
 import AdminLayout from '../../components/admin/AdminLayout.jsx';
 import ProductFormStable from '../../components/admin/ProductFormStable.jsx';
 import MessageModal from '../../components/admin/MessageModal.jsx';
+import CategorySelector from '../../components/admin/CategorySelector.jsx';
 import { apiService } from '../../services/api.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { Input } from '../../components/ui/Input.jsx';
@@ -777,6 +778,19 @@ export default function ProductManagement() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-6" style={{ scrollBehavior: 'auto' }}>
+              {/* Category selector - at top for Add Product */}
+              <div className="mb-4">
+                <div className="mb-2 text-sm font-semibold text-slate-900">Category</div>
+                <input type="hidden" id="admin-add-category-id" defaultValue="" />
+                <CategorySelector
+                  value={null}
+                  onChange={(id) => {
+                    const el = document.getElementById('admin-add-category-id');
+                    if (el) el.value = id || '';
+                  }}
+                />
+              </div>
+
               <ProductFormStable
                 key="add-product-form"
                 submitting={submitting}
@@ -789,7 +803,19 @@ export default function ProductManagement() {
                   const handleSubmission = async () => {
                     try {
                       setSubmitting(true);
-                      await apiService.createProduct(payload);
+                      const categoryId = document.getElementById('admin-add-category-id')?.value;
+                      if (!categoryId) {
+                        showValidationError({
+                          type: 'validation',
+                          message: 'Please select a category (or sub-category).',
+                          field: 'admin-add-category-id',
+                        });
+                        return;
+                      }
+                      await apiService.createProduct({
+                        ...payload,
+                        categoryId: Number(categoryId),
+                      });
                       setShowForm(false);
                       await load(1);
 
@@ -841,6 +867,23 @@ export default function ProductManagement() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-6" style={{ scrollBehavior: 'auto' }}>
+              {/* Category selector - moved to top */}
+              <div className="mb-4">
+                <div className="mb-2 text-sm font-semibold text-slate-900">Category</div>
+                <input
+                  type="hidden"
+                  id="admin-category-id"
+                  defaultValue={editingProduct?.categoryId || ''}
+                />
+                <CategorySelector
+                  value={editingProduct?.categoryId || null}
+                  onChange={(id) => {
+                    const el = document.getElementById('admin-category-id');
+                    if (el) el.value = id || '';
+                  }}
+                />
+              </div>
+
               {/* Edit tabs: Details | Variants */}
               <div className="mb-4 flex items-center gap-2 border-b border-slate-200">
                 <button className="px-4 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600">
@@ -870,7 +913,11 @@ export default function ProductManagement() {
                   const handleSubmission = async () => {
                     try {
                       setSubmitting(true);
-                      await apiService.updateProduct(editingProduct.id, payload);
+                      const categoryId = document.getElementById('admin-category-id')?.value;
+                      const full = categoryId
+                        ? { ...payload, categoryId: Number(categoryId) }
+                        : payload;
+                      await apiService.updateProduct(editingProduct.id, full);
                       await load(1);
                       showSuccess(
                         'Product Updated Successfully! 🎉',
@@ -886,6 +933,23 @@ export default function ProductManagement() {
                   handleSubmission();
                 }}
               />
+
+              {/* Category selector */}
+              <div className="mt-4">
+                <div className="mb-2 text-sm font-semibold text-slate-900">Category</div>
+                <input
+                  type="hidden"
+                  id="admin-category-id"
+                  defaultValue={editingProduct?.categoryId || ''}
+                />
+                <CategorySelector
+                  value={editingProduct?.categoryId || null}
+                  onChange={(id) => {
+                    const el = document.getElementById('admin-category-id');
+                    if (el) el.value = id || '';
+                  }}
+                />
+              </div>
 
               {/* Variants management */}
               <div id="variants-panel" className="mt-8">

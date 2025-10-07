@@ -64,6 +64,18 @@ export default function Header({ onSearch }) {
               Products
             </Link>
             <Link
+              to="/c/electronics"
+              className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Electronics
+            </Link>
+            <Link
+              to="/c/peripherals"
+              className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Peripherals
+            </Link>
+            <Link
               to="/admin"
               className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
             >
