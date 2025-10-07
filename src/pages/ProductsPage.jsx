@@ -26,7 +26,7 @@ export default function ProductsPage() {
   });
 
   const loadProducts = useCallback(
-    async (page = 1) => {
+    async (page = 1, currentFilters = filters) => {
       try {
         setLoading(true);
         setError(null);
@@ -41,14 +41,17 @@ export default function ProductsPage() {
           setCurrentPage(1);
         } else {
           const params = { page, limit: 12 };
-          if (filters.minPrice) params.minPrice = filters.minPrice;
-          if (filters.maxPrice) params.maxPrice = filters.maxPrice;
-          if (filters.brand && filters.brand.length) params.brand = filters.brand.join(',');
-          if (filters.condition && filters.condition.length)
-            params.condition = filters.condition.join(',');
-          if (filters.ramGb && filters.ramGb.length) params.ramGb = filters.ramGb.join(',');
-          if (filters.storage && filters.storage.length) params.storage = filters.storage.join(',');
-          if (typeof filters.inStock === 'boolean') params.inStock = filters.inStock;
+          if (currentFilters.minPrice) params.minPrice = currentFilters.minPrice;
+          if (currentFilters.maxPrice) params.maxPrice = currentFilters.maxPrice;
+          if (currentFilters.brand && currentFilters.brand.length)
+            params.brand = currentFilters.brand.join(',');
+          if (currentFilters.condition && currentFilters.condition.length)
+            params.condition = currentFilters.condition.join(',');
+          if (currentFilters.ramGb && currentFilters.ramGb.length)
+            params.ramGb = currentFilters.ramGb.join(',');
+          if (currentFilters.storage && currentFilters.storage.length)
+            params.storage = currentFilters.storage.join(',');
+          if (typeof currentFilters.inStock === 'boolean') params.inStock = currentFilters.inStock;
           response = await apiService.filterProducts(params);
           setProducts(response.products);
           setPagination(response.pagination || {});
@@ -60,24 +63,28 @@ export default function ProductsPage() {
         setLoading(false);
       }
     },
-    [searchParams, filters],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [searchParams],
   );
 
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
 
-  const handleSearch = async (query) => {
-    const q = typeof query === 'string' ? query : searchQuery;
-    const params = new URLSearchParams(searchParams);
-    if (q && q.trim() !== '') {
-      params.set('q', q.trim());
-    } else {
-      params.delete('q');
-    }
-    setSearchParams(params);
-    await loadProducts(1);
-  };
+  const handleSearch = useCallback(
+    async (query) => {
+      const q = typeof query === 'string' ? query : searchQuery;
+      const params = new URLSearchParams(searchParams);
+      if (q && q.trim() !== '') {
+        params.set('q', q.trim());
+      } else {
+        params.delete('q');
+      }
+      setSearchParams(params);
+      await loadProducts(1);
+    },
+    [searchQuery, searchParams, setSearchParams, loadProducts],
+  );
 
   return (
     <div>
@@ -103,7 +110,10 @@ export default function ProductsPage() {
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
           filters={filters}
-          onChange={(f) => setFilters(f)}
+          onChange={(f) => {
+            setFilters(f);
+            loadProducts(1, f);
+          }}
         />
         <div className="flex-1 lg:ml-6">
           <ProductList products={products} loading={loading} error={error} />

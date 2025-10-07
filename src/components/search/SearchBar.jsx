@@ -96,7 +96,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Debounced live search
+  // Debounced live search with stable onSearch reference
   useEffect(() => {
     const q = searchQuery.trim();
     // if cleared, reset immediately
@@ -109,9 +109,10 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
       if (q.length >= 2) {
         onSearch(q);
       }
-    }, 300);
+    }, 500); // Increased debounce time to reduce API calls
     return () => clearTimeout(id);
-  }, [searchQuery, onSearch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]); // Removed onSearch from dependencies to prevent infinite loops
 
   return (
     <div ref={searchRef} className="relative w-full z-[70]">
@@ -149,7 +150,6 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
             type="button"
             onClick={() => {
               clearSearch();
-              onSearch('');
               setIsOpen(false);
             }}
             className="absolute inset-y-0 right-0 pr-3 flex items-center"
