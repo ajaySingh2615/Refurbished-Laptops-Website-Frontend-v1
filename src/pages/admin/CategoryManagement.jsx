@@ -172,14 +172,45 @@ export default function CategoryManagement() {
     return flatCategories.filter((cat) => cat.parentId === categoryId).length;
   };
 
-  const filteredCategories = flatCategories.filter(
-    (category) =>
-      category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      category.slug.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // Enhanced search that includes parent categories when subcategories match
+  const getFilteredCategories = () => {
+    if (!searchQuery.trim()) {
+      return {
+        rootCategories: flatCategories.filter((cat) => !cat.parentId),
+        childCategories: flatCategories.filter((cat) => cat.parentId),
+      };
+    }
 
-  const rootCategories = filteredCategories.filter((cat) => !cat.parentId);
-  const childCategories = filteredCategories.filter((cat) => cat.parentId);
+    const query = searchQuery.toLowerCase();
+    const matchingCategories = flatCategories.filter(
+      (category) =>
+        category.name.toLowerCase().includes(query) || category.slug.toLowerCase().includes(query),
+    );
+
+    // Include parent categories of matching subcategories
+    const parentIds = new Set();
+    matchingCategories.forEach((cat) => {
+      if (cat.parentId) {
+        parentIds.add(cat.parentId);
+      }
+    });
+
+    // Get all parent categories that have matching children
+    const parentCategories = flatCategories.filter((cat) => !cat.parentId && parentIds.has(cat.id));
+
+    // Combine matching categories with their parents
+    const allMatching = [...matchingCategories, ...parentCategories];
+    const uniqueMatching = allMatching.filter(
+      (cat, index, arr) => arr.findIndex((c) => c.id === cat.id) === index,
+    );
+
+    return {
+      rootCategories: uniqueMatching.filter((cat) => !cat.parentId),
+      childCategories: uniqueMatching.filter((cat) => cat.parentId),
+    };
+  };
+
+  const { rootCategories, childCategories } = getFilteredCategories();
 
   if (loading) {
     return (
@@ -265,9 +296,16 @@ export default function CategoryManagement() {
         {/* Categories List */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
           <div className="p-4 border-b border-slate-200/60">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Categories ({filteredCategories.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">
+                Categories ({rootCategories.length + childCategories.length})
+              </h3>
+              {searchQuery.trim() && (
+                <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                  🔍 Search results (including parent categories)
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="divide-y divide-slate-200/60">
@@ -358,7 +396,7 @@ export default function CategoryManagement() {
             ))}
           </div>
 
-          {filteredCategories.length === 0 && (
+          {rootCategories.length === 0 && childCategories.length === 0 && (
             <div className="p-8 text-center text-slate-500">
               <svg
                 className="h-12 w-12 mx-auto mb-4 text-slate-300"
