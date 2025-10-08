@@ -110,6 +110,19 @@ class ApiService {
       `/api/categories/${encodeURIComponent(slug)}/products?page=${page}&limit=${limit}`,
     );
   }
+
+  // Admin category mutations
+  async createCategory(body) {
+    return this.request('/api/categories', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  async updateCategory(id, body) {
+    return this.request(`/api/categories/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+  }
+
+  async deleteCategory(id) {
+    return this.request(`/api/categories/${id}`, { method: 'DELETE' });
+  }
 }
 
 export const apiService = new ApiService();

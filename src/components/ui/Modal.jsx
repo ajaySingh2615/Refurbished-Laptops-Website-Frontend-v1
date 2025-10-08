@@ -59,6 +59,13 @@ const ModalDescription = React.forwardRef(({ className, children, ...props }, re
 ));
 ModalDescription.displayName = 'ModalDescription';
 
+const ModalBody = React.forwardRef(({ className, children, ...props }, ref) => (
+  <div ref={ref} className={cn('py-4', className)} {...props}>
+    {children}
+  </div>
+));
+ModalBody.displayName = 'ModalBody';
+
 const ModalFooter = React.forwardRef(({ className, children, ...props }, ref) => (
   <div
     ref={ref}
@@ -77,5 +84,6 @@ export {
   ModalHeader,
   ModalTitle,
   ModalDescription,
+  ModalBody,
   ModalFooter,
 };

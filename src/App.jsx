@@ -8,6 +8,7 @@ import CategoryPage from './pages/CategoryPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
+import CategoryManagement from './pages/admin/CategoryManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
 
 export default function App() {
@@ -67,6 +68,14 @@ export default function App() {
           element={
             <AdminProvider>
               <ProductManagement />
+            </AdminProvider>
+          }
+        />
+        <Route
+          path="/admin/categories"
+          element={
+            <AdminProvider>
+              <CategoryManagement />
             </AdminProvider>
           }
         />

@@ -11,22 +11,16 @@ export default function CategorySelector({ value, onChange, className = '' }) {
       try {
         const tree = await apiService.getCategories();
         setCats(Array.isArray(tree) ? tree : []);
-        // Debug: log categories tree
-        try {
-          // eslint-disable-next-line no-console
-          console.log('[CategorySelector] categories:', tree);
-        } catch {}
-      } catch {}
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
     })();
   }, []);
 
   // Initialize from value
   React.useEffect(() => {
     if (!value || !cats.length) return;
-    try {
-      // eslint-disable-next-line no-console
-      console.log('[CategorySelector] init with value:', value);
-    } catch {}
+
     const all = [];
     const dfs = (n) => {
       all.push(n);
@@ -34,10 +28,7 @@ export default function CategorySelector({ value, onChange, className = '' }) {
     };
     cats.forEach(dfs);
     let found = all.find((n) => n.id === value || String(n.id) === String(value));
-    try {
-      // eslint-disable-next-line no-console
-      console.log('[CategorySelector] flat nodes length:', all.length, 'found:', found);
-    } catch {}
+
     if (!found) {
       // fallback: find parent whose child matches value
       const parent = cats.find((p) =>
@@ -47,15 +38,6 @@ export default function CategorySelector({ value, onChange, className = '' }) {
         setParentId(String(parent.id));
         const child = parent.children.find((c) => String(c.id) === String(value));
         if (child) setChildId(String(child.id));
-        try {
-          // eslint-disable-next-line no-console
-          console.log(
-            '[CategorySelector] parent fallback used. parentId:',
-            parent.id,
-            'childId:',
-            child?.id,
-          );
-        } catch {}
         return;
       }
     }
@@ -69,18 +51,13 @@ export default function CategorySelector({ value, onChange, className = '' }) {
         setChildId('');
         if (onChange) onChange(Number(found.id));
       }
-      try {
-        // eslint-disable-next-line no-console
-        console.log('[CategorySelector] set parentId:', found.parentId, 'childId:', found.id);
-      } catch {}
     }
-  }, [value, cats]);
+  }, [value, cats, onChange]);
 
   // When childId resolves (from initial value or user change), notify parent so hidden field updates
   React.useEffect(() => {
     if (childId && onChange) onChange(childId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [childId]);
+  }, [childId, onChange]);
 
   const parents = cats;
   const children = React.useMemo(() => {
@@ -99,19 +76,12 @@ export default function CategorySelector({ value, onChange, className = '' }) {
       // If parent has no children, emit parent as final selection
       if (!hasChildren) onChange && onChange(Number(id));
     }
-    try {
-      // eslint-disable-next-line no-console
-      console.log('[CategorySelector] parent changed ->', id);
-    } catch {}
   };
+
   const handleChild = (e) => {
     const id = e.target.value || '';
     setChildId(id);
     onChange && onChange(id ? Number(id) : null);
-    try {
-      // eslint-disable-next-line no-console
-      console.log('[CategorySelector] child changed ->', id);
-    } catch {}
   };
 
   return (

@@ -4,46 +4,12 @@ import { formatPrice, formatDate } from '../utils/formatters.js';
 import RelatedProducts from './RelatedProducts.jsx';
 
 export default function ProductDetail({ product, loading, error }) {
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-300 rounded mb-4"></div>
-          <div className="h-64 bg-gray-300 rounded mb-6"></div>
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-300 rounded"></div>
-            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Move all hooks to the top, before any conditional returns
+  const variants = React.useMemo(
+    () => (Array.isArray(product?.variants) ? product.variants : []),
+    [product?.variants],
+  );
 
-  if (error) {
-    return (
-      <div className="max-w-4xl mx-auto p-6 text-center">
-        <p className="text-red-600 mb-4">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="max-w-4xl mx-auto p-6 text-center">
-        <p className="text-gray-600">Product not found.</p>
-      </div>
-    );
-  }
-
-  // Variant sets from product.variants
-  const variants = Array.isArray(product?.variants) ? product.variants : [];
   const variantSets = React.useMemo(() => {
     const colors = new Set();
     const rams = new Set();
@@ -90,6 +56,45 @@ export default function ProductDetail({ product, loading, error }) {
     );
   }, [variants, sel]);
 
+  // Now handle conditional returns after all hooks
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-300 rounded mb-4"></div>
+          <div className="h-64 bg-gray-300 rounded mb-6"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-300 rounded"></div>
+            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <p className="text-red-600 mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <p className="text-gray-600">Product not found.</p>
+      </div>
+    );
+  }
+
   // Effective values from selected variant (fallback to base product)
   const effPrice = selectedVariant?.price ?? product.price;
   const effRamGb =
@@ -98,14 +103,6 @@ export default function ProductDetail({ product, loading, error }) {
       : product.ramGb;
   const effStorage = selectedVariant?.attributes?.storage || product.storage;
   const effColor = selectedVariant?.attributes?.color || product.color;
-  const effInStock =
-    typeof selectedVariant?.inStock === 'boolean'
-      ? selectedVariant.inStock
-      : typeof selectedVariant?.stockQty === 'number'
-        ? selectedVariant.stockQty > 0
-        : product.inStock;
-  const effStockQty =
-    typeof selectedVariant?.stockQty === 'number' ? selectedVariant.stockQty : product.stockQty;
 
   // Build specification rows
   const specRows = [
