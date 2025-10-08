@@ -30,6 +30,9 @@ export default function CategoryManagement() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedCategories, setExpandedCategories] = useState(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Show 10 main categories per page
 
   // Form states
   const [formData, setFormData] = useState({
@@ -152,6 +155,20 @@ export default function CategoryManagement() {
     setShowAddModal(true);
   };
 
+  const toggleCategory = (categoryId) => {
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  const isExpanded = (categoryId) => expandedCategories.has(categoryId);
+
   // Flatten the tree structure for easier processing
   const flattenCategories = (categories) => {
     const result = [];
@@ -211,6 +228,17 @@ export default function CategoryManagement() {
   };
 
   const { rootCategories, childCategories } = getFilteredCategories();
+
+  // Pagination logic
+  const totalPages = Math.ceil(rootCategories.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRootCategories = rootCategories.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   if (loading) {
     return (
@@ -297,35 +325,49 @@ export default function CategoryManagement() {
         <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
           <div className="p-4 border-b border-slate-200/60">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">
-                Categories ({rootCategories.length + childCategories.length})
-              </h3>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">
+                  Categories ({rootCategories.length} main categories)
+                </h3>
+                {totalPages > 1 && (
+                  <p className="text-sm text-slate-500 mt-1">
+                    Page {currentPage} of {totalPages} • Showing {startIndex + 1}-
+                    {Math.min(endIndex, rootCategories.length)} of {rootCategories.length}
+                  </p>
+                )}
+              </div>
               {searchQuery.trim() && (
                 <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                  🔍 Search results (including parent categories)
+                  🔍 Search results
                 </div>
               )}
             </div>
           </div>
 
           <div className="divide-y divide-slate-200/60">
-            {/* Root Categories */}
-            {rootCategories.map((category) => (
+            {/* Paginated Root Categories with Expandable Subcategories */}
+            {paginatedRootCategories.map((category) => (
               <React.Fragment key={category.id}>
                 <div className="p-4 hover:bg-slate-50/50 transition-colors duration-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0">
-                        <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-                          {category.name.charAt(0).toUpperCase()}
-                        </div>
-                      </div>
+                      <button
+                        onClick={() => toggleCategory(category.id)}
+                        className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm hover:from-blue-600 hover:to-purple-700 transition-all duration-200"
+                      >
+                        {isExpanded(category.id) ? '−' : '+'}
+                      </button>
                       <div>
                         <h4 className="font-semibold text-slate-900">{category.name}</h4>
                         <p className="text-sm text-slate-500">/{category.slug}</p>
                         <p className="text-xs text-slate-400">
                           {getChildrenCount(category.id)} subcategor
                           {getChildrenCount(category.id) === 1 ? 'y' : 'ies'}
+                          {getChildrenCount(category.id) > 0 && (
+                            <span className="ml-1 text-blue-600">
+                              • Click {isExpanded(category.id) ? 'to collapse' : 'to expand'}
+                            </span>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -350,48 +392,49 @@ export default function CategoryManagement() {
                   </div>
                 </div>
 
-                {/* Child Categories */}
-                {childCategories
-                  .filter((child) => child.parentId === category.id)
-                  .map((child) => (
-                    <div
-                      key={child.id}
-                      className="p-4 pl-12 bg-slate-50/30 hover:bg-slate-50/50 transition-colors duration-200"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0">
-                            <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-slate-400 to-slate-600 flex items-center justify-center text-white font-semibold text-xs">
-                              {child.name.charAt(0).toUpperCase()}
+                {/* Child Categories - Only show if expanded */}
+                {isExpanded(category.id) &&
+                  childCategories
+                    .filter((child) => child.parentId === category.id)
+                    .map((child) => (
+                      <div
+                        key={child.id}
+                        className="p-4 pl-12 bg-slate-50/30 hover:bg-slate-50/50 transition-colors duration-200 border-l-2 border-blue-200"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-slate-400 to-slate-600 flex items-center justify-center text-white font-semibold text-xs">
+                                {child.name.charAt(0).toUpperCase()}
+                              </div>
+                            </div>
+                            <div>
+                              <h5 className="font-medium text-slate-800">{child.name}</h5>
+                              <p className="text-sm text-slate-500">/{child.slug}</p>
+                              <p className="text-xs text-slate-400">Subcategory</p>
                             </div>
                           </div>
-                          <div>
-                            <h5 className="font-medium text-slate-800">{child.name}</h5>
-                            <p className="text-sm text-slate-500">/{child.slug}</p>
-                            <p className="text-xs text-slate-400">Subcategory</p>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openEditModal(child)}
+                              className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openDeleteModal(child)}
+                              className="text-red-600 border-red-200 hover:bg-red-50"
+                            >
+                              Delete
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openEditModal(child)}
-                            className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openDeleteModal(child)}
-                            className="text-red-600 border-red-200 hover:bg-red-50"
-                          >
-                            Delete
-                          </Button>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
               </React.Fragment>
             ))}
           </div>
@@ -413,6 +456,71 @@ export default function CategoryManagement() {
               </svg>
               <p>No categories found</p>
               <p className="text-sm">Try adjusting your search or add a new category</p>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="p-4 border-t border-slate-200/60 bg-slate-50/50">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-slate-600">
+                  Showing {startIndex + 1}-{Math.min(endIndex, rootCategories.length)} of{' '}
+                  {rootCategories.length} main categories
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="text-slate-600 border-slate-300 hover:bg-slate-100"
+                  >
+                    Previous
+                  </Button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <Button
+                          key={pageNum}
+                          size="sm"
+                          variant={currentPage === pageNum ? 'default' : 'outline'}
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={
+                            currentPage === pageNum
+                              ? 'bg-blue-600 text-white'
+                              : 'text-slate-600 border-slate-300 hover:bg-slate-100'
+                          }
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="text-slate-600 border-slate-300 hover:bg-slate-100"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>
