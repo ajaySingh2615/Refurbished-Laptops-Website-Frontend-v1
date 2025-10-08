@@ -1,7 +1,7 @@
 import React from 'react';
 import { apiService } from '../../services/api.js';
 
-export default function CategorySelector({ value, onChange, className = '' }) {
+export default function CategorySelector({ value, onChange, onChangeDetail, className = '' }) {
   const [cats, setCats] = React.useState([]);
   const [parentId, setParentId] = React.useState('');
   const [childId, setChildId] = React.useState('');
@@ -16,6 +16,22 @@ export default function CategorySelector({ value, onChange, className = '' }) {
       }
     })();
   }, []);
+
+  // Helper to emit detailed selection info
+  const emitDetail = React.useCallback(
+    (parent, child) => {
+      if (typeof onChangeDetail === 'function') {
+        onChangeDetail({
+          parentId: parent?.id ?? null,
+          parentName: parent?.name ?? null,
+          childId: child?.id ?? null,
+          childName: child?.name ?? null,
+          effectiveId: child?.id ?? parent?.id ?? null,
+        });
+      }
+    },
+    [onChangeDetail],
+  );
 
   // Initialize from value
   React.useEffect(() => {
@@ -37,7 +53,10 @@ export default function CategorySelector({ value, onChange, className = '' }) {
       if (parent) {
         setParentId(String(parent.id));
         const child = parent.children.find((c) => String(c.id) === String(value));
-        if (child) setChildId(String(child.id));
+        if (child) {
+          setChildId(String(child.id));
+          emitDetail(parent, child);
+        }
         return;
       }
     }
@@ -45,14 +64,17 @@ export default function CategorySelector({ value, onChange, className = '' }) {
       if (found.parentId) {
         setParentId(String(found.parentId));
         setChildId(String(found.id));
+        const parent = cats.find((p) => p.id === found.parentId);
+        emitDetail(parent, found);
       } else {
         // Top-level category selected directly
         setParentId(String(found.id));
         setChildId('');
         if (onChange) onChange(Number(found.id));
+        emitDetail(found, null);
       }
     }
-  }, [value, cats, onChange]);
+  }, [value, cats, onChange, emitDetail]);
 
   // When childId resolves (from initial value or user change), notify parent so hidden field updates
   React.useEffect(() => {
@@ -69,12 +91,19 @@ export default function CategorySelector({ value, onChange, className = '' }) {
     const id = e.target.value || '';
     setParentId(id);
     setChildId('');
-    if (!id) onChange && onChange(null);
-    else {
+    if (!id) {
+      onChange && onChange(null);
+      emitDetail(null, null);
+    } else {
       const selectedParent = parents.find((p) => String(p.id) === String(id));
       const hasChildren = (selectedParent?.children || []).length > 0;
       // If parent has no children, emit parent as final selection
-      if (!hasChildren) onChange && onChange(Number(id));
+      if (!hasChildren) {
+        onChange && onChange(Number(id));
+        emitDetail(selectedParent, null);
+      } else {
+        emitDetail(selectedParent, null);
+      }
     }
   };
 
@@ -82,6 +111,9 @@ export default function CategorySelector({ value, onChange, className = '' }) {
     const id = e.target.value || '';
     setChildId(id);
     onChange && onChange(id ? Number(id) : null);
+    const parent = parents.find((p) => String(p.id) === String(parentId));
+    const child = (parent?.children || []).find((c) => String(c.id) === String(id));
+    emitDetail(parent || null, child || null);
   };
 
   return (

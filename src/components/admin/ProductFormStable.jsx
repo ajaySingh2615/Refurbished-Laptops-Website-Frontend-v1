@@ -67,6 +67,7 @@ export default function ProductFormStable({
   onCancel,
   onValidationError,
   submitting = false,
+  mode = 'laptop', // 'laptop' | 'compact'
 }) {
   const formRef = React.useRef(null);
 
@@ -159,16 +160,21 @@ export default function ProductFormStable({
       const ramGb = formData.get('ramGb')?.toString().trim();
       const price = formData.get('price')?.toString().trim();
 
-      // Check required fields
-      if (!title || !brand || !model || !cpu || !ramGb || !price) {
-        const missingFields = [];
-        if (!title) missingFields.push('Title');
-        if (!brand) missingFields.push('Brand');
-        if (!model) missingFields.push('Model');
-        if (!cpu) missingFields.push('CPU');
-        if (!ramGb) missingFields.push('RAM');
-        if (!price) missingFields.push('Price');
+      // Check required fields (mode-aware)
+      const baseMissing = [];
+      if (!title) baseMissing.push('Title');
+      if (!brand) baseMissing.push('Brand');
+      if (!model) baseMissing.push('Model');
+      if (!price) baseMissing.push('Price');
 
+      const laptopOnlyMissing = [];
+      if (mode === 'laptop') {
+        if (!cpu) laptopOnlyMissing.push('CPU');
+        if (!ramGb) laptopOnlyMissing.push('RAM');
+      }
+
+      const missingFields = [...baseMissing, ...laptopOnlyMissing];
+      if (missingFields.length > 0) {
         const error = new Error(`Missing required fields: ${missingFields.join(', ')}`);
         error.type = 'validation';
         throw error;
@@ -370,160 +376,171 @@ export default function ProductFormStable({
         </Field>
       </Section>
 
-      <Section title="Specifications">
-        <Field label="CPU" required>
-          <StableInput
-            name="cpu"
-            defaultValue={initialData.cpu || ''}
-            placeholder="Intel Core i5-8365U"
-          />
-        </Field>
-        <Field label="GPU">
-          <StableInput
-            name="gpu"
-            defaultValue={initialData.gpu || ''}
-            placeholder="Intel UHD 620 / GTX 1650"
-          />
-        </Field>
-        <Field label="RAM (GB)" required>
-          <StableInput
-            type="number"
-            name="ramGb"
-            defaultValue={initialData.ramGb || ''}
-            placeholder="16"
-          />
-        </Field>
-        <Field label="Storage">
-          <StableInput
-            name="storage"
-            defaultValue={initialData.storage || ''}
-            placeholder="512GB SSD"
-          />
-        </Field>
-        <Field label="Ports">
-          <StableInput
-            name="ports"
-            defaultValue={initialData.ports || ''}
-            placeholder="USB-A, USB-C, HDMI, 3.5mm"
-          />
-        </Field>
-        <Field label="OS">
-          <StableInput name="os" defaultValue={initialData.os || ''} placeholder="Windows 11 Pro" />
-        </Field>
-        <Field label="Keyboard Layout">
-          <StableInput
-            name="keyboardLayout"
-            defaultValue={initialData.keyboardLayout || ''}
-            placeholder="US QWERTY"
-          />
-        </Field>
-        <Field label="Color">
-          <StableInput name="color" defaultValue={initialData.color || ''} placeholder="Silver" />
-        </Field>
-        <Field label="Weight (kg)">
-          <StableInput
-            type="number"
-            step="0.01"
-            name="weightKg"
-            defaultValue={initialData.weightKg || ''}
-            placeholder="1.32"
-          />
-        </Field>
-        <Field label="Dimensions (mm)">
-          <StableInput
-            name="dimensionsMm"
-            defaultValue={initialData.dimensionsMm || ''}
-            placeholder="321 x 214 x 17"
-          />
-        </Field>
-      </Section>
+      {/* Laptop-only sections hidden in compact mode */}
+      {mode === 'laptop' && (
+        <Section title="Specifications">
+          <Field label="CPU" required>
+            <StableInput
+              name="cpu"
+              defaultValue={initialData.cpu || ''}
+              placeholder="Intel Core i5-8365U"
+            />
+          </Field>
+          <Field label="GPU">
+            <StableInput
+              name="gpu"
+              defaultValue={initialData.gpu || ''}
+              placeholder="Intel UHD 620 / GTX 1650"
+            />
+          </Field>
+          <Field label="RAM (GB)" required>
+            <StableInput
+              type="number"
+              name="ramGb"
+              defaultValue={initialData.ramGb || ''}
+              placeholder="16"
+            />
+          </Field>
+          <Field label="Storage">
+            <StableInput
+              name="storage"
+              defaultValue={initialData.storage || ''}
+              placeholder="512GB SSD"
+            />
+          </Field>
+          <Field label="Ports">
+            <StableInput
+              name="ports"
+              defaultValue={initialData.ports || ''}
+              placeholder="USB-A, USB-C, HDMI, 3.5mm"
+            />
+          </Field>
+          <Field label="OS">
+            <StableInput
+              name="os"
+              defaultValue={initialData.os || ''}
+              placeholder="Windows 11 Pro"
+            />
+          </Field>
+          <Field label="Keyboard Layout">
+            <StableInput
+              name="keyboardLayout"
+              defaultValue={initialData.keyboardLayout || ''}
+              placeholder="US QWERTY"
+            />
+          </Field>
+          <Field label="Color">
+            <StableInput name="color" defaultValue={initialData.color || ''} placeholder="Silver" />
+          </Field>
+          <Field label="Weight (kg)">
+            <StableInput
+              type="number"
+              step="0.01"
+              name="weightKg"
+              defaultValue={initialData.weightKg || ''}
+              placeholder="1.32"
+            />
+          </Field>
+          <Field label="Dimensions (mm)">
+            <StableInput
+              name="dimensionsMm"
+              defaultValue={initialData.dimensionsMm || ''}
+              placeholder="321 x 214 x 17"
+            />
+          </Field>
+        </Section>
+      )}
 
-      <Section title="Display">
-        <Field label="Size (inches)">
-          <StableInput
-            type="number"
-            step="0.01"
-            name="displaySizeInches"
-            defaultValue={initialData.displaySizeInches || ''}
-            placeholder="14.1"
-          />
-        </Field>
-        <Field label="Resolution">
-          <StableInput
-            name="displayResolution"
-            defaultValue={initialData.displayResolution || ''}
-            placeholder="1920x1080"
-          />
-        </Field>
-        <Field label="Panel Type">
-          <StableInput
-            name="displayPanel"
-            defaultValue={initialData.displayPanel || ''}
-            placeholder="IPS"
-          />
-        </Field>
-        <Field label="Refresh Rate (Hz)">
-          <StableInput
-            type="number"
-            name="displayRefreshHz"
-            defaultValue={initialData.displayRefreshHz || ''}
-            placeholder="60"
-          />
-        </Field>
-        <Field label="Brightness (nits)">
-          <StableInput
-            type="number"
-            name="brightnessNits"
-            defaultValue={initialData.brightnessNits || ''}
-            placeholder="300"
-          />
-        </Field>
-      </Section>
+      {mode === 'laptop' && (
+        <Section title="Display">
+          <Field label="Size (inches)">
+            <StableInput
+              type="number"
+              step="0.01"
+              name="displaySizeInches"
+              defaultValue={initialData.displaySizeInches || ''}
+              placeholder="14.1"
+            />
+          </Field>
+          <Field label="Resolution">
+            <StableInput
+              name="displayResolution"
+              defaultValue={initialData.displayResolution || ''}
+              placeholder="1920x1080"
+            />
+          </Field>
+          <Field label="Panel Type">
+            <StableInput
+              name="displayPanel"
+              defaultValue={initialData.displayPanel || ''}
+              placeholder="IPS"
+            />
+          </Field>
+          <Field label="Refresh Rate (Hz)">
+            <StableInput
+              type="number"
+              name="displayRefreshHz"
+              defaultValue={initialData.displayRefreshHz || ''}
+              placeholder="60"
+            />
+          </Field>
+          <Field label="Brightness (nits)">
+            <StableInput
+              type="number"
+              name="brightnessNits"
+              defaultValue={initialData.brightnessNits || ''}
+              placeholder="300"
+            />
+          </Field>
+        </Section>
+      )}
 
-      <Section title="Battery & Condition">
-        <Field label="Battery Health (%)">
-          <StableInput
-            type="number"
-            name="batteryHealthPct"
-            defaultValue={initialData.batteryHealthPct || ''}
-            placeholder="85"
-          />
-        </Field>
-        <Field label="Battery Cycles">
-          <StableInput
-            type="number"
-            name="batteryCycles"
-            defaultValue={initialData.batteryCycles || ''}
-            placeholder="150"
-          />
-        </Field>
-        <Field label="Condition">
-          <select
-            name="condition"
-            defaultValue={initialData.condition || 'Refurbished-A'}
-            className="w-full h-11 px-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-slate-200/60 rounded-lg shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-md focus:shadow-blue-500/20 transition-all duration-300 text-slate-700"
-          >
-            <option value="Refurbished-A">Refurbished-A</option>
-            <option value="Refurbished-B">Refurbished-B</option>
-            <option value="Refurbished-C">Refurbished-C</option>
-            <option value="Used">Used</option>
-          </select>
-        </Field>
-        <Field label="Cosmetic Notes">
-          <StableTextarea
-            name="cosmeticNotes"
-            defaultValue={initialData.cosmeticNotes || ''}
-            placeholder="Minor scratches on lid"
-          />
-        </Field>
-        <Field label="Functional Notes">
-          <StableTextarea
-            name="functionalNotes"
-            defaultValue={initialData.functionalNotes || ''}
-            placeholder="Fully tested, battery replaced"
-          />
-        </Field>
-      </Section>
+      {mode === 'laptop' && (
+        <Section title="Battery & Condition">
+          <Field label="Battery Health (%)">
+            <StableInput
+              type="number"
+              name="batteryHealthPct"
+              defaultValue={initialData.batteryHealthPct || ''}
+              placeholder="85"
+            />
+          </Field>
+          <Field label="Battery Cycles">
+            <StableInput
+              type="number"
+              name="batteryCycles"
+              defaultValue={initialData.batteryCycles || ''}
+              placeholder="150"
+            />
+          </Field>
+          <Field label="Condition">
+            <select
+              name="condition"
+              defaultValue={initialData.condition || 'Refurbished-A'}
+              className="w-full h-11 px-4 py-2 bg-white/80 backdrop-blur-sm border-2 border-slate-200/60 rounded-lg shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-md focus:shadow-blue-500/20 transition-all duration-300 text-slate-700"
+            >
+              <option value="Refurbished-A">Refurbished-A</option>
+              <option value="Refurbished-B">Refurbished-B</option>
+              <option value="Refurbished-C">Refurbished-C</option>
+              <option value="Used">Used</option>
+            </select>
+          </Field>
+          <Field label="Cosmetic Notes">
+            <StableTextarea
+              name="cosmeticNotes"
+              defaultValue={initialData.cosmeticNotes || ''}
+              placeholder="Minor scratches on lid"
+            />
+          </Field>
+          <Field label="Functional Notes">
+            <StableTextarea
+              name="functionalNotes"
+              defaultValue={initialData.functionalNotes || ''}
+              placeholder="Fully tested, battery replaced"
+            />
+          </Field>
+        </Section>
+      )}
 
       <Section title="Pricing & Availability">
         <Field label="MRP (₹)">
