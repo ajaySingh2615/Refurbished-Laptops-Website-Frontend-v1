@@ -8,6 +8,7 @@ import CategoryPage from './pages/CategoryPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
+import VerifyEmail from './pages/auth/VerifyEmail.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
 import CategoryManagement from './pages/admin/CategoryManagement.jsx';
@@ -60,6 +61,7 @@ export default function App() {
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* Admin routes use their own layout */}
         <Route
