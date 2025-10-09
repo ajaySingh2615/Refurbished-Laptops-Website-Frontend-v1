@@ -123,6 +123,31 @@ class ApiService {
   async deleteCategory(id) {
     return this.request(`/api/categories/${id}`, { method: 'DELETE' });
   }
+
+  // Auth
+  async login(body) {
+    return this.request('/api/auth/login', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  async register(body) {
+    return this.request('/api/auth/register', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  async refresh() {
+    return this.request('/api/auth/refresh', { method: 'POST' });
+  }
+
+  async logout() {
+    return this.request('/api/auth/logout', { method: 'POST' });
+  }
+
+  async me(accessToken) {
+    return fetch('/api/auth/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }).then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch profile'))));
+  }
 }
 
 export const apiService = new ApiService();
