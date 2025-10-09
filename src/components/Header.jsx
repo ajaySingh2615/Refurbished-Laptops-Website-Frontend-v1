@@ -9,6 +9,25 @@ export default function Header({ onSearch }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = React.useRef(null);
+
+  React.useEffect(() => {
+    function onDocClick(e) {
+      if (!profileOpen) return;
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') setProfileOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [profileOpen]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -130,7 +149,7 @@ export default function Header({ onSearch }) {
                 </Link>
               </>
             ) : (
-              <div className="relative">
+              <div className="relative" ref={profileRef}>
                 <button
                   className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
                   onClick={() => setProfileOpen((v) => !v)}

@@ -1,27 +1,47 @@
 import React from 'react';
 import { cn } from '../../utils/cn.js';
 
-const Modal = React.forwardRef(({ className, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn('fixed inset-0 z-50 flex items-center justify-center p-4', className)}
-    {...props}
-  >
-    {children}
-  </div>
-));
+const ModalContext = React.createContext({ onClose: undefined });
+
+const Modal = React.forwardRef(({ className, children, onClose, ...props }, ref) => {
+  React.useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape' && onClose) onClose();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <ModalContext.Provider value={{ onClose }}>
+      <div
+        ref={ref}
+        className={cn('fixed inset-0 z-50 flex items-center justify-center p-4', className)}
+        {...props}
+      >
+        {children}
+      </div>
+    </ModalContext.Provider>
+  );
+});
 Modal.displayName = 'Modal';
 
-const ModalOverlay = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300',
-      className,
-    )}
-    {...props}
-  />
-));
+const ModalOverlay = React.forwardRef(({ className, ...props }, ref) => {
+  const { onClose } = React.useContext(ModalContext);
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300',
+        className,
+      )}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && onClose) onClose();
+      }}
+      {...props}
+    />
+  );
+});
 ModalOverlay.displayName = 'ModalOverlay';
 
 const ModalContent = React.forwardRef(({ className, children, ...props }, ref) => (
