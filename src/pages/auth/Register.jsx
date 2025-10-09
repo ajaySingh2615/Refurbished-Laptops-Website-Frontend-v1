@@ -1,6 +1,7 @@
 import React from 'react';
 import { apiService } from '../../services/api.js';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 
 function VanishInput({
   value,
@@ -63,6 +64,7 @@ export default function Register() {
   const [phone, setPhone] = React.useState('');
   const [otpSent, setOtpSent] = React.useState(false);
   const [otp, setOtp] = React.useState('');
+  const { refresh } = useAuth();
 
   const handleGoogle = () => {
     window.location.href = '/api/auth/google/start';
@@ -79,10 +81,10 @@ export default function Register() {
     try {
       setBusy(true);
       await apiService.register({ email, password, name });
-      setMsg('Registered successfully. Please login.');
-      setName('');
-      setEmail('');
-      setPassword('');
+      // Ensure AuthContext fetches profile before navigating
+      await refresh();
+      setMsg('Welcome! Redirecting to products...');
+      window.location.href = '/products';
     } catch (e) {
       setErr(e?.message || 'Registration failed');
     } finally {

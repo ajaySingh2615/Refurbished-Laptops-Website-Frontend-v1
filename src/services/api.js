@@ -143,11 +143,21 @@ class ApiService {
   }
 
   async me(accessToken) {
-    return fetch('/api/auth/me', {
+    return this.request('/api/auth/me', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
+        'Cache-Control': 'no-cache',
       },
-    }).then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch profile'))));
+    });
+  }
+
+  // Email verification
+  async verifyEmail(token) {
+    return this.request(`/api/auth/verify-email?token=${encodeURIComponent(token)}`);
+  }
+
+  async resendVerification() {
+    return this.request('/api/auth/resend-verification', { method: 'POST' });
   }
 
   // Phone OTP (to be wired on backend):

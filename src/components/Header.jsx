@@ -2,11 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import { Button } from './ui/Button.jsx';
 
 export default function Header({ onSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -116,28 +118,62 @@ export default function Header({ onSearch }) {
             {/* Auth links */}
             {!user ? (
               <>
-                <Link
-                  to="/login"
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Login
+                <Link to="/login">
+                  <Button variant="outline" size="sm">
+                    Login
+                  </Button>
                 </Link>
-                <Link
-                  to="/register"
-                  className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-semibold hover:bg-blue-700"
-                >
-                  Register
+                <Link to="/register">
+                  <Button variant="gradient" size="sm">
+                    Register
+                  </Button>
                 </Link>
               </>
             ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Hi, {user.name || user.email}</span>
+              <div className="relative">
                 <button
-                  onClick={logout}
-                  className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
+                  onClick={() => setProfileOpen((v) => !v)}
                 >
-                  Logout
+                  <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-semibold text-slate-700">
+                    {(user.name || user.email || '?').toString().trim().charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm text-slate-700 max-w-[140px] truncate">
+                    {user.name || user.email}
+                  </span>
+                  <svg className="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </button>
+                {profileOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-md z-50">
+                    <div className="px-3 py-2 text-xs text-slate-500">Signed in as</div>
+                    <div className="px-3 pb-2 text-sm font-medium text-slate-700 truncate">
+                      {user.email}
+                    </div>
+                    <div className="h-px bg-slate-200" />
+                    <Link
+                      to="/account"
+                      onClick={() => setProfileOpen(false)}
+                      className="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        logout();
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </nav>
