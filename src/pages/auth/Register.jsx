@@ -181,26 +181,98 @@ export default function Register() {
             </div>
 
             {tab === 'email' ? (
-              <form onSubmit={submitEmail} className="space-y-3">
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Full name"
-                  className="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                />
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email address"
-                  className="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                />
-                <input
-                  value={password}
-                  type="password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Create password"
-                  className="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                />
+              <form onSubmit={submitEmail} className="space-y-4">
+                {/* Full name */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Full name
+                  </label>
+                  <div className="relative group">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                      <svg
+                        className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5.121 17.804A7 7 0 0112 15a7 7 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Email address
+                  </label>
+                  <div className="relative group">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                      <svg
+                        className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Create password
+                  </label>
+                  <div className="relative group">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                      <svg
+                        className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 11c.552 0 1 .448 1 1v4a1 1 0 11-2 0v-4c0-.552.448-1 1-1zm-4 0V9a4 4 0 118 0v2m-9 0h10a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2v-5a2 2 0 012-2z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      value={password}
+                      type="password"
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Minimum 8 characters"
+                      className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
+                    />
+                  </div>
+                </div>
+
                 <label className="flex items-center gap-2 text-xs text-slate-600">
                   <input
                     type="checkbox"
@@ -221,42 +293,88 @@ export default function Register() {
                 <button
                   disabled={busy}
                   type="submit"
-                  className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
+                  className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl hover:opacity-95 transition disabled:opacity-60"
                 >
                   {busy ? 'Creating...' : 'Create account'}
                 </button>
               </form>
             ) : (
-              <div className="space-y-3">
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Full name"
-                  className="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                />
-                <div className="flex gap-2">
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Phone number"
-                    className="flex-1 h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                  />
-                  <button
-                    disabled={busy || !phone}
-                    onClick={sendOtp}
-                    className="h-11 px-4 rounded-lg border border-slate-300 hover:bg-slate-50"
-                  >
-                    {otpSent ? 'Resend' : 'Send OTP'}
-                  </button>
+              <div className="space-y-4">
+                {/* Full name */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Full name
+                  </label>
+                  <div className="relative group">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                      <svg
+                        className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5.121 17.804A7 7 0 0112 15a7 7 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your full name"
+                      className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
+                    />
+                  </div>
                 </div>
+
+                {/* Phone + Send OTP */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    Phone number
+                  </label>
+                  <div className="flex gap-2">
+                    <div className="relative group flex-1">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <span className="text-slate-400 text-xs mr-1">+91</span>
+                      </div>
+                      <input
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="98765 43210"
+                        className="w-full h-11 pl-12 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
+                      />
+                    </div>
+                    <button
+                      disabled={busy || !phone}
+                      onClick={sendOtp}
+                      className="h-11 px-4 rounded-xl border border-slate-300 bg-white/80 hover:bg-slate-50 font-semibold shadow-sm"
+                    >
+                      {otpSent ? 'Resend' : 'Send OTP'}
+                    </button>
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    We’ll send a 6‑digit code to verify your number.
+                  </p>
+                </div>
+
+                {/* OTP */}
                 {otpSent && (
-                  <input
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Enter OTP"
-                    className="w-full h-11 px-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                  />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                      Enter OTP
+                    </label>
+                    <input
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="6-digit code"
+                      className="w-full h-11 px-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
+                    />
+                  </div>
                 )}
+
                 <label className="flex items-center gap-2 text-xs text-slate-600">
                   <input
                     type="checkbox"
@@ -277,7 +395,7 @@ export default function Register() {
                 <button
                   disabled={busy || !otpSent}
                   onClick={verifyOtp}
-                  className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
+                  className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl hover:opacity-95 transition disabled:opacity-60"
                 >
                   {busy ? 'Verifying...' : 'Verify & Create account'}
                 </button>
