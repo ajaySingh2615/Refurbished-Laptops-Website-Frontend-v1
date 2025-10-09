@@ -6,10 +6,13 @@ import ProductsPage from './pages/ProductsPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import CategoryPage from './pages/CategoryPage.jsx';
 import NotFound from './pages/NotFound.jsx';
+import Login from './pages/auth/Login.jsx';
+import Register from './pages/auth/Register.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
 import CategoryManagement from './pages/admin/CategoryManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
+import { RequireAdmin } from './contexts/Guards.jsx';
 
 export default function App() {
   const handleSearch = (query) => {
@@ -54,29 +57,39 @@ export default function App() {
           }
         />
 
+        {/* Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
         {/* Admin routes use their own layout */}
         <Route
           path="/admin"
           element={
-            <AdminProvider>
-              <AdminDashboard />
-            </AdminProvider>
+            <RequireAdmin>
+              <AdminProvider>
+                <AdminDashboard />
+              </AdminProvider>
+            </RequireAdmin>
           }
         />
         <Route
           path="/admin/products"
           element={
-            <AdminProvider>
-              <ProductManagement />
-            </AdminProvider>
+            <RequireAdmin>
+              <AdminProvider>
+                <ProductManagement />
+              </AdminProvider>
+            </RequireAdmin>
           }
         />
         <Route
           path="/admin/categories"
           element={
-            <AdminProvider>
-              <CategoryManagement />
-            </AdminProvider>
+            <RequireAdmin>
+              <AdminProvider>
+                <CategoryManagement />
+              </AdminProvider>
+            </RequireAdmin>
           }
         />
 
