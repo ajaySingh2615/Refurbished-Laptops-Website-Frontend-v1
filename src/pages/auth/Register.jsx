@@ -2,6 +2,53 @@ import React from 'react';
 import { apiService } from '../../services/api.js';
 import { Link } from 'react-router-dom';
 
+function VanishInput({
+  value,
+  onChange,
+  name,
+  type = 'text',
+  placeholderOptions = [],
+  className = '',
+  inputClassName = '',
+  leftAdornment = null,
+  disabled = false,
+  ...rest
+}) {
+  const [idx, setIdx] = React.useState(0);
+  const [focused, setFocused] = React.useState(false);
+
+  React.useEffect(() => {
+    if (focused || value) return;
+    if (!placeholderOptions?.length) return;
+    const id = setInterval(() => setIdx((i) => (i + 1) % placeholderOptions.length), 4000);
+    return () => clearInterval(id);
+  }, [focused, value, placeholderOptions]);
+
+  const current = placeholderOptions[idx] || '';
+
+  return (
+    <div className={`relative ${className}`}>
+      {leftAdornment}
+      <input
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        className={`w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm ${inputClassName}`}
+        {...rest}
+      />
+      {!focused && !value && current && (
+        <div className="pointer-events-none absolute inset-y-0 left-9 flex items-center text-slate-400">
+          {current}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Register() {
   const [tab, setTab] = React.useState('email');
   const [name, setName] = React.useState('');
@@ -100,31 +147,75 @@ export default function Register() {
       <div className="w-full max-w-3xl bg-white/90 backdrop-blur rounded-2xl border border-slate-200 shadow-xl overflow-hidden relative">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Left: marketing / illustration */}
-          <div className="hidden md:flex flex-col justify-center p-8 bg-gradient-to-br from-blue-600 to-purple-600 text-white">
-            <h2 className="text-2xl font-bold mb-2">Create your account</h2>
-            <p className="text-white/90 text-sm mb-6">
-              Join to manage orders, wishlist, and get exclusive offers.
+          <div className="hidden md:flex flex-col justify-center p-8 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white relative overflow-hidden">
+            {/* subtle rings */}
+            <div className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+            <div className="pointer-events-none absolute -left-16 -bottom-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+
+            <div className="mb-6">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-semibold">
+                <span className="h-2 w-2 rounded-full bg-emerald-300"></span>
+                Join the community
+              </span>
+            </div>
+
+            <h2 className="text-3xl font-extrabold tracking-tight leading-snug">
+              Create your
+              <span className="ml-2 inline-block bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-white">
+                account
+              </span>
+            </h2>
+            <p className="text-white/90 text-sm mt-2 mb-6">
+              Manage orders, wishlist, and unlock exclusive offers tailored for you.
             </p>
-            <ul className="space-y-2 text-white/90 text-sm">
-              <li className="flex items-center gap-2">
-                <span className="inline-block w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/10 border border-white/15 shadow-sm">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-400/90 text-emerald-950 font-bold">
                   ✓
-                </span>{' '}
-                Fast checkout experience
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="inline-block w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Fast checkout experience</div>
+                  <div className="text-xs text-white/80">
+                    Save details securely for one‑tap payments.
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/10 border border-white/15 shadow-sm">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-300/90 text-sky-950 font-bold">
                   ✓
-                </span>{' '}
-                Track orders & repairs
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="inline-block w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Track orders & repairs</div>
+                  <div className="text-xs text-white/80">
+                    Real‑time status and proactive updates.
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/10 border border-white/15 shadow-sm">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-300/90 text-amber-950 font-bold">
                   ✓
-                </span>{' '}
-                Early access to deals
-              </li>
-            </ul>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Early access to deals</div>
+                  <div className="text-xs text-white/80">
+                    Members‑only launches and festival offers.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center gap-3 text-[11px] text-white/80">
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-white/10 border border-white/15">
+                ISO‑27001
+              </div>
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-white/10 border border-white/15">
+                RBI‑Guidelines
+              </div>
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-white/10 border border-white/15">
+                Secure by Design
+              </div>
+            </div>
           </div>
 
           {/* Right: form */}
@@ -187,29 +278,28 @@ export default function Register() {
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
                     Full name
                   </label>
-                  <div className="relative group">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
-                      <svg
-                        className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5.121 17.804A7 7 0 0112 15a7 7 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your full name"
-                      className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
-                    />
-                  </div>
+                  <VanishInput
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholderOptions={['Your full name', 'Rahul Sharma', 'Aarav Kumar']}
+                    leftAdornment={
+                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <svg
+                          className="h-4 w-4 text-slate-400"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5.121 17.804A7 7 0 0112 15a7 7 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      </div>
+                    }
+                  />
                 </div>
 
                 {/* Email */}
@@ -217,29 +307,33 @@ export default function Register() {
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
                     Email address
                   </label>
-                  <div className="relative group">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
-                      <svg
-                        className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
-                    />
-                  </div>
+                  <VanishInput
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    placeholderOptions={[
+                      'you@example.com',
+                      'rahul@example.com',
+                      'aarav@example.com',
+                    ]}
+                    leftAdornment={
+                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <svg
+                          className="h-4 w-4 text-slate-400"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                    }
+                  />
                 </div>
 
                 {/* Password */}
@@ -247,30 +341,29 @@ export default function Register() {
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
                     Create password
                   </label>
-                  <div className="relative group">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
-                      <svg
-                        className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 11c.552 0 1 .448 1 1v4a1 1 0 11-2 0v-4c0-.552.448-1 1-1zm-4 0V9a4 4 0 118 0v2m-9 0h10a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2v-5a2 2 0 012-2z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      value={password}
-                      type="password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Minimum 8 characters"
-                      className="w-full h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
-                    />
-                  </div>
+                  <VanishInput
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type="password"
+                    placeholderOptions={['Minimum 8 characters', 'Use letters & numbers']}
+                    leftAdornment={
+                      <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <svg
+                          className="h-4 w-4 text-slate-400"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 11c.552 0 1 .448 1 1v4a1 1 0 11-2 0v-4c0-.552.448-1 1-1zm-4 0V9a4 4 0 118 0v2m-9 0h10a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2v-5a2 2 0 012-2z"
+                          />
+                        </svg>
+                      </div>
+                    }
+                  />
                 </div>
 
                 <label className="flex items-center gap-2 text-xs text-slate-600">
@@ -340,11 +433,11 @@ export default function Register() {
                       <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
                         <span className="text-slate-400 text-xs mr-1">+91</span>
                       </div>
-                      <input
+                      <VanishInput
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="98765 43210"
-                        className="w-full h-11 pl-12 pr-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition shadow-sm"
+                        placeholderOptions={['98765 43210', '90000 00000', '81234 56789']}
+                        inputClassName="pl-12"
                       />
                     </div>
                     <button
