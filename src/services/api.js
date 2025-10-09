@@ -149,6 +149,18 @@ class ApiService {
       },
     }).then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch profile'))));
   }
+
+  // Phone OTP (to be wired on backend):
+  async sendPhoneOtp(body) {
+    return this.request('/api/auth/phone/send-otp', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  async verifyPhoneOtp(body) {
+    return this.request('/api/auth/phone/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
 }
 
 export const apiService = new ApiService();
