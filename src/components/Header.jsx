@@ -59,7 +59,7 @@ export default function Header({ onSearch }) {
         onLoginClick={() => (window.location.href = '/login')}
         onRegisterClick={() => (window.location.href = '/register')}
       />
-      <header className="bg-white shadow-sm border-b md:hidden">
+      <header className="hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -284,13 +284,15 @@ export default function Header({ onSearch }) {
                   <>
                     <Link
                       to="/login"
-                      className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                      className="inline-flex h-10 items-center justify-center cursor-pointer border text-sm font-medium border-slate-200 text-slate-700 px-4 rounded-full bg-white hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400/40 active:scale-[0.99] transition-colors"
+                      aria-label="Login"
                     >
                       Login
                     </Link>
                     <Link
                       to="/register"
-                      className="px-3 py-2 rounded-md text-sm font-medium text-white bg-blue-600 text-center hover:bg-blue-700"
+                      className="inline-flex h-10 items-center justify-center cursor-pointer text-sm font-semibold relative text-white px-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 shadow hover:from-blue-600/95 hover:to-purple-600/95 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400/40 active:scale-[0.99] transition-colors"
+                      aria-label="Register"
                     >
                       Register
                     </Link>
