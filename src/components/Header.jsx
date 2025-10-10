@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Button } from './ui/Button.jsx';
+import { FloatingNav } from './ui/FloatingNav.jsx';
 import {
   Modal,
   ModalOverlay,
@@ -48,7 +49,17 @@ export default function Header({ onSearch }) {
 
   return (
     <>
-      <header className="bg-white shadow-sm border-b">
+      <FloatingNav
+        navItems={[
+          { name: 'Home', link: '/' },
+          { name: 'Products', link: '/products' },
+          { name: 'Electronics', link: '/c/electronics' },
+          { name: 'Peripherals', link: '/c/peripherals' },
+        ]}
+        onLoginClick={() => (window.location.href = '/login')}
+        onRegisterClick={() => (window.location.href = '/register')}
+      />
+      <header className="bg-white shadow-sm border-b md:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -112,8 +123,8 @@ export default function Header({ onSearch }) {
               </div>
             </form>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-4">
+            {/* Navigation (hidden because FloatingNav handles desktop) */}
+            <nav className="hidden">
               <Link
                 to="/"
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
@@ -147,18 +158,7 @@ export default function Header({ onSearch }) {
 
               {/* Auth links */}
               {!user ? (
-                <>
-                  <Link to="/login">
-                    <Button variant="outline" size="sm">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link to="/register">
-                    <Button variant="gradient" size="sm">
-                      Register
-                    </Button>
-                  </Link>
-                </>
+                <></>
               ) : (
                 <div className="relative" ref={profileRef}>
                   <button
