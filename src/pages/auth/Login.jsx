@@ -294,6 +294,11 @@ export default function Login() {
                 >
                   {busy ? 'Signing in…' : 'Sign in'}
                 </button>
+                <div className="text-right">
+                  <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
               </form>
             ) : (
               <div className="space-y-3">

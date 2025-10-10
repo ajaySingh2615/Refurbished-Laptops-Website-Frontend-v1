@@ -4,9 +4,10 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import { apiService } from '../services/api.js';
 
 export default function Layout({ children, onSearch }) {
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const [bannerVisible, setBannerVisible] = React.useState(true);
   const [sending, setSending] = React.useState(false);
+  const [message, setMessage] = React.useState('');
 
   const showVerify = user && !user.emailVerifiedAt && bannerVisible;
 
@@ -26,7 +27,14 @@ export default function Layout({ children, onSearch }) {
                 onClick={async () => {
                   try {
                     setSending(true);
-                    await apiService.resendVerification();
+                    setMessage('');
+                    console.log('Resending verification email...');
+                    const result = await apiService.resendVerification(accessToken);
+                    console.log('Resend result:', result);
+                    setMessage('Verification email sent! Check your inbox.');
+                  } catch (error) {
+                    console.error('Resend verification error:', error);
+                    setMessage('Failed to send email. Please try again.');
                   } finally {
                     setSending(false);
                   }
@@ -42,6 +50,13 @@ export default function Layout({ children, onSearch }) {
                 Dismiss
               </button>
             </div>
+            {message && (
+              <div
+                className={`mt-2 text-sm ${message.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}
+              >
+                {message}
+              </div>
+            )}
           </div>
         )}
         {children}

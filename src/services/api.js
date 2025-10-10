@@ -156,8 +156,13 @@ class ApiService {
     return this.request(`/api/auth/verify-email?token=${encodeURIComponent(token)}`);
   }
 
-  async resendVerification() {
-    return this.request('/api/auth/resend-verification', { method: 'POST' });
+  async resendVerification(accessToken) {
+    return this.request('/api/auth/resend-verification', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
   }
 
   // Phone OTP (to be wired on backend):
@@ -169,6 +174,21 @@ class ApiService {
     return this.request('/api/auth/phone/verify-otp', {
       method: 'POST',
       body: JSON.stringify(body),
+    });
+  }
+
+  // Password reset
+  async forgotPassword(email) {
+    return this.request('/api/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resetPassword(token, password) {
+    return this.request('/api/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
     });
   }
 }
