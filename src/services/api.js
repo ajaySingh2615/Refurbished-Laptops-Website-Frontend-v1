@@ -231,14 +231,6 @@ class ApiService {
     });
   }
 
-  async adminResetUserPassword(id, password, accessToken) {
-    return this.request(`/api/auth/admin/users/${id}/reset-password`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}` },
-      body: JSON.stringify({ password }),
-    });
-  }
-
   async adminDeleteUser(id, accessToken) {
     return this.request(`/api/auth/admin/users/${id}`, {
       method: 'DELETE',
