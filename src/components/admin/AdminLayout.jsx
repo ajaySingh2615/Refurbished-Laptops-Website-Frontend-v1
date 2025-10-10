@@ -11,6 +11,7 @@ export default function AdminLayout({ children }) {
     { path: '/admin', label: 'Dashboard', icon: '📊' },
     { path: '/admin/products', label: 'Products', icon: '💻', badge: lowStockCount },
     { path: '/admin/categories', label: 'Categories', icon: '📁' },
+    { path: '/admin/users', label: 'Users', icon: '👤' },
   ];
 
   return (

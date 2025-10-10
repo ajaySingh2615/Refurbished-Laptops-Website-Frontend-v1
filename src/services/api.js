@@ -196,6 +196,55 @@ class ApiService {
   async adminLogin(body) {
     return this.request('/api/auth/admin/login', { method: 'POST', body: JSON.stringify(body) });
   }
+
+  // Admin users
+  async adminListUsers({ page = 1, pageSize = 20, search, role, status } = {}, accessToken) {
+    const params = new URLSearchParams();
+    params.append('page', page);
+    params.append('pageSize', pageSize);
+
+    if (search) params.append('search', search);
+    if (role && role !== 'all') params.append('role', role);
+    if (status && status !== 'all') params.append('status', status);
+
+    return this.request(`/api/auth/admin/users?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async adminCreateUser(body, accessToken) {
+    return this.request('/api/auth/admin/users', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(body),
+    });
+  }
+
+  async adminUpdateUser(id, body, accessToken) {
+    return this.request(`/api/auth/admin/users/${id}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  }
+
+  async adminResetUserPassword(id, password, accessToken) {
+    return this.request(`/api/auth/admin/users/${id}/reset-password`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ password }),
+    });
+  }
+
+  async adminDeleteUser(id, accessToken) {
+    return this.request(`/api/auth/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
 }
 
 export const apiService = new ApiService();

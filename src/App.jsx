@@ -13,6 +13,7 @@ import ForgotPassword from './pages/auth/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
+import UserManagement from './pages/admin/UserManagement.jsx';
 import CategoryManagement from './pages/admin/CategoryManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
 import { RequireAdmin } from './contexts/Guards.jsx';
@@ -84,6 +85,16 @@ export default function App() {
             <RequireAdmin>
               <AdminProvider>
                 <ProductManagement />
+              </AdminProvider>
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <RequireAdmin>
+              <AdminProvider>
+                <UserManagement />
               </AdminProvider>
             </RequireAdmin>
           }
