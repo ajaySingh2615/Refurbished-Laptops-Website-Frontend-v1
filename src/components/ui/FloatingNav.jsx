@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 
 export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className = '' }) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = React.useState(false);
   const profileRef = React.useRef(null);
   const { scrollY } = useScroll();
@@ -77,16 +79,16 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar whitespace-nowrap px-1 sm:px-2">
             {navItems?.map((item, idx) => (
-              <a
+              <Link
                 key={idx}
-                href={item.link}
+                to={item.link}
                 className="group relative text-slate-700/90 hover:text-slate-900 text-[13px] sm:text-sm px-2 py-1 transition-colors"
               >
                 <span className="relative">
                   {item.name}
                   <span className="pointer-events-none absolute left-0 right-0 -bottom-1 mx-auto h-px w-0 bg-gradient-to-r from-blue-500 via-fuchsia-500 to-purple-600 transition-all duration-200 group-hover:w-full" />
                 </span>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -95,14 +97,14 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
           {!user ? (
             <>
               <button
-                onClick={onLoginClick}
+                onClick={() => (onLoginClick ? onLoginClick() : navigate('/login'))}
                 className="inline-flex h-9 items-center justify-center cursor-pointer border text-[13px] sm:text-sm font-medium border-slate-200 text-slate-700 px-3 sm:px-4 rounded-full bg-white hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400/40 active:scale-[0.99] transition-colors"
                 aria-label="Login"
               >
                 Login
               </button>
               <button
-                onClick={onRegisterClick}
+                onClick={() => (onRegisterClick ? onRegisterClick() : navigate('/register'))}
                 className="inline-flex h-9 items-center justify-center cursor-pointer group text-[13px] sm:text-sm font-semibold relative text-white px-4 sm:px-5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 shadow transition-colors hover:from-blue-600/95 hover:to-purple-600/95 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400/40 active:scale-[0.99]"
                 aria-label="Register"
               >
