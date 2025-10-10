@@ -67,9 +67,13 @@ export default function Login() {
     setMsg('');
     try {
       setBusy(true);
-      await login(email, password); // AuthContext handles tokens + profile
+      const me = await login(email, password); // AuthContext handles tokens + profile
       setMsg('Welcome back! Redirecting…');
-      window.location.href = '/products';
+      if (me?.role === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/products';
+      }
     } catch (e) {
       setErr('Invalid credentials');
     } finally {

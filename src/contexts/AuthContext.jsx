@@ -12,8 +12,10 @@ export function AuthProvider({ children }) {
     try {
       const me = await apiService.me(token);
       setUser(me);
+      return me;
     } catch {
       setUser(null);
+      return null;
     }
   }, []);
 
@@ -39,7 +41,8 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const res = await apiService.login({ email, password });
     setAccessToken(res.access);
-    await fetchProfile(res.access);
+    const me = await fetchProfile(res.access);
+    return me;
   };
 
   const logout = async () => {

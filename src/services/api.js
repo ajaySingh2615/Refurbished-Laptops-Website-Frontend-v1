@@ -191,6 +191,11 @@ class ApiService {
       body: JSON.stringify({ token, password }),
     });
   }
+
+  // Admin auth
+  async adminLogin(body) {
+    return this.request('/api/auth/admin/login', { method: 'POST', body: JSON.stringify(body) });
+  }
 }
 
 export const apiService = new ApiService();
