@@ -1,8 +1,10 @@
 import React from 'react';
-
+import { motion } from 'framer-motion';
 import { formatPrice, formatDate } from '../utils/formatters.js';
 import RelatedProducts from './RelatedProducts.jsx';
 import { apiService } from '../services/api.js';
+import { Button } from './ui/Button.jsx';
+import { Input } from './ui/Input.jsx';
 
 export default function ProductDetail({ product, loading, error }) {
   const [productImages, setProductImages] = React.useState([]);
@@ -174,267 +176,449 @@ export default function ProductDetail({ product, loading, error }) {
         : null;
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Media */}
-        <div className="lg:col-span-5">
-          <div className="sticky top-4">
-            {/* Main Image */}
-            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-              {imageLoading ? (
-                <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center animate-pulse">
-                  <svg className="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
-                  </svg>
-                </div>
-              ) : productImages.length > 0 ? (
-                <img
-                  src={productImages[selectedImageIndex]?.cloudinaryUrl}
-                  alt={productImages[selectedImageIndex]?.altText || product.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-
-              {/* Fallback when no image or image fails to load */}
-              <div
-                className="w-full h-full flex items-center justify-center bg-gray-200"
-                style={{ display: productImages.length > 0 ? 'none' : 'flex' }}
+    <div className="min-h-screen" style={{ backgroundColor: '#f8f6f3' }}>
+      <div className="max-w-7xl mx-auto p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+        >
+          {/* Left: Media */}
+          <motion.div
+            className="lg:col-span-5"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div className="sticky top-4">
+              {/* Main Image */}
+              <motion.div
+                className="aspect-square bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 flex items-center justify-center relative overflow-hidden"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               >
-                <span className="text-gray-500">No Image Available</span>
-              </div>
-            </div>
+                {imageLoading ? (
+                  <div className="w-16 h-16 bg-slate-200 rounded-xl flex items-center justify-center animate-pulse">
+                    <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
+                    </svg>
+                  </div>
+                ) : productImages.length > 0 ? (
+                  <img
+                    src={productImages[selectedImageIndex]?.cloudinaryUrl}
+                    alt={productImages[selectedImageIndex]?.altText || product.title}
+                    className="w-full h-full object-cover rounded-2xl"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
 
-            {/* Thumbnail Images */}
-            {productImages.length > 1 && (
-              <div className="mt-3 grid grid-cols-5 gap-2">
-                {productImages.slice(0, 5).map((image, index) => (
-                  <button
-                    key={image.id}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                      selectedImageIndex === index
-                        ? 'border-blue-500 ring-2 ring-blue-200'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                {/* Fallback when no image or image fails to load */}
+                <div
+                  className="w-full h-full flex items-center justify-center bg-slate-100 rounded-2xl"
+                  style={{ display: productImages.length > 0 ? 'none' : 'flex' }}
+                >
+                  <div className="text-center">
+                    <svg
+                      className="w-12 h-12 text-slate-400 mx-auto mb-2"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
+                    </svg>
+                    <span className="text-slate-500 text-sm">No Image Available</span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Thumbnail Images */}
+              {productImages.length > 1 && (
+                <motion.div
+                  className="mt-4 grid grid-cols-5 gap-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                >
+                  {productImages.slice(0, 5).map((image, index) => (
+                    <motion.button
+                      key={image.id}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                        selectedImageIndex === index
+                          ? 'border-blue-500 ring-2 ring-blue-200 shadow-lg'
+                          : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <img
+                        src={image.cloudinaryUrl}
+                        alt={image.altText || `${product.title} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Right: Details */}
+          <motion.div
+            className="lg:col-span-7 space-y-6"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            {/* Product Header */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-3 leading-tight">
+                {product.title}
+              </h1>
+              <div className="flex items-center gap-3 mb-4">
+                <motion.span
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+                    product.inStock
+                      ? 'bg-green-100 text-green-800 border border-green-200'
+                      : 'bg-red-100 text-red-800 border border-red-200'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`}
+                  ></div>
+                  {product.inStock ? 'In Stock' : 'Out of Stock'}
+                </motion.span>
+                {typeof product.stockQty === 'number' &&
+                  product.stockQty <= 5 &&
+                  product.stockQty > 0 && (
+                    <motion.span
+                      className="text-sm text-red-600 font-medium bg-red-50 px-2 py-1 rounded-lg"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      Only {product.stockQty} left
+                    </motion.span>
+                  )}
+              </div>
+            </motion.div>
+
+            {/* Product Options & Pricing */}
+            <motion.div
+              className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              {/* Variant selectors */}
+              {variants.length > 0 && (
+                <div className="space-y-4 mb-6">
+                  {variantSets.colors.length > 0 && (
+                    <div>
+                      <div className="text-sm font-semibold text-slate-800 mb-2">Color</div>
+                      <div className="flex flex-wrap gap-2">
+                        {variantSets.colors.map((c) => (
+                          <motion.button
+                            key={c}
+                            onClick={() => setSel((s) => ({ ...s, color: c }))}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
+                              sel.color === c
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow-md'
+                            }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {c}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {variantSets.rams.length > 0 && (
+                    <div>
+                      <div className="text-sm font-semibold text-slate-800 mb-2">RAM</div>
+                      <div className="flex flex-wrap gap-2">
+                        {variantSets.rams.map((r) => (
+                          <motion.button
+                            key={r}
+                            onClick={() => setSel((s) => ({ ...s, ramGb: r }))}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
+                              sel.ramGb === r
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow-md'
+                            }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {r} GB
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {variantSets.storages.length > 0 && (
+                    <div>
+                      <div className="text-sm font-semibold text-slate-800 mb-2">Storage</div>
+                      <div className="flex flex-wrap gap-2">
+                        {variantSets.storages.map((st) => (
+                          <motion.button
+                            key={st}
+                            onClick={() => setSel((s) => ({ ...s, storage: st }))}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
+                              sel.storage === st
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:shadow-md'
+                            }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {st}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {selectedVariant && (
+                    <div className="text-xs text-slate-500 bg-slate-50 px-3 py-2 rounded-lg">
+                      Selected SKU:{' '}
+                      <span className="font-mono text-slate-700">{selectedVariant.sku}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Pricing */}
+              <div className="flex items-end gap-4 mb-4">
+                {price !== null && (
+                  <motion.div
+                    className="text-4xl font-bold text-slate-900"
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.3, delay: 0.6 }}
                   >
-                    <img
-                      src={image.cloudinaryUrl}
-                      alt={image.altText || `${product.title} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                    {formatPrice(price)}
+                  </motion.div>
+                )}
+                {mrp && (
+                  <div className="text-lg text-slate-500 line-through">{formatPrice(mrp)}</div>
+                )}
+                {discountPct !== null && discountPct > 0 && (
+                  <motion.span
+                    className="text-sm font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-lg"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: 0.7 }}
+                  >
+                    {discountPct}% off
+                  </motion.span>
+                )}
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Right: Details */}
-        <div className="lg:col-span-7 space-y-5">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{product.title}</h1>
-            <div className="flex items-center gap-3">
-              <span
-                className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-              >
-                {product.inStock ? 'In Stock' : 'Out of Stock'}
-              </span>
-              {typeof product.stockQty === 'number' &&
-                product.stockQty <= 5 &&
-                product.stockQty > 0 && (
-                  <span className="text-sm text-red-600 font-medium">
-                    Only {product.stockQty} left
+              {typeof product.gstPercent !== 'undefined' && (
+                <div className="text-xs text-slate-500 mb-4">
+                  Inclusive of GST ({product.gstPercent}%)
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    className={`w-full py-3 rounded-xl font-medium transition-all duration-200 ${
+                      product.inStock
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
+                        : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                    }`}
+                    disabled={!product.inStock}
+                  >
+                    {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                  </Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    variant="outline"
+                    className="w-full py-3 rounded-xl font-medium border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-200"
+                  >
+                    Buy Now
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Delivery & Warranty Info */}
+            <motion.div
+              className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Input type="text" placeholder="Enter delivery pincode" className="flex-1" />
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button className="px-6 py-2 rounded-xl">Check</Button>
+                </motion.div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-slate-700">
+                {product.warrantyMonths && (
+                  <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="font-medium">Warranty:</span> {product.warrantyMonths} months
+                  </div>
+                )}
+                {product.returnWindowDays && (
+                  <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="font-medium">Returns:</span> {product.returnWindowDays} days
+                  </div>
+                )}
+                {product.fulfillmentLocation && (
+                  <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span className="font-medium">Ships From:</span> {product.fulfillmentLocation}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Available Offers */}
+            <motion.div
+              className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+            >
+              <h3 className="font-semibold text-slate-900 mb-4 text-lg">Available Offers</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm text-green-800">
+                    No-cost EMI available on select cards
                   </span>
-                )}
-            </div>
-          </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm text-blue-800">
+                    Extra 5% off with Axis Bank Credit Card
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span className="text-sm text-purple-800">
+                    Free shipping for orders above ₹50,000
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
-          <div className="border rounded-lg p-4 bg-white">
-            {/* Variant selectors */}
-            {variants.length > 0 && (
-              <div className="space-y-3 mb-4">
-                {variantSets.colors.length > 0 && (
-                  <div>
-                    <div className="text-sm font-medium text-gray-800 mb-1">Color</div>
-                    <div className="flex flex-wrap gap-2">
-                      {variantSets.colors.map((c) => (
-                        <button
-                          key={c}
-                          onClick={() => setSel((s) => ({ ...s, color: c }))}
-                          className={`px-3 py-1.5 rounded-full text-sm border ${sel.color === c ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'}`}
-                        >
-                          {c}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {variantSets.rams.length > 0 && (
-                  <div>
-                    <div className="text-sm font-medium text-gray-800 mb-1">RAM</div>
-                    <div className="flex flex-wrap gap-2">
-                      {variantSets.rams.map((r) => (
-                        <button
-                          key={r}
-                          onClick={() => setSel((s) => ({ ...s, ramGb: r }))}
-                          className={`px-3 py-1.5 rounded-full text-sm border ${sel.ramGb === r ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'}`}
-                        >
-                          {r} GB
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {variantSets.storages.length > 0 && (
-                  <div>
-                    <div className="text-sm font-medium text-gray-800 mb-1">Storage</div>
-                    <div className="flex flex-wrap gap-2">
-                      {variantSets.storages.map((st) => (
-                        <button
-                          key={st}
-                          onClick={() => setSel((s) => ({ ...s, storage: st }))}
-                          className={`px-3 py-1.5 rounded-full text-sm border ${sel.storage === st ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'}`}
-                        >
-                          {st}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {selectedVariant && (
-                  <div className="text-xs text-gray-600">
-                    Selected SKU: <span className="font-mono">{selectedVariant.sku}</span>
-                  </div>
-                )}
-              </div>
-            )}
-            <div className="flex items-end gap-3">
-              {price !== null && (
-                <div className="text-3xl font-bold text-gray-900">{formatPrice(price)}</div>
-              )}
-              {mrp && <div className="text-sm text-gray-500 line-through">{formatPrice(mrp)}</div>}
-              {discountPct !== null && discountPct > 0 && (
-                <div className="text-sm font-semibold text-green-700">{discountPct}% off</div>
-              )}
-            </div>
-            {typeof product.gstPercent !== 'undefined' && (
-              <div className="text-xs text-gray-600 mt-1">
-                Inclusive of GST ({product.gstPercent}%)
-              </div>
-            )}
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                className={`w-full py-3 rounded-md font-medium ${product.inStock ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-                disabled={!product.inStock}
+        {/* Bottom Section */}
+        <motion.div
+          className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <div className="lg:col-span-7 space-y-6">
+            {product.highlights && (
+              <motion.div
+                className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-6"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
               >
-                {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-              </button>
-              <button className="w-full py-3 rounded-md font-medium border border-gray-300 hover:bg-gray-50">
-                Buy Now
-              </button>
-            </div>
-          </div>
-
-          <div className="border rounded-lg p-4 bg-white space-y-3">
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                placeholder="Enter delivery pincode"
-                className="flex-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button className="px-4 py-2 border rounded-md hover:bg-gray-50">Check</button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-gray-700">
-              {product.warrantyMonths && (
-                <div>
-                  <span className="font-medium">Warranty:</span> {product.warrantyMonths} months
+                <h3 className="font-semibold mb-4 text-lg text-slate-900">Highlights</h3>
+                <div className="space-y-3">
+                  {product.highlights.split('\n').map((h, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="text-slate-700">{h}</span>
+                    </div>
+                  ))}
                 </div>
-              )}
-              {product.returnWindowDays && (
-                <div>
-                  <span className="font-medium">Returns:</span> {product.returnWindowDays} days
-                </div>
-              )}
-              {product.fulfillmentLocation && (
-                <div>
-                  <span className="font-medium">Ships From:</span> {product.fulfillmentLocation}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="border rounded-lg p-4 bg-white">
-            <h3 className="font-semibold text-gray-900 mb-2">Available Offers</h3>
-            <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">
-              <li>No-cost EMI available on select cards</li>
-              <li>Extra 5% off with Axis Bank Credit Card</li>
-              <li>Free shipping for orders above ₹50,000</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 space-y-6">
-          {product.highlights && (
-            <div className="border rounded-lg p-4 bg-white">
-              <h3 className="font-semibold mb-2">Highlights</h3>
-              <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                {product.highlights.split('\n').map((h, i) => (
-                  <li key={i}>{h}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {product.description && (
-            <div className="border rounded-lg p-4 bg-white">
-              <h3 className="font-semibold mb-2">Description</h3>
-              <p className="text-gray-700 leading-relaxed">{product.description}</p>
-            </div>
-          )}
-        </div>
-
-        <div className="lg:col-span-5">
-          <div className="border rounded-lg p-4 bg-white">
-            <h3 className="font-semibold mb-3">Specifications</h3>
-            <div className="divide-y">
-              {specRows.map(([label, value]) => (
-                <div key={label} className="py-2 grid grid-cols-5 text-sm">
-                  <div className="col-span-2 text-gray-500">{label}</div>
-                  <div className="col-span-3 text-gray-800">{value}</div>
-                </div>
-              ))}
-              {(product.cosmeticNotes || product.functionalNotes) && (
-                <div className="py-2 text-sm">
-                  {product.cosmeticNotes && (
-                    <p className="text-gray-800">
-                      <span className="text-gray-500">Cosmetic:</span> {product.cosmeticNotes}
-                    </p>
-                  )}
-                  {product.functionalNotes && (
-                    <p className="text-gray-800">
-                      <span className="text-gray-500">Functional:</span> {product.functionalNotes}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="mt-4 text-xs text-gray-500 space-y-1">
-            <p>Added: {formatDate(product.createdAt)}</p>
-            {product.updatedAt !== product.createdAt && (
-              <p>Updated: {formatDate(product.updatedAt)}</p>
+              </motion.div>
+            )}
+            {product.description && (
+              <motion.div
+                className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-6"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 1.0 }}
+              >
+                <h3 className="font-semibold mb-4 text-lg text-slate-900">Description</h3>
+                <p className="text-slate-700 leading-relaxed">{product.description}</p>
+              </motion.div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Related Products */}
-      <RelatedProducts product={product} />
+          <div className="lg:col-span-5">
+            <motion.div
+              className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-6"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+            >
+              <h3 className="font-semibold mb-4 text-lg text-slate-900">Specifications</h3>
+              <div className="space-y-3">
+                {specRows.map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="flex justify-between items-center py-3 border-b border-slate-100 last:border-b-0"
+                  >
+                    <div className="text-sm font-medium text-slate-600">{label}</div>
+                    <div className="text-sm text-slate-800 text-right">{value}</div>
+                  </div>
+                ))}
+                {(product.cosmeticNotes || product.functionalNotes) && (
+                  <div className="pt-3 space-y-2">
+                    {product.cosmeticNotes && (
+                      <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                        <span className="text-xs font-medium text-amber-800">Cosmetic:</span>
+                        <p className="text-sm text-amber-700 mt-1">{product.cosmeticNotes}</p>
+                      </div>
+                    )}
+                    {product.functionalNotes && (
+                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <span className="text-xs font-medium text-blue-800">Functional:</span>
+                        <p className="text-sm text-blue-700 mt-1">{product.functionalNotes}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="mt-4 text-xs text-slate-500 space-y-1 bg-slate-50 p-3 rounded-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 1.1 }}
+            >
+              <p>Added: {formatDate(product.createdAt)}</p>
+              {product.updatedAt !== product.createdAt && (
+                <p>Updated: {formatDate(product.updatedAt)}</p>
+              )}
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Related Products */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.2 }}
+        >
+          <RelatedProducts product={product} />
+        </motion.div>
+      </div>
     </div>
   );
 }
