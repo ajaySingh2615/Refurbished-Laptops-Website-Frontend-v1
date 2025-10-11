@@ -16,6 +16,7 @@ import ProductManagement from './pages/admin/ProductManagement.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
 import CategoryManagement from './pages/admin/CategoryManagement.jsx';
 import ImageManagement from './pages/admin/ImageManagement.jsx';
+import ReviewManagement from './pages/admin/ReviewManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
 import { RequireAdmin } from './contexts/Guards.jsx';
 
@@ -116,6 +117,16 @@ export default function App() {
             <RequireAdmin>
               <AdminProvider>
                 <ImageManagement />
+              </AdminProvider>
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/reviews"
+          element={
+            <RequireAdmin>
+              <AdminProvider>
+                <ReviewManagement />
               </AdminProvider>
             </RequireAdmin>
           }

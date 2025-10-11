@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
       const res = await apiService.refresh();
       if (res?.access) {
         setAccessToken(res.access);
+        localStorage.setItem('accessToken', res.access);
         await fetchProfile(res.access);
         return true;
       }
@@ -33,14 +34,27 @@ export function AuthProvider({ children }) {
 
   React.useEffect(() => {
     (async () => {
+      // Check if we have a token in localStorage first
+      const storedToken = localStorage.getItem('accessToken');
+      if (storedToken) {
+        setAccessToken(storedToken);
+        const me = await fetchProfile(storedToken);
+        if (me) {
+          setLoading(false);
+          return;
+        }
+      }
+
+      // If no stored token or fetch failed, try refresh
       await doRefresh();
       setLoading(false);
     })();
-  }, [doRefresh]);
+  }, [doRefresh, fetchProfile]);
 
   const login = async (email, password) => {
     const res = await apiService.login({ email, password });
     setAccessToken(res.access);
+    localStorage.setItem('accessToken', res.access);
     const me = await fetchProfile(res.access);
     return me;
   };
@@ -49,6 +63,7 @@ export function AuthProvider({ children }) {
     await apiService.logout();
     setUser(null);
     setAccessToken('');
+    localStorage.removeItem('accessToken');
   };
 
   const value = {

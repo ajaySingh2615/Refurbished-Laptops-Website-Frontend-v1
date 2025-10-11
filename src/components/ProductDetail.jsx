@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { formatPrice, formatDate } from '../utils/formatters.js';
 import RelatedProducts from './RelatedProducts.jsx';
+import ProductReviews from './ProductReviews.jsx';
 import { apiService } from '../services/api.js';
 import { Button } from './ui/Button.jsx';
 import { Input } from './ui/Input.jsx';
@@ -157,7 +158,6 @@ export default function ProductDetail({ product, loading, error }) {
     ['Brightness', product.brightnessNits ? `${product.brightnessNits} nits` : undefined],
     ['OS', product.os],
     ['Keyboard', product.keyboardLayout],
-    ['Color', product.color],
     ['Weight', product.weightKg ? `${product.weightKg} kg` : undefined],
     ['Dimensions', product.dimensionsMm],
     ['Ports', product.ports],
@@ -324,9 +324,9 @@ export default function ProductDetail({ product, loading, error }) {
                     <div>
                       <div className="text-sm font-semibold text-slate-800 mb-2">Color</div>
                       <div className="flex flex-wrap gap-2">
-                        {variantSets.colors.map((c) => (
+                        {variantSets.colors.map((c, index) => (
                           <motion.button
-                            key={c}
+                            key={`color-${c}-${index}`}
                             onClick={() => setSel((s) => ({ ...s, color: c }))}
                             className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
                               sel.color === c
@@ -346,9 +346,9 @@ export default function ProductDetail({ product, loading, error }) {
                     <div>
                       <div className="text-sm font-semibold text-slate-800 mb-2">RAM</div>
                       <div className="flex flex-wrap gap-2">
-                        {variantSets.rams.map((r) => (
+                        {variantSets.rams.map((r, index) => (
                           <motion.button
-                            key={r}
+                            key={`ram-${r}-${index}`}
                             onClick={() => setSel((s) => ({ ...s, ramGb: r }))}
                             className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
                               sel.ramGb === r
@@ -368,9 +368,9 @@ export default function ProductDetail({ product, loading, error }) {
                     <div>
                       <div className="text-sm font-semibold text-slate-800 mb-2">Storage</div>
                       <div className="flex flex-wrap gap-2">
-                        {variantSets.storages.map((st) => (
+                        {variantSets.storages.map((st, index) => (
                           <motion.button
-                            key={st}
+                            key={`storage-${st}-${index}`}
                             onClick={() => setSel((s) => ({ ...s, storage: st }))}
                             className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
                               sel.storage === st
@@ -610,11 +610,20 @@ export default function ProductDetail({ product, loading, error }) {
           </div>
         </motion.div>
 
-        {/* Related Products */}
+        {/* Reviews & Ratings */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.2 }}
+        >
+          <ProductReviews productId={product.id} />
+        </motion.div>
+
+        {/* Related Products */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.4 }}
         >
           <RelatedProducts product={product} />
         </motion.div>

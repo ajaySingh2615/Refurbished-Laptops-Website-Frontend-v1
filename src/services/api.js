@@ -294,6 +294,98 @@ class ApiService {
       body: JSON.stringify({ sortOrder }),
     });
   }
+
+  // Review methods
+  async getProductReviews(productId, options = {}) {
+    const params = new URLSearchParams();
+    if (options.limit) params.append('limit', options.limit);
+    if (options.offset) params.append('offset', options.offset);
+    if (options.sortBy) params.append('sortBy', options.sortBy);
+    if (options.sortOrder) params.append('sortOrder', options.sortOrder);
+
+    const queryString = params.toString();
+    return this.request(`/api/reviews/product/${productId}${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getProductReviewStats(productId) {
+    return this.request(`/api/reviews/product/${productId}/stats`);
+  }
+
+  async createReview(productId, reviewData) {
+    const accessToken = localStorage.getItem('accessToken');
+    return this.request(`/api/reviews/product/${productId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reviewData),
+    });
+  }
+
+  async updateReviewHelpfulness(reviewId, isHelpful) {
+    const accessToken = localStorage.getItem('accessToken');
+    return this.request(`/api/reviews/${reviewId}/helpful`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ isHelpful }),
+    });
+  }
+
+  async canUserReview(productId) {
+    const accessToken = localStorage.getItem('accessToken');
+    return this.request(`/api/reviews/product/${productId}/can-review`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  }
+
+  // Admin review methods
+  async getAdminReviews(options = {}) {
+    const accessToken = localStorage.getItem('accessToken');
+    const params = new URLSearchParams();
+    if (options.status) params.append('status', options.status);
+    if (options.limit) params.append('limit', options.limit);
+    if (options.offset) params.append('offset', options.offset);
+    if (options.sortBy) params.append('sortBy', options.sortBy);
+    if (options.sortOrder) params.append('sortOrder', options.sortOrder);
+    if (options.productId) params.append('productId', options.productId);
+
+    const queryString = params.toString();
+    return this.request(`/api/reviews/admin/reviews${queryString ? `?${queryString}` : ''}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  }
+
+  async approveReview(reviewId, adminNotes = null) {
+    const accessToken = localStorage.getItem('accessToken');
+    return this.request(`/api/reviews/admin/${reviewId}/approve`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ adminNotes }),
+    });
+  }
+
+  async rejectReview(reviewId, adminNotes = null) {
+    const accessToken = localStorage.getItem('accessToken');
+    return this.request(`/api/reviews/admin/${reviewId}/reject`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ adminNotes }),
+    });
+  }
 }
 
 export const apiService = new ApiService();
