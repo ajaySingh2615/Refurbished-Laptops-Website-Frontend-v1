@@ -16,6 +16,7 @@ import {
   Plus,
   Eye,
   Download,
+  Package,
 } from 'lucide-react';
 
 export default function ImageManagement() {
@@ -30,13 +31,17 @@ export default function ImageManagement() {
   const [selectedProduct, setSelectedProduct] = React.useState('all');
   const [uploadOpen, setUploadOpen] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
+  const [uploadProgress, setUploadProgress] = React.useState({ current: 0, total: 0 });
+  const [selectedProductImages, setSelectedProductImages] = React.useState(null);
+  const [showImageModal, setShowImageModal] = React.useState(false);
+  // Removed viewMode - only using table view
 
   const [uploadForm, setUploadForm] = React.useState({
     productId: '',
     altText: '',
     isPrimary: false,
     sortOrder: 0,
-    file: null,
+    files: [],
   });
 
   const [products, setProducts] = React.useState([]);
@@ -117,24 +122,49 @@ export default function ImageManagement() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!uploadForm.file || !uploadForm.productId) {
-      alert('Please select a file and product');
+    if (!uploadForm.files.length || !uploadForm.productId) {
+      alert('Please select files and a product');
       return;
     }
 
     try {
       setUploading(true);
-      const formData = new FormData();
-      formData.append('image', uploadForm.file);
-      formData.append('productId', uploadForm.productId);
-      formData.append('altText', uploadForm.altText);
-      formData.append('isPrimary', uploadForm.isPrimary);
-      formData.append('sortOrder', uploadForm.sortOrder);
+      setUploadProgress({ current: 0, total: uploadForm.files.length });
+      let successCount = 0;
+      let errorCount = 0;
 
-      await apiService.uploadImage(formData, accessToken);
-      setUploadOpen(false);
-      setUploadForm({ productId: '', altText: '', isPrimary: false, sortOrder: 0, file: null });
-      await fetchImages();
+      // Upload each file
+      for (let i = 0; i < uploadForm.files.length; i++) {
+        try {
+          setUploadProgress({ current: i + 1, total: uploadForm.files.length });
+
+          const formData = new FormData();
+          formData.append('image', uploadForm.files[i]);
+          formData.append('productId', uploadForm.productId);
+          formData.append('altText', uploadForm.altText);
+          formData.append('isPrimary', i === 0 ? uploadForm.isPrimary : false); // Only first image can be primary
+          formData.append('sortOrder', i);
+
+          await apiService.uploadImage(formData, accessToken);
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to upload file ${i + 1}:`, error);
+          errorCount++;
+        }
+      }
+
+      // Show results
+      if (successCount > 0) {
+        alert(
+          `Successfully uploaded ${successCount} image${successCount > 1 ? 's' : ''}${errorCount > 0 ? ` (${errorCount} failed)` : ''}`,
+        );
+        setUploadOpen(false);
+        setUploadForm({ productId: '', altText: '', isPrimary: false, sortOrder: 0, files: [] });
+        setUploadProgress({ current: 0, total: 0 });
+        await fetchImages();
+      } else {
+        alert('All uploads failed. Please try again.');
+      }
     } catch (e) {
       alert(e?.message || 'Upload failed');
     } finally {
@@ -170,6 +200,72 @@ export default function ImageManagement() {
     }
   };
 
+  const handleViewAllImages = (productId, productTitle) => {
+    const productImages = images.filter((img) => img.productId === productId);
+    setSelectedProductImages({
+      productId,
+      productTitle,
+      images: productImages,
+    });
+    setShowImageModal(true);
+  };
+
+  const handleDeleteImage = async (imageId, imageUrl) => {
+    if (!confirm('Delete this image? This action cannot be undone.')) return;
+    try {
+      await apiService.deleteImage(imageId, accessToken);
+      await fetchImages();
+      // Update modal if open
+      if (selectedProductImages) {
+        const updatedImages = selectedProductImages.images.filter((img) => img.id !== imageId);
+        setSelectedProductImages({
+          ...selectedProductImages,
+          images: updatedImages,
+        });
+      }
+    } catch (e) {
+      alert(e?.message || 'Failed to delete image');
+    }
+  };
+
+  const handleSetPrimaryFromModal = async (productId, imageId) => {
+    try {
+      await apiService.setPrimaryImage(productId, imageId, accessToken);
+      await fetchImages();
+      // Update modal
+      if (selectedProductImages) {
+        const updatedImages = selectedProductImages.images.map((img) => ({
+          ...img,
+          isPrimary: img.id === imageId,
+        }));
+        setSelectedProductImages({
+          ...selectedProductImages,
+          images: updatedImages,
+        });
+      }
+    } catch (e) {
+      alert(e?.message || 'Failed to set primary image');
+    }
+  };
+
+  // Group images by product for table view
+  const groupedImages = React.useMemo(() => {
+    const groups = {};
+    images.forEach((image) => {
+      const productId = image.productId;
+      if (!groups[productId]) {
+        groups[productId] = {
+          productId,
+          productTitle: image.productTitle || 'Unknown Product',
+          productSku: image.productSku || 'N/A',
+          images: [],
+        };
+      }
+      groups[productId].images.push(image);
+    });
+    return Object.values(groups);
+  }, [images]);
+
   return (
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6">
@@ -186,7 +282,7 @@ export default function ImageManagement() {
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200"
           >
             <Upload className="w-4 h-4" />
-            Upload Image
+            Upload Images
           </motion.button>
         </div>
 
@@ -224,125 +320,139 @@ export default function ImageManagement() {
           </div>
         )}
 
-        {/* Images Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {loading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-sm animate-pulse">
-                <div className="aspect-square bg-slate-200 rounded-t-lg"></div>
-                <div className="p-4 space-y-2">
-                  <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            ))
-          ) : images.length === 0 ? (
-            <div className="col-span-full text-center py-12">
-              <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No images found</h3>
-              <p className="text-slate-500 mb-4">Upload your first product image to get started</p>
-              <button
-                onClick={() => setUploadOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200"
-              >
-                <Plus className="w-4 h-4" />
-                Upload Image
-              </button>
-            </div>
-          ) : (
-            images.map((image, index) => (
-              <motion.div
-                key={image.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
-              >
-                {/* Image */}
-                <div className="aspect-square relative overflow-hidden">
-                  <img
-                    src={image.cloudinaryUrl}
-                    alt={image.altText || 'Product image'}
-                    className="w-full h-full object-cover"
-                  />
-                  {image.isPrimary && (
-                    <div className="absolute top-2 left-2">
-                      <span className="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
-                        <Star className="w-3 h-3" />
-                        Primary
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Image Info */}
-                <div className="p-4">
-                  <h3 className="font-medium text-slate-900 truncate">
-                    {image.productTitle || 'Unknown Product'}
-                  </h3>
-                  <p className="text-sm text-slate-500 mt-1">
-                    {image.width} × {image.height} • {Math.round(image.fileSize / 1024)}KB
-                  </p>
-                  {image.altText && (
-                    <p className="text-xs text-slate-400 mt-1 truncate">{image.altText}</p>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center gap-1">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleSetPrimary(image.productId, image.id)}
-                        className={`p-1.5 rounded transition-colors duration-200 ${
-                          image.isPrimary
-                            ? 'bg-yellow-100 text-yellow-600'
-                            : 'bg-slate-100 text-slate-600 hover:bg-yellow-100 hover:text-yellow-600'
-                        }`}
-                        title={image.isPrimary ? 'Primary image' : 'Set as primary'}
-                      >
-                        {image.isPrimary ? (
-                          <Star className="w-3 h-3" />
-                        ) : (
-                          <StarOff className="w-3 h-3" />
-                        )}
-                      </motion.button>
-
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleUpdateOrder(image.id, image.sortOrder - 1)}
-                        className="p-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded transition-colors duration-200"
-                        title="Move up"
-                      >
-                        <ArrowUp className="w-3 h-3" />
-                      </motion.button>
-
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleUpdateOrder(image.id, image.sortOrder + 1)}
-                        className="p-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded transition-colors duration-200"
-                        title="Move down"
-                      >
-                        <ArrowDown className="w-3 h-3" />
-                      </motion.button>
-                    </div>
-
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleDelete(image.id)}
-                      className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors duration-200"
-                      title="Delete image"
+        {/* Images Table */}
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                <tr>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider">
+                    Images
+                  </th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider">
+                    Primary
+                  </th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-slate-600 text-sm">Loading images...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : groupedImages.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center">
+                      <div className="text-slate-500">
+                        <Package className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                        <p className="text-sm font-medium">No images found</p>
+                        <p className="text-xs">Upload your first product image to get started</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  groupedImages.map((group, index) => (
+                    <motion.tr
+                      key={group.productId}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors duration-150"
                     >
-                      <Trash2 className="w-3 h-3" />
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          )}
+                      {/* Product Info */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
+                            <Package className="w-5 h-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-slate-900 truncate">
+                              {group.productTitle}
+                            </p>
+                            <p className="text-xs text-slate-500">SKU: {group.productSku}</p>
+                            <p className="text-xs text-slate-400">
+                              {group.images.length} image{group.images.length !== 1 ? 's' : ''}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Images Preview */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          {group.images.slice(0, 3).map((image) => (
+                            <div key={image.id} className="relative">
+                              <img
+                                src={image.cloudinaryUrl}
+                                alt={image.altText || 'Product image'}
+                                className="w-12 h-12 object-cover rounded-lg border border-slate-200"
+                              />
+                              {image.isPrimary && (
+                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                                  <Star className="w-2.5 h-2.5 text-white" />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          {group.images.length > 3 && (
+                            <div className="w-12 h-12 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center text-xs font-medium text-slate-500">
+                              +{group.images.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Primary Image */}
+                      <td className="px-6 py-4">
+                        {group.images.find((img) => img.isPrimary) ? (
+                          <div className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-500" />
+                            <span className="text-sm text-slate-700">Set</span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-slate-400">None</span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setUploadOpen(true)}
+                            className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors duration-200"
+                            title="Add more images"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleViewAllImages(group.productId, group.productTitle)}
+                            className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors duration-200"
+                            title="View all images"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </motion.button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Pagination */}
@@ -468,15 +578,39 @@ export default function ImageManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Image File *
+                    Image Files * (Multiple selection allowed)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     required
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                    onChange={(e) =>
+                      setUploadForm({ ...uploadForm, files: Array.from(e.target.files) })
+                    }
                   />
+                  {uploadForm.files.length > 0 && (
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-700 font-medium mb-2">
+                        Selected {uploadForm.files.length} file
+                        {uploadForm.files.length > 1 ? 's' : ''}:
+                      </p>
+                      <div className="space-y-1">
+                        {uploadForm.files.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between text-xs text-blue-600"
+                          >
+                            <span className="truncate flex-1">{file.name}</span>
+                            <span className="ml-2 text-blue-500">
+                              {(file.size / 1024 / 1024).toFixed(1)}MB
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -500,15 +634,43 @@ export default function ImageManagement() {
                         setUploadForm({ ...uploadForm, isPrimary: e.target.checked })
                       }
                     />
-                    <span className="ml-2 text-sm text-slate-700">Set as primary image</span>
+                    <span className="ml-2 text-sm text-slate-700">
+                      Set first image as primary
+                      {uploadForm.files.length > 1 && (
+                        <span className="text-xs text-slate-500 block">
+                          (Only the first image will be set as primary)
+                        </span>
+                      )}
+                    </span>
                   </label>
                 </div>
+
+                {/* Progress Bar */}
+                {uploading && uploadProgress.total > 0 && (
+                  <div className="pt-4">
+                    <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
+                      <span>Uploading images...</span>
+                      <span>
+                        {uploadProgress.current} of {uploadProgress.total}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex justify-end gap-3 pt-4">
                   <button
                     type="button"
                     onClick={() => setUploadOpen(false)}
-                    className="px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200"
+                    disabled={uploading}
+                    className="px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
@@ -517,10 +679,171 @@ export default function ImageManagement() {
                     disabled={uploading}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {uploading ? 'Uploading...' : 'Upload'}
+                    {uploading
+                      ? `Uploading ${uploadProgress.current}/${uploadProgress.total}...`
+                      : `Upload ${uploadForm.files.length || 0} Image${uploadForm.files.length > 1 ? 's' : ''}`}
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Image Modal */}
+        {showImageModal && selectedProductImages && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] border border-slate-200 overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-slate-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-900">
+                      {selectedProductImages.productTitle}
+                    </h2>
+                    <p className="text-sm text-slate-500 mt-1">
+                      {selectedProductImages.images.length} image
+                      {selectedProductImages.images.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowImageModal(false)}
+                    className="p-2 hover:bg-slate-200 rounded-lg transition-colors duration-200"
+                  >
+                    <svg
+                      className="w-5 h-5 text-slate-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Images Grid */}
+              <div className="p-6 max-h-[60vh] overflow-y-auto">
+                {selectedProductImages.images.length === 0 ? (
+                  <div className="text-center py-12">
+                    <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <p className="text-slate-500">No images found for this product</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {selectedProductImages.images.map((image, index) => (
+                      <motion.div
+                        key={image.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:shadow-md transition-all duration-300"
+                      >
+                        {/* Image */}
+                        <div className="aspect-square relative overflow-hidden">
+                          <img
+                            src={image.cloudinaryUrl}
+                            alt={image.altText || 'Product image'}
+                            className="w-full h-full object-cover"
+                          />
+                          {image.isPrimary && (
+                            <div className="absolute top-2 left-2">
+                              <span className="bg-yellow-500 text-white text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1">
+                                <Star className="w-3 h-3" />
+                                Primary
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Image Info */}
+                        <div className="p-3">
+                          <p className="text-xs text-slate-500 mb-2">
+                            {image.width} × {image.height} • {Math.round(image.fileSize / 1024)}KB
+                          </p>
+                          {image.altText && (
+                            <p className="text-xs text-slate-400 truncate mb-2">{image.altText}</p>
+                          )}
+
+                          {/* Actions */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() =>
+                                  handleSetPrimaryFromModal(
+                                    selectedProductImages.productId,
+                                    image.id,
+                                  )
+                                }
+                                className={`p-1.5 rounded transition-colors duration-200 ${
+                                  image.isPrimary
+                                    ? 'bg-yellow-100 text-yellow-600'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-yellow-100 hover:text-yellow-600'
+                                }`}
+                                title={image.isPrimary ? 'Primary image' : 'Set as primary'}
+                              >
+                                {image.isPrimary ? (
+                                  <Star className="w-3 h-3" />
+                                ) : (
+                                  <StarOff className="w-3 h-3" />
+                                )}
+                              </motion.button>
+
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleDeleteImage(image.id, image.cloudinaryUrl)}
+                                className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors duration-200"
+                                title="Delete image"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </motion.button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-slate-100 bg-slate-50">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-slate-500">
+                    Click on images to manage them individually
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setUploadOpen(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add More Images
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowImageModal(false)}
+                      className="px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200"
+                    >
+                      Close
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
