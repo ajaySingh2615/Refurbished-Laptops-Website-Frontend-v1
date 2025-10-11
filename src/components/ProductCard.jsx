@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { formatPrice } from '../utils/formatters';
 import { motion } from 'framer-motion';
 import { apiService } from '../services/api.js';
-import AddToCartButton from './cart/AddToCartButton.jsx';
+import ProductCardAddToCart from './cart/ProductCardAddToCart.jsx';
 
 export default function ProductCard({ product }) {
   const [productImages, setProductImages] = React.useState([]);
@@ -175,7 +175,7 @@ export default function ProductCard({ product }) {
 
           {/* Add to Cart Button */}
           <div className="pt-2">
-            <AddToCartButton productId={product.id} size="sm" className="w-full" />
+            <ProductCardAddToCart productId={product.id} size="sm" className="w-full" />
           </div>
         </div>
       </div>

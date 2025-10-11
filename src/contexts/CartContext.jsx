@@ -299,6 +299,14 @@ export const CartProvider = ({ children }) => {
     return item ? item.quantity : 0;
   };
 
+  // Get cart item ID
+  const getCartItemId = (productId, productVariantId = null) => {
+    const item = state.cart.items?.find(
+      (item) => item.productId === productId && item.productVariantId === productVariantId,
+    );
+    return item ? item.id : null;
+  };
+
   const value = {
     // State
     cart: state.cart,
@@ -317,6 +325,7 @@ export const CartProvider = ({ children }) => {
     getCartSummary,
     isInCart,
     getItemQuantity,
+    getCartItemId,
 
     // Utils
     initializeCart,
