@@ -183,38 +183,31 @@ export default function ReviewManagement() {
           transition={{ duration: 0.6 }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </div>
-              <h1 className="text-2xl font-bold text-slate-900">Review Management</h1>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-lg font-semibold text-slate-900">Review Management</h1>
           </div>
 
           {/* Filters */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-xl border border-slate-200/60 shadow-lg shadow-slate-200/30 p-4 mb-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-slate-700 whitespace-nowrap">
+          <div className="bg-white/80 backdrop-blur-xl rounded-lg border border-slate-200/60 shadow-sm p-3 mb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1">
+                <label className="text-xs font-medium text-slate-600 whitespace-nowrap">
                   Status:
                 </label>
                 <select
                   value={filters.status}
                   onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}
-                  className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-2 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="all">All Reviews</option>
+                  <option value="all">All</option>
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
                   <option value="rejected">Rejected</option>
                 </select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-slate-700 whitespace-nowrap">
+              <div className="flex items-center gap-1">
+                <label className="text-xs font-medium text-slate-600 whitespace-nowrap">
                   Search:
                 </label>
                 <div className="relative">
@@ -224,11 +217,11 @@ export default function ReviewManagement() {
                     placeholder="Search reviews..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
-                    className="w-64 px-3 py-1.5 text-sm pr-8"
+                    className="w-48 px-2 py-1 text-xs pr-6"
                   />
                   {searching && (
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    <div className="absolute right-1 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full"></div>
                     </div>
                   )}
                 </div>
@@ -238,7 +231,7 @@ export default function ReviewManagement() {
                 onClick={() => {
                   setFilters((prev) => ({ ...prev, search: searchInput }));
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 text-sm rounded-lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs rounded"
               >
                 Search
               </Button>
@@ -250,7 +243,7 @@ export default function ReviewManagement() {
                     setFilters((prev) => ({ ...prev, search: '' }));
                   }}
                   variant="outline"
-                  className="px-4 py-1.5 text-sm rounded-lg"
+                  className="px-3 py-1 text-xs rounded"
                 >
                   Clear
                 </Button>
@@ -260,20 +253,20 @@ export default function ReviewManagement() {
 
           {/* Bulk Actions */}
           {selectedReviews.length > 0 && (
-            <div className="bg-blue-50 rounded-lg p-3 mb-4 border border-blue-200">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium text-blue-900">
-                  {selectedReviews.length} review{selectedReviews.length !== 1 ? 's' : ''} selected
+            <div className="bg-blue-50 rounded p-2 mb-3 border border-blue-200">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-medium text-blue-900">
+                  {selectedReviews.length} selected
                 </span>
 
                 <select
                   value={bulkAction}
                   onChange={(e) => setBulkAction(e.target.value)}
-                  className="px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="px-2 py-1 text-xs border border-blue-300 rounded focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">Select Action</option>
-                  <option value="approve">Approve Selected</option>
-                  <option value="reject">Reject Selected</option>
+                  <option value="approve">Approve</option>
+                  <option value="reject">Reject</option>
                 </select>
 
                 <Input
@@ -281,13 +274,13 @@ export default function ReviewManagement() {
                   placeholder="Admin notes (optional)"
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  className="w-48 px-3 py-1.5 text-sm"
+                  className="w-32 px-2 py-1 text-xs"
                 />
 
                 <Button
                   onClick={handleBulkAction}
                   disabled={!bulkAction}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 text-sm rounded-lg disabled:opacity-50"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 text-xs rounded disabled:opacity-50"
                 >
                   Apply
                 </Button>
@@ -295,7 +288,7 @@ export default function ReviewManagement() {
                 <Button
                   onClick={clearSelection}
                   variant="outline"
-                  className="px-3 py-1.5 text-sm rounded-lg"
+                  className="px-2 py-1 text-xs rounded"
                 >
                   Clear
                 </Button>
@@ -304,23 +297,23 @@ export default function ReviewManagement() {
           )}
 
           {/* Reviews Table */}
-          <div className="bg-white/80 backdrop-blur-xl rounded-xl border border-slate-200/60 shadow-lg shadow-slate-200/30 overflow-hidden">
-            <div className="p-4 border-b border-slate-200">
+          <div className="bg-white/80 backdrop-blur-xl rounded-lg border border-slate-200/60 shadow-sm overflow-hidden">
+            <div className="p-3 border-b border-slate-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900">Reviews ({reviews.length})</h3>
+                <h3 className="text-sm font-semibold text-slate-900">Reviews ({reviews.length})</h3>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <Button
                     onClick={selectAllReviews}
                     variant="outline"
-                    className="px-3 py-1.5 text-sm rounded-lg"
+                    className="px-2 py-1 text-xs rounded"
                   >
                     Select All
                   </Button>
                   <Button
                     onClick={clearSelection}
                     variant="outline"
-                    className="px-3 py-1.5 text-sm rounded-lg"
+                    className="px-2 py-1 text-xs rounded"
                   >
                     Clear
                   </Button>
@@ -332,7 +325,7 @@ export default function ReviewManagement() {
               <table className="w-full">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       <input
                         type="checkbox"
                         checked={selectedReviews.length === reviews.length && reviews.length > 0}
@@ -340,25 +333,25 @@ export default function ReviewManagement() {
                         className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Product
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Rating
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Review
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -366,7 +359,7 @@ export default function ReviewManagement() {
                 <tbody className="divide-y divide-slate-200">
                   {reviews.map((review) => (
                     <tr key={review.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2">
                         <input
                           type="checkbox"
                           checked={selectedReviews.includes(review.id)}
@@ -375,25 +368,25 @@ export default function ReviewManagement() {
                         />
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2">
                         <div>
-                          <div className="text-sm font-medium text-slate-900">
+                          <div className="text-xs font-medium text-slate-900">
                             {review.productTitle}
                           </div>
-                          <div className="text-sm text-slate-500">{review.productBrand}</div>
+                          <div className="text-xs text-slate-500">{review.productBrand}</div>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2">
                         <div>
-                          <div className="text-sm font-medium text-slate-900">
+                          <div className="text-xs font-medium text-slate-900">
                             {review.userName || 'Anonymous'}
                           </div>
-                          <div className="text-sm text-slate-500">{review.userEmail}</div>
+                          <div className="text-xs text-slate-500">{review.userEmail}</div>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2">
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
                             <svg
@@ -407,40 +400,40 @@ export default function ReviewManagement() {
                               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                             </svg>
                           ))}
-                          <span className="ml-1 text-sm text-slate-600">{review.rating}</span>
+                          <span className="ml-1 text-xs text-slate-600">{review.rating}</span>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2">
                         <div className="max-w-xs">
                           {review.title && (
-                            <div className="text-sm font-medium text-slate-900 mb-1">
+                            <div className="text-xs font-medium text-slate-900 mb-1">
                               {review.title}
                             </div>
                           )}
-                          <div className="text-sm text-slate-600 line-clamp-2">{review.review}</div>
+                          <div className="text-xs text-slate-600 line-clamp-2">{review.review}</div>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4">{getStatusBadge(review.status)}</td>
+                      <td className="px-3 py-2">{getStatusBadge(review.status)}</td>
 
-                      <td className="px-6 py-4 text-sm text-slate-500">
+                      <td className="px-3 py-2 text-xs text-slate-500">
                         {new Date(review.createdAt).toLocaleDateString()}
                       </td>
 
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-1">
                           {review.status === 'pending' && (
                             <>
                               <Button
                                 onClick={() => handleApproveReview(review.id)}
-                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 text-xs rounded-lg"
+                                className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 text-xs rounded"
                               >
                                 Approve
                               </Button>
                               <Button
                                 onClick={() => handleRejectReview(review.id)}
-                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs rounded-lg"
+                                className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 text-xs rounded"
                               >
                                 Reject
                               </Button>
