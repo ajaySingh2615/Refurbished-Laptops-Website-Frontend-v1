@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { apiService } from '../../services/api.js';
 import { Button } from '../ui/Button.jsx';
 import PriceRangeFilter from './PriceRangeFilter.jsx';
@@ -79,6 +80,7 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
         className={`
         fixed lg:static inset-y-0 left-0 z-50 w-4/5 max-w-xs lg:w-72 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        bg-white lg:bg-transparent shadow-xl lg:shadow-none
       `}
       >
         <div className="h-full overflow-y-auto p-4 lg:p-0">
@@ -163,38 +165,47 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
 
             {/* Stock Filter */}
             <div>
-              <h3 className="text-xs font-medium text-slate-700 mb-2">Availability</h3>
-              <div className="space-y-1">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="stock"
-                    checked={filters.inStock === true}
-                    onChange={() => updateFilter('inStock', true)}
-                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-slate-300"
+              <h3 className="text-xs font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <svg
+                  className="w-3 h-3 text-slate-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                   />
-                  <span className="ml-2 text-xs text-slate-600">In Stock</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="stock"
-                    checked={filters.inStock === false}
-                    onChange={() => updateFilter('inStock', false)}
-                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-slate-300"
-                  />
-                  <span className="ml-2 text-xs text-slate-600">Out of Stock</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="stock"
-                    checked={filters.inStock === null}
-                    onChange={() => updateFilter('inStock', null)}
-                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-slate-300"
-                  />
-                  <span className="ml-2 text-xs text-slate-600">All</span>
-                </label>
+                </svg>
+                Availability
+              </h3>
+              <div className="space-y-1.5">
+                {[
+                  { value: true, label: 'In Stock' },
+                  { value: false, label: 'Out of Stock' },
+                  { value: null, label: 'All' },
+                ].map((option, index) => (
+                  <motion.label
+                    key={option.label}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center cursor-pointer group"
+                  >
+                    <input
+                      type="radio"
+                      name="stock"
+                      checked={filters.inStock === option.value}
+                      onChange={() => updateFilter('inStock', option.value)}
+                      className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-slate-300 transition-all duration-200"
+                    />
+                    <span className="ml-2 text-xs text-slate-700 group-hover:text-slate-900 transition-colors duration-200">
+                      {option.label}
+                    </span>
+                  </motion.label>
+                ))}
               </div>
             </div>
           </div>
