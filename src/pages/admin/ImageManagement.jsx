@@ -49,6 +49,19 @@ export default function ImageManagement() {
   const [productSearchTerm, setProductSearchTerm] = React.useState('');
   const [showProductSearch, setShowProductSearch] = React.useState(false);
 
+  // Auto-generate alt text based on product and files
+  const generateAltText = (productTitle, fileCount = 0) => {
+    if (!productTitle) return '';
+
+    if (fileCount === 0) {
+      return `High-quality image of ${productTitle} - professional product photography`;
+    } else if (fileCount === 1) {
+      return `High-quality image of ${productTitle} - professional product photography`;
+    } else {
+      return `Multiple high-quality images of ${productTitle} - professional product photography`;
+    }
+  };
+
   const fetchImages = React.useCallback(async () => {
     try {
       setLoading(true);
@@ -159,6 +172,7 @@ export default function ImageManagement() {
           `Successfully uploaded ${successCount} image${successCount > 1 ? 's' : ''}${errorCount > 0 ? ` (${errorCount} failed)` : ''}`,
         );
         setUploadOpen(false);
+        setSelectedProductImages(null); // Clear selected product
         setUploadForm({ productId: '', altText: '', isPrimary: false, sortOrder: 0, files: [] });
         setUploadProgress({ current: 0, total: 0 });
         await fetchImages();
@@ -208,6 +222,32 @@ export default function ImageManagement() {
       images: productImages,
     });
     setShowImageModal(true);
+  };
+
+  const handleAddMoreImages = (productId, productTitle) => {
+    // Pre-populate the upload form with the selected product
+    setUploadForm({
+      productId: productId.toString(),
+      altText: generateAltText(productTitle), // Auto-generate alt text
+      isPrimary: false,
+      sortOrder: 0,
+      files: [],
+    });
+
+    // Keep selectedProductImages for the upload form to use
+    // Don't clear it until upload is complete or cancelled
+    setUploadOpen(true);
+    setShowImageModal(false); // Close the image modal
+
+    // Ensure products are loaded for the search functionality
+    if (products.length === 0) {
+      fetchProducts();
+    }
+  };
+
+  const handleCloseUpload = () => {
+    setUploadOpen(false);
+    setSelectedProductImages(null); // Clear selected product when closing upload
   };
 
   const handleDeleteImage = async (imageId, imageUrl) => {
@@ -430,15 +470,6 @@ export default function ImageManagement() {
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => setUploadOpen(true)}
-                            className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors duration-200"
-                            title="Add more images"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
                             onClick={() => handleViewAllImages(group.productId, group.productTitle)}
                             className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors duration-200"
                             title="View all images"
@@ -486,40 +517,109 @@ export default function ImageManagement() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="bg-white rounded-xl shadow-xl w-full max-w-md border border-slate-200"
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] border border-slate-200/60 overflow-hidden flex flex-col"
             >
-              <div className="p-6 border-b border-slate-100">
-                <h2 className="text-lg font-semibold text-slate-900">Upload Image</h2>
-                <p className="text-sm text-slate-500 mt-1">Add a new product image</p>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-slate-200/60">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <Upload className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">Upload Images</h2>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {selectedProductImages
+                        ? `Adding images to ${selectedProductImages.productTitle}`
+                        : 'Upload new product images'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <form onSubmit={handleUpload} className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Select Product *
+              <form onSubmit={handleUpload} className="p-6 space-y-6 overflow-y-auto flex-1">
+                {/* Product Selection */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-slate-800">
+                    Product Selection
+                    {selectedProductImages && (
+                      <span className="inline-flex items-center gap-1 ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Pre-selected
+                      </span>
+                    )}
                   </label>
                   <div className="relative product-search-container">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg
+                        className="h-4 w-4 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </div>
                     <input
                       type="text"
                       placeholder="Search products by name, SKU, or ID..."
-                      value={productSearchTerm}
+                      value={
+                        uploadForm.productId
+                          ? products.find((p) => p.id == uploadForm.productId)?.title ||
+                            selectedProductImages?.productTitle ||
+                            `Product ID: ${uploadForm.productId}`
+                          : productSearchTerm
+                      }
                       onChange={(e) => {
                         setProductSearchTerm(e.target.value);
                         setShowProductSearch(true);
                       }}
                       onFocus={() => setShowProductSearch(true)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      disabled={uploadForm.productId && selectedProductImages}
+                      className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                        uploadForm.productId && selectedProductImages
+                          ? 'bg-green-50 border-green-300 text-green-800'
+                          : 'bg-white border-slate-300 hover:border-slate-400'
+                      }`}
                     />
 
                     {/* Selected Product Display */}
                     {uploadForm.productId && (
-                      <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="mt-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-green-700">
-                            Selected:{' '}
-                            {products.find((p) => p.id == uploadForm.productId)?.title ||
-                              'Product ID: ' + uploadForm.productId}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                              <svg
+                                className="w-4 h-4 text-white"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-green-800">
+                                {products.find((p) => p.id == uploadForm.productId)?.title ||
+                                  selectedProductImages?.productTitle ||
+                                  'Product ID: ' + uploadForm.productId}
+                              </p>
+                              <p className="text-xs text-green-600">Product selected</p>
+                            </div>
+                          </div>
                           <button
                             type="button"
                             onClick={() => {
@@ -527,7 +627,7 @@ export default function ImageManagement() {
                               setProductSearchTerm('');
                               setShowProductSearch(false);
                             }}
-                            className="text-green-600 hover:text-green-800 text-sm"
+                            className="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors duration-200"
                           >
                             Change
                           </button>
@@ -555,7 +655,11 @@ export default function ImageManagement() {
                               key={product.id}
                               type="button"
                               onClick={() => {
-                                setUploadForm({ ...uploadForm, productId: product.id });
+                                setUploadForm({
+                                  ...uploadForm,
+                                  productId: product.id,
+                                  altText: generateAltText(product.title, uploadForm.files.length),
+                                });
                                 setProductSearchTerm('');
                                 setShowProductSearch(false);
                               }}
@@ -576,35 +680,112 @@ export default function ImageManagement() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Image Files * (Multiple selection allowed)
+                {/* File Upload Section */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-slate-800">
+                    Image Files
+                    <span className="text-red-500 ml-1">*</span>
+                    <span className="text-xs text-slate-500 ml-2 font-normal">
+                      (Multiple selection allowed)
+                    </span>
                   </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    required
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    onChange={(e) =>
-                      setUploadForm({ ...uploadForm, files: Array.from(e.target.files) })
-                    }
-                  />
+
+                  {/* Drag & Drop Area */}
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      required
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files);
+                        const productTitle = uploadForm.productId
+                          ? products.find((p) => p.id == uploadForm.productId)?.title
+                          : selectedProductImages?.productTitle;
+
+                        setUploadForm({
+                          ...uploadForm,
+                          files,
+                          altText: productTitle
+                            ? generateAltText(productTitle, files.length)
+                            : uploadForm.altText,
+                        });
+                      }}
+                    />
+                    <div className="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-8 text-center transition-all duration-200 hover:bg-blue-50/50">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                          <svg
+                            className="w-6 h-6 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-700">
+                            Click to upload images
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1">or drag and drop files here</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   {uploadForm.files.length > 0 && (
-                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-sm text-blue-700 font-medium mb-2">
-                        Selected {uploadForm.files.length} file
-                        {uploadForm.files.length > 1 ? 's' : ''}:
-                      </p>
-                      <div className="space-y-1">
+                    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-sm font-semibold text-blue-800">
+                          {uploadForm.files.length} file{uploadForm.files.length > 1 ? 's' : ''}{' '}
+                          selected
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
                         {uploadForm.files.map((file, index) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between text-xs text-blue-600"
+                            className="flex items-center justify-between p-2 bg-white rounded-lg border border-blue-100"
                           >
-                            <span className="truncate flex-1">{file.name}</span>
-                            <span className="ml-2 text-blue-500">
-                              {(file.size / 1024 / 1024).toFixed(1)}MB
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                                <svg
+                                  className="w-3 h-3 text-blue-600"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </div>
+                              <span className="text-xs font-medium text-slate-700 truncate">
+                                {file.name}
+                              </span>
+                            </div>
+                            <span className="text-xs text-slate-500">
+                              {(file.size / 1024 / 1024).toFixed(1)} MB
                             </span>
                           </div>
                         ))}
@@ -613,76 +794,149 @@ export default function ImageManagement() {
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Alt Text</label>
+                {/* Alt Text Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-semibold text-slate-800">
+                      Alt Text
+                      {selectedProductImages && (
+                        <span className="inline-flex items-center gap-1 ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Auto-generated
+                        </span>
+                      )}
+                    </label>
+                    {uploadForm.productId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const productTitle =
+                            products.find((p) => p.id == uploadForm.productId)?.title ||
+                            selectedProductImages?.productTitle;
+                          if (productTitle) {
+                            setUploadForm({
+                              ...uploadForm,
+                              altText: generateAltText(productTitle, uploadForm.files.length),
+                            });
+                          }
+                        }}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 hover:bg-blue-50 rounded transition-colors duration-200"
+                      >
+                        🔄 Regenerate
+                      </button>
+                    )}
+                  </div>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="Describe the image"
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                      selectedProductImages
+                        ? 'border-green-300 bg-green-50 text-green-800'
+                        : 'border-slate-300 bg-white hover:border-slate-400'
+                    }`}
+                    placeholder="Describe the image for accessibility"
                     value={uploadForm.altText}
                     onChange={(e) => setUploadForm({ ...uploadForm, altText: e.target.value })}
                   />
+                  <p className="text-xs text-slate-500">
+                    💡 Alt text is automatically generated based on the product name and number of
+                    images
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
-                      checked={uploadForm.isPrimary}
-                      onChange={(e) =>
-                        setUploadForm({ ...uploadForm, isPrimary: e.target.checked })
-                      }
-                    />
-                    <span className="ml-2 text-sm text-slate-700">
-                      Set first image as primary
+                {/* Primary Image Option */}
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <div className="flex items-center h-5">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                        checked={uploadForm.isPrimary}
+                        onChange={(e) =>
+                          setUploadForm({ ...uploadForm, isPrimary: e.target.checked })
+                        }
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-slate-800">
+                        Set first image as primary
+                      </span>
                       {uploadForm.files.length > 1 && (
-                        <span className="text-xs text-slate-500 block">
-                          (Only the first image will be set as primary)
-                        </span>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Only the first image will be set as primary
+                        </p>
                       )}
-                    </span>
+                    </div>
                   </label>
                 </div>
 
                 {/* Progress Bar */}
                 {uploading && uploadProgress.total > 0 && (
-                  <div className="pt-4">
-                    <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
-                      <span>Uploading images...</span>
+                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <div className="flex items-center justify-between text-sm font-medium text-blue-800 mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Uploading images...</span>
+                      </div>
                       <span>
                         {uploadProgress.current} of {uploadProgress.total}
                       </span>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div className="w-full bg-blue-200 rounded-full h-3 overflow-hidden">
                       <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
                         style={{
                           width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
                         }}
                       ></div>
                     </div>
+                    <p className="text-xs text-blue-600 mt-2">
+                      {Math.round((uploadProgress.current / uploadProgress.total) * 100)}% complete
+                    </p>
                   </div>
                 )}
 
-                <div className="flex justify-end gap-3 pt-4">
-                  <button
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-6 border-t border-slate-200 flex-shrink-0">
+                  <motion.button
                     type="button"
-                    onClick={() => setUploadOpen(false)}
+                    onClick={handleCloseUpload}
                     disabled={uploading}
-                    className="px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-6 py-3 border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     type="submit"
                     disabled={uploading}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg hover:shadow-xl"
                   >
-                    {uploading
-                      ? `Uploading ${uploadProgress.current}/${uploadProgress.total}...`
-                      : `Upload ${uploadForm.files.length || 0} Image${uploadForm.files.length > 1 ? 's' : ''}`}
-                  </button>
+                    {uploading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>
+                          Uploading {uploadProgress.current}/{uploadProgress.total}...
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Upload className="w-4 h-4" />
+                        <span>
+                          Upload {uploadForm.files.length || 0} Image
+                          {uploadForm.files.length > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    )}
+                  </motion.button>
                 </div>
               </form>
             </motion.div>
@@ -827,7 +1081,12 @@ export default function ImageManagement() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setUploadOpen(true)}
+                      onClick={() =>
+                        handleAddMoreImages(
+                          selectedProductImages.productId,
+                          selectedProductImages.productTitle,
+                        )
+                      }
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200"
                     >
                       <Plus className="w-4 h-4" />
