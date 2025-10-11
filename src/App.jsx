@@ -18,7 +18,9 @@ import CategoryManagement from './pages/admin/CategoryManagement.jsx';
 import ImageManagement from './pages/admin/ImageManagement.jsx';
 import ReviewManagement from './pages/admin/ReviewManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
+import { CartProvider } from './contexts/CartContext.jsx';
 import { RequireAdmin } from './contexts/Guards.jsx';
+import CartSidebar from './components/cart/CartSidebar.jsx';
 
 export default function App() {
   const handleSearch = (query) => {
@@ -28,112 +30,115 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public routes wrapped in site Layout */}
-        <Route
-          path="/"
-          element={
-            <Layout onSearch={handleSearch}>
-              <HomePage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/products"
-          element={
-            <Layout onSearch={handleSearch}>
-              <ProductsPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/product/:sku"
-          element={
-            <Layout onSearch={handleSearch}>
-              <ProductPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/c/*"
-          element={
-            <Layout onSearch={handleSearch}>
-              <CategoryPage />
-            </Layout>
-          }
-        />
+      <CartProvider>
+        <Routes>
+          {/* Public routes wrapped in site Layout */}
+          <Route
+            path="/"
+            element={
+              <Layout onSearch={handleSearch}>
+                <HomePage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/products"
+            element={
+              <Layout onSearch={handleSearch}>
+                <ProductsPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/product/:sku"
+            element={
+              <Layout onSearch={handleSearch}>
+                <ProductPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/c/*"
+            element={
+              <Layout onSearch={handleSearch}>
+                <CategoryPage />
+              </Layout>
+            }
+          />
 
-        {/* Auth */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+          {/* Auth */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Admin routes use their own layout */}
-        <Route
-          path="/admin"
-          element={
-            <RequireAdmin>
-              <AdminProvider>
-                <AdminDashboard />
-              </AdminProvider>
-            </RequireAdmin>
-          }
-        />
-        <Route
-          path="/admin/products"
-          element={
-            <RequireAdmin>
-              <AdminProvider>
-                <ProductManagement />
-              </AdminProvider>
-            </RequireAdmin>
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            <RequireAdmin>
-              <AdminProvider>
-                <UserManagement />
-              </AdminProvider>
-            </RequireAdmin>
-          }
-        />
-        <Route
-          path="/admin/categories"
-          element={
-            <RequireAdmin>
-              <AdminProvider>
-                <CategoryManagement />
-              </AdminProvider>
-            </RequireAdmin>
-          }
-        />
-        <Route
-          path="/admin/images"
-          element={
-            <RequireAdmin>
-              <AdminProvider>
-                <ImageManagement />
-              </AdminProvider>
-            </RequireAdmin>
-          }
-        />
-        <Route
-          path="/admin/reviews"
-          element={
-            <RequireAdmin>
-              <AdminProvider>
-                <ReviewManagement />
-              </AdminProvider>
-            </RequireAdmin>
-          }
-        />
+          {/* Admin routes use their own layout */}
+          <Route
+            path="/admin"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <AdminDashboard />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <ProductManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <UserManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <CategoryManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/images"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <ImageManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/reviews"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <ReviewManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <CartSidebar />
+      </CartProvider>
     </BrowserRouter>
   );
 }

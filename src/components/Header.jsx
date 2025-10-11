@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { Button } from './ui/Button.jsx';
 import { FloatingNav } from './ui/FloatingNav.jsx';
+import CartIcon from './cart/CartIcon.jsx';
 import {
   Modal,
   ModalOverlay,
@@ -155,6 +156,9 @@ export default function Header({ onSearch }) {
               >
                 Admin
               </Link>
+
+              {/* Cart Icon */}
+              <CartIcon className="text-gray-600 hover:text-gray-900" />
 
               {/* Auth links */}
               {!user ? (

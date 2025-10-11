@@ -389,4 +389,84 @@ class ApiService {
   }
 }
 
+// Cart API functions
+export const cartAPI = {
+  // Get cart with all items
+  async getCart() {
+    return apiService.request('/api/cart');
+  },
+
+  // Get cart summary for header
+  async getCartSummary() {
+    return apiService.request('/api/cart/summary');
+  },
+
+  // Add item to cart
+  async addToCart(data) {
+    return apiService.request('/api/cart/add', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Update cart item quantity
+  async updateCartItem(itemId, data) {
+    return apiService.request(`/api/cart/items/${itemId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Remove item from cart
+  async removeFromCart(itemId) {
+    return apiService.request(`/api/cart/items/${itemId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Clear entire cart
+  async clearCart() {
+    return apiService.request('/api/cart/clear', {
+      method: 'DELETE',
+    });
+  },
+
+  // Apply coupon
+  async applyCoupon(data) {
+    return apiService.request('/api/cart/coupon', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Track cart abandonment
+  async trackAbandonment(data) {
+    return apiService.request('/api/cart/track-abandonment', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Save cart as wishlist (authenticated only)
+  async saveCart(data) {
+    return apiService.request('/api/cart/save', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Get saved carts (authenticated only)
+  async getSavedCarts() {
+    return apiService.request('/api/cart/saved');
+  },
+
+  // Merge guest cart with user cart (authenticated only)
+  async mergeCarts(data) {
+    return apiService.request('/api/cart/merge', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
 export const apiService = new ApiService();

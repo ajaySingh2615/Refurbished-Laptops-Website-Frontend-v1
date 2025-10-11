@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { formatPrice } from '../utils/formatters';
 import { motion } from 'framer-motion';
 import { apiService } from '../services/api.js';
+import AddToCartButton from './cart/AddToCartButton.jsx';
 
 export default function ProductCard({ product }) {
   const [productImages, setProductImages] = React.useState([]);
@@ -160,7 +161,7 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Price Section */}
-        <div className="space-y-1">
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="text-red-600 text-sm font-semibold">-{discountPercentage}%</span>
             <span className="text-lg font-bold text-slate-900">{formatPrice(product.price)}</span>
@@ -170,6 +171,11 @@ export default function ProductCard({ product }) {
             <span className="text-slate-400 text-sm line-through">
               ₹{originalPrice.toLocaleString()}
             </span>
+          </div>
+
+          {/* Add to Cart Button */}
+          <div className="pt-2">
+            <AddToCartButton productId={product.id} size="sm" className="w-full" />
           </div>
         </div>
       </div>

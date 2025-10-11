@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
+import CartIcon from '../cart/CartIcon.jsx';
 
 export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className = '' }) {
   const { user, logout } = useAuth();
@@ -94,6 +95,9 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
         </div>
         {/* Actions */}
         <div className="relative flex items-center gap-2 pl-1 sm:pl-2">
+          {/* Cart Icon */}
+          <CartIcon className="text-slate-600 hover:text-slate-900" />
+
           {!user ? (
             <>
               <button
