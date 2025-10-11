@@ -126,26 +126,24 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
             onKeyDown={handleKeyDown}
             onFocus={() => setIsOpen(true)}
             placeholder={placeholder}
-            className="pl-12 pr-24 h-12 bg-white/90 backdrop-blur-md border-2 border-slate-200/60 rounded-xl shadow-lg shadow-slate-200/50 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:shadow-xl focus:shadow-blue-500/20 transition-all duration-300 text-slate-700 placeholder:text-slate-400"
+            className="pl-10 pr-20 h-10 bg-white border border-slate-200 rounded-lg shadow-sm focus:border-slate-400 focus:ring-1 focus:ring-slate-400 transition-all duration-200 text-sm placeholder:text-slate-400"
           />
 
           {/* Search Icon */}
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 shadow-sm">
-              <svg
-                className="h-4 w-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg
+              className="h-4 w-4 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
           </div>
 
           {/* Clear Button */}
@@ -158,13 +156,13 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
                 clearSearch();
                 setIsOpen(false);
               }}
-              className="absolute inset-y-0 right-16 h-12 w-12 text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-lg transition-all duration-200"
+              className="absolute inset-y-0 right-12 h-10 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-all duration-200"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2.5}
+                  strokeWidth={2}
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
@@ -174,7 +172,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
           {/* Search Button */}
           <Button
             type="submit"
-            className="absolute inset-y-0 right-0 h-12 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-r-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 border-0"
+            className="absolute inset-y-0 right-0 h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-r-lg transition-all duration-200 border-0 cursor-pointer hover:shadow-md"
           >
             Search
           </Button>

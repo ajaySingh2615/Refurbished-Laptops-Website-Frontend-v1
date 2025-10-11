@@ -77,30 +77,28 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
       {/* Sidebar */}
       <div
         className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-4/5 max-w-xs lg:w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-50 w-4/5 max-w-xs lg:w-72 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
       >
-        <div className="h-full overflow-y-auto p-6">
+        <div className="h-full overflow-y-auto p-4 lg:p-0">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-slate-900">Filters</h2>
             <div className="flex items-center space-x-2">
               {activeFilters.length > 0 && (
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
                   {activeFilters.length}
                 </span>
               )}
-              <Button
+              <button
                 onClick={clearFilters}
-                variant="ghost"
-                size="sm"
-                className="text-blue-600 hover:text-blue-800"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
               >
-                Clear All
-              </Button>
-              <button onClick={onClose} className="lg:hidden p-1 hover:bg-gray-100 rounded">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                Clear
+              </button>
+              <button onClick={onClose} className="lg:hidden p-1 hover:bg-slate-100 rounded">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -114,7 +112,7 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
 
           {/* Active Filters */}
           {activeFilters.length > 0 && (
-            <div className="mb-6">
+            <div className="mb-4">
               <ActiveFilters
                 filters={activeFilters}
                 onRemove={(key, value) => {
@@ -132,7 +130,7 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
           )}
 
           {/* Filter Sections */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Price Range */}
             <PriceRangeFilter
               minPrice={filters.minPrice}
@@ -165,17 +163,17 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
 
             {/* Stock Filter */}
             <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Availability</h3>
-              <div className="space-y-2">
+              <h3 className="text-xs font-medium text-slate-700 mb-2">Availability</h3>
+              <div className="space-y-1">
                 <label className="flex items-center">
                   <input
                     type="radio"
                     name="stock"
                     checked={filters.inStock === true}
                     onChange={() => updateFilter('inStock', true)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-slate-300"
                   />
-                  <span className="ml-2 text-sm text-gray-700">In Stock</span>
+                  <span className="ml-2 text-xs text-slate-600">In Stock</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -183,9 +181,9 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
                     name="stock"
                     checked={filters.inStock === false}
                     onChange={() => updateFilter('inStock', false)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-slate-300"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Out of Stock</span>
+                  <span className="ml-2 text-xs text-slate-600">Out of Stock</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -193,9 +191,9 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
                     name="stock"
                     checked={filters.inStock === null}
                     onChange={() => updateFilter('inStock', null)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-slate-300"
                   />
-                  <span className="ml-2 text-sm text-gray-700">All</span>
+                  <span className="ml-2 text-xs text-slate-600">All</span>
                 </label>
               </div>
             </div>

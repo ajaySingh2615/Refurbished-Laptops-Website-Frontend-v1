@@ -167,27 +167,21 @@ export default function UserManagement() {
     <AdminLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 mb-1">User Management</h1>
-              <p className="text-sm text-slate-600">Manage users, roles, and permissions</p>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setCreateOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium"
-            >
-              <UserPlus className="w-4 h-4" />
-              Add User
-            </motion.button>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-lg font-semibold text-slate-900">Users</h1>
+            <p className="text-xs text-slate-500">Manage user accounts</p>
           </div>
-        </motion.div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setCreateOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition-all duration-200"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            Add
+          </motion.button>
+        </div>
 
         {/* Search and Filters */}
         <motion.div
@@ -489,20 +483,20 @@ export default function UserManagement() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-md border border-slate-200/60"
+              className="bg-white rounded-xl shadow-xl w-full max-w-sm border border-slate-200"
             >
-              <div className="p-6 border-b border-slate-200">
-                <h2 className="text-xl font-bold text-slate-900">Create New User</h2>
-                <p className="text-sm text-slate-600 mt-1">Add a new user to the system</p>
+              <div className="p-4 border-b border-slate-100">
+                <h2 className="text-lg font-semibold text-slate-900">Add User</h2>
+                <p className="text-xs text-slate-500 mt-1">Create a new user account</p>
               </div>
 
-              <form onSubmit={createUser} className="p-6 space-y-4">
+              <form onSubmit={createUser} className="p-4 space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Email *</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Email *</label>
                   <input
                     type="email"
                     required
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                     placeholder="user@example.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -510,10 +504,10 @@ export default function UserManagement() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Full Name</label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                     placeholder="John Doe"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -521,25 +515,25 @@ export default function UserManagement() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Password *
                   </label>
                   <input
                     type="password"
                     required
                     minLength={6}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                    placeholder="Minimum 6 characters"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    placeholder="Min 6 characters"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Role</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Role</label>
                     <select
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                       value={form.role}
                       onChange={(e) => setForm({ ...form, role: e.target.value })}
                     >
@@ -549,9 +543,9 @@ export default function UserManagement() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Status</label>
+                    <label className="block text-xs font-medium text-slate-700 mb-1">Status</label>
                     <select
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
                       value={form.status}
                       onChange={(e) => setForm({ ...form, status: e.target.value })}
                     >
@@ -561,13 +555,13 @@ export default function UserManagement() {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4">
+                <div className="flex justify-end gap-2 pt-3">
                   <motion.button
                     type="button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setCreateOpen(false)}
-                    className="px-6 py-3 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all duration-300"
+                    className="px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200 text-sm"
                   >
                     Cancel
                   </motion.button>
@@ -575,9 +569,9 @@ export default function UserManagement() {
                     type="submit"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition-all duration-200 text-sm font-medium"
                   >
-                    Create User
+                    Create
                   </motion.button>
                 </div>
               </form>

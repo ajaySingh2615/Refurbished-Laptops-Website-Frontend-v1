@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-import ProductCard from "./ProductCard.jsx";
-import LoadingSpinner from "./LoadingSpinner.jsx";
+import ProductCard from './ProductCard.jsx';
+import LoadingSpinner from './LoadingSpinner.jsx';
 
 export default function ProductList({ products, loading, error }) {
   if (loading) {
@@ -31,7 +31,7 @@ export default function ProductList({ products, loading, error }) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

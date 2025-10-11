@@ -215,7 +215,10 @@ class ApiService {
   async adminCreateUser(body, accessToken) {
     return this.request('/api/auth/admin/users', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(body),
     });
   }

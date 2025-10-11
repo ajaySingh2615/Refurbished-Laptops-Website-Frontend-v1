@@ -90,28 +90,28 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">All Products</h2>
-        <p className="text-gray-600">Browse all refurbished laptops</p>
-        <div className="mt-4 flex items-center gap-2 lg:hidden">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setIsFilterOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
-              />
-            </svg>
-            Filters
-          </Button>
+      <div className="mb-6">
+        <div className="flex items-center justify-end mb-4">
+          <div className="lg:hidden">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsFilterOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"
+                />
+              </svg>
+              Filters
+            </Button>
+          </div>
         </div>
-        <div className="mt-4 w-full">
+        <div className="w-full">
           <SearchBar onSearch={handleSearch} placeholder="Search laptops (brand, model, CPU)" />
         </div>
       </div>
