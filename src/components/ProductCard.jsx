@@ -16,7 +16,10 @@ export default function ProductCard({ product }) {
   const isLowestPrice = Math.random() > 0.5;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-slate-100 h-full flex flex-col">
+    <div
+      className="rounded-lg transition-all duration-300 overflow-hidden h-full flex flex-col"
+      style={{ backgroundColor: '#f8f6f3' }}
+    >
       {/* Product Image */}
       <div className="px-3 pt-3 pb-2 relative">
         {/* Stock Counter - positioned over image */}
@@ -27,8 +30,8 @@ export default function ProductCard({ product }) {
             </span>
           </div>
         )}
-        <div className="aspect-square bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center relative overflow-hidden">
-          <div className="w-16 h-16 bg-slate-300 rounded-lg flex items-center justify-center">
+        <div className="aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden">
+          <div className="w-16 h-16 bg-slate-200 rounded-lg flex items-center justify-center">
             <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
               <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
             </svg>
@@ -96,7 +99,7 @@ export default function ProductCard({ product }) {
         >
           <Link
             to={`/product/${encodeURIComponent(product.sku)}`}
-            className="block w-full bg-slate-900 hover:bg-slate-800 text-white text-center py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-slate-900/25 relative overflow-hidden group"
+            className="block w-full bg-slate-900 hover:bg-slate-800 text-white text-center py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-md hover:shadow-slate-900/20 relative overflow-hidden group"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
