@@ -7,6 +7,8 @@ import { apiService } from '../services/api.js';
 export default function ProductCard({ product }) {
   const [productImages, setProductImages] = React.useState([]);
   const [imageLoading, setImageLoading] = React.useState(true);
+  const [reviewStats, setReviewStats] = React.useState(null);
+  const [reviewLoading, setReviewLoading] = React.useState(true);
 
   // Fetch product images
   React.useEffect(() => {
@@ -28,6 +30,27 @@ export default function ProductCard({ product }) {
     }
   }, [product.id]);
 
+  // Fetch review stats
+  React.useEffect(() => {
+    const fetchReviewStats = async () => {
+      try {
+        setReviewLoading(true);
+        const response = await apiService.getProductReviewStats(product.id);
+        // Extract the data from the response
+        setReviewStats(response.data || response);
+      } catch (error) {
+        console.error('Failed to fetch review stats:', error);
+        setReviewStats(null);
+      } finally {
+        setReviewLoading(false);
+      }
+    };
+
+    if (product.id) {
+      fetchReviewStats();
+    }
+  }, [product.id]);
+
   // Get primary image or first image
   const primaryImage = React.useMemo(() => {
     if (productImages.length === 0) return null;
@@ -39,8 +62,11 @@ export default function ProductCard({ product }) {
   const discountAmount = originalPrice - product.price;
   const discountPercentage = Math.round((discountAmount / originalPrice) * 100);
 
-  // Mock data for demonstration
-  const rating = (4.0 + Math.random() * 1.0).toFixed(1);
+  // Real review data
+  const hasReviews = reviewStats && reviewStats.totalReviews > 0;
+  const averageRating = hasReviews ? reviewStats.averageRating.toFixed(1) : null;
+
+  // Mock data for demonstration (keep for other features)
   const stockLeft = product.inStock ? Math.floor(Math.random() * 5) + 1 : 0;
   const isFlashSale = Math.random() > 0.7;
   const isLowestPrice = Math.random() > 0.5;
@@ -120,10 +146,16 @@ export default function ProductCard({ product }) {
                 Lowest Price
               </span>
             ) : null}
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-slate-600">{rating}</span>
-              <span className="text-yellow-500">⭐</span>
-            </div>
+            {hasReviews ? (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-slate-600">{averageRating}</span>
+                <span className="text-yellow-500">⭐</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-slate-500">⭐ Be the first to review</span>
+              </div>
+            )}
           </div>
         </div>
 

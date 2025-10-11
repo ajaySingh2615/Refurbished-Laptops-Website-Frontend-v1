@@ -9,6 +9,7 @@ export default function RelatedProducts({ product }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [productImages, setProductImages] = useState({});
+  const [reviewStats, setReviewStats] = useState({});
 
   useEffect(() => {
     let isMounted = true;
@@ -99,6 +100,27 @@ export default function RelatedProducts({ product }) {
           });
 
           if (isMounted) setProductImages(imagesMap);
+
+          // Fetch review stats for each product
+          const reviewPromises = items.map(async (item) => {
+            try {
+              const response = await apiService.getProductReviewStats(item.id);
+              // Extract the data from the response
+              const stats = response.data || response;
+              return { productId: item.id, stats };
+            } catch (error) {
+              console.error(`Failed to fetch review stats for product ${item.id}:`, error);
+              return { productId: item.id, stats: null };
+            }
+          });
+
+          const reviewResults = await Promise.all(reviewPromises);
+          const statsMap = {};
+          reviewResults.forEach(({ productId, stats }) => {
+            statsMap[productId] = stats;
+          });
+
+          if (isMounted) setReviewStats(statsMap);
         }
       } catch {
         if (isMounted) setError('Failed to load related products');
@@ -266,22 +288,45 @@ export default function RelatedProducts({ product }) {
                         )}
                       </div>
 
-                      {/* Rating (Mock) */}
-                      <div className="flex items-center gap-1 mt-auto">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <svg
-                              key={i}
-                              className="w-3 h-3 text-yellow-400"
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                            </svg>
-                          ))}
-                        </div>
-                        <span className="text-xs text-slate-500">(4.2)</span>
-                      </div>
+                      {/* Rating */}
+                      {(() => {
+                        const stats = reviewStats[item.id];
+                        const hasReviews = stats && stats.totalReviews > 0;
+
+                        if (hasReviews) {
+                          return (
+                            <div className="flex items-center gap-1 mt-auto">
+                              <div className="flex items-center">
+                                {[...Array(5)].map((_, i) => (
+                                  <svg
+                                    key={i}
+                                    className={`w-3 h-3 ${
+                                      i < Math.floor(stats.averageRating)
+                                        ? 'text-yellow-400'
+                                        : 'text-slate-300'
+                                    }`}
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                  </svg>
+                                ))}
+                              </div>
+                              <span className="text-xs text-slate-500">
+                                ({stats.averageRating.toFixed(1)})
+                              </span>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="flex items-center gap-1 mt-auto">
+                              <span className="text-xs text-slate-500">
+                                ⭐ Be the first to review
+                              </span>
+                            </div>
+                          );
+                        }
+                      })()}
                     </div>
                   </motion.div>
                 </Link>

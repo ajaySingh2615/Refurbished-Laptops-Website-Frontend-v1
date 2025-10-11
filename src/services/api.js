@@ -349,6 +349,7 @@ class ApiService {
     const accessToken = localStorage.getItem('accessToken');
     const params = new URLSearchParams();
     if (options.status) params.append('status', options.status);
+    if (options.search) params.append('search', options.search);
     if (options.limit) params.append('limit', options.limit);
     if (options.offset) params.append('offset', options.offset);
     if (options.sortBy) params.append('sortBy', options.sortBy);

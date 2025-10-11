@@ -11,6 +11,8 @@ export default function ProductDetail({ product, loading, error }) {
   const [productImages, setProductImages] = React.useState([]);
   const [imageLoading, setImageLoading] = React.useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(0);
+  const [reviewStats, setReviewStats] = React.useState(null);
+  const [reviewLoading, setReviewLoading] = React.useState(true);
 
   // Fetch product images
   React.useEffect(() => {
@@ -30,6 +32,27 @@ export default function ProductDetail({ product, loading, error }) {
     };
 
     fetchImages();
+  }, [product?.id]);
+
+  // Fetch review stats
+  React.useEffect(() => {
+    const fetchReviewStats = async () => {
+      if (!product?.id) return;
+
+      try {
+        setReviewLoading(true);
+        const response = await apiService.getProductReviewStats(product.id);
+        // Extract the data from the response
+        setReviewStats(response.data || response);
+      } catch (error) {
+        console.error('Failed to fetch review stats:', error);
+        setReviewStats(null);
+      } finally {
+        setReviewLoading(false);
+      }
+    };
+
+    fetchReviewStats();
   }, [product?.id]);
 
   // Get primary image or first image
@@ -426,6 +449,41 @@ export default function ProductDetail({ product, loading, error }) {
                 <div className="text-xs text-slate-500 mb-4">
                   Inclusive of GST ({product.gstPercent}%)
                 </div>
+              )}
+
+              {/* Rating Display */}
+              {reviewStats && reviewStats.totalReviews > 0 && (
+                <motion.div
+                  className="flex items-center gap-3 mb-4"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.8 }}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.floor(reviewStats.averageRating)
+                              ? 'text-yellow-400'
+                              : 'text-slate-300'
+                          }`}
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="text-sm font-medium text-slate-700">
+                      {reviewStats.averageRating.toFixed(1)}
+                    </span>
+                    <span className="text-sm text-slate-500">
+                      ({reviewStats.totalReviews} review{reviewStats.totalReviews !== 1 ? 's' : ''})
+                    </span>
+                  </div>
+                </motion.div>
               )}
 
               {/* Action Buttons */}
