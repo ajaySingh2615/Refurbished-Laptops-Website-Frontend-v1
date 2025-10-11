@@ -488,25 +488,132 @@ export default function ImageManagement() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center mt-8">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page === 1}
-                className="px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                Previous
-              </button>
-              <span className="px-4 py-2 text-sm text-slate-600">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(Math.min(totalPages, page + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                Next
-              </button>
+          <div className="bg-white/80 backdrop-blur-xl rounded-xl border border-slate-200/60 p-4 mt-6 shadow-lg shadow-slate-200/30">
+            <div className="flex items-center justify-between">
+              {/* Page Info */}
+              <div className="text-sm text-slate-600">
+                Showing page {page} of {totalPages}
+                <span className="text-slate-400 ml-2">
+                  ({groupedImages.length} product{groupedImages.length !== 1 ? 's' : ''} with
+                  images)
+                </span>
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center gap-2">
+                {/* Previous Button */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  disabled={page === 1}
+                  className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Previous
+                </motion.button>
+
+                {/* Page Numbers */}
+                <div className="flex items-center gap-1">
+                  {(() => {
+                    const pages = [];
+                    const maxVisiblePages = 5;
+                    const startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+                    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                    // First page
+                    if (startPage > 1) {
+                      pages.push(
+                        <motion.button
+                          key={1}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setPage(1)}
+                          className="px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200"
+                        >
+                          1
+                        </motion.button>,
+                      );
+                      if (startPage > 2) {
+                        pages.push(
+                          <span key="ellipsis1" className="px-2 text-slate-400">
+                            ...
+                          </span>,
+                        );
+                      }
+                    }
+
+                    // Middle pages
+                    for (let i = startPage; i <= endPage; i++) {
+                      pages.push(
+                        <motion.button
+                          key={i}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setPage(i)}
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                            i === page
+                              ? 'bg-blue-600 text-white shadow-lg'
+                              : 'text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          {i}
+                        </motion.button>,
+                      );
+                    }
+
+                    // Last page
+                    if (endPage < totalPages) {
+                      if (endPage < totalPages - 1) {
+                        pages.push(
+                          <span key="ellipsis2" className="px-2 text-slate-400">
+                            ...
+                          </span>,
+                        );
+                      }
+                      pages.push(
+                        <motion.button
+                          key={totalPages}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setPage(totalPages)}
+                          className="px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200"
+                        >
+                          {totalPages}
+                        </motion.button>,
+                      );
+                    }
+
+                    return pages;
+                  })()}
+                </div>
+
+                {/* Next Button */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
+                  disabled={page === totalPages}
+                  className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium"
+                >
+                  Next
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </motion.button>
+              </div>
             </div>
           </div>
         )}
