@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../utils/formatters';
+import { motion } from 'framer-motion';
 
 export default function ProductCard({ product }) {
   // Calculate discount amount and percentage
@@ -88,12 +89,24 @@ export default function ProductCard({ product }) {
 
       {/* View Details Link - Fixed at bottom */}
       <div className="px-3 pb-3 mt-auto">
-        <Link
-          to={`/product/${encodeURIComponent(product.sku)}`}
-          className="block w-full bg-slate-900 hover:bg-slate-800 text-white text-center py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
         >
-          View Details
-        </Link>
+          <Link
+            to={`/product/${encodeURIComponent(product.sku)}`}
+            className="block w-full bg-slate-900 hover:bg-slate-800 text-white text-center py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-slate-900/25 relative overflow-hidden group"
+          >
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              initial={{ x: '-100%' }}
+              whileHover={{ x: '0%' }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            />
+            <span className="relative z-10">View Details</span>
+          </Link>
+        </motion.div>
       </div>
     </div>
   );
