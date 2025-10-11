@@ -66,7 +66,7 @@ const ProductCardAddToCart = ({ productId, className = '', size = 'sm' }) => {
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
+    lg: 'px-6 py-3 text-lg font-bold',
   };
 
   // If product is not in cart, show add to cart button
@@ -77,9 +77,11 @@ const ProductCardAddToCart = ({ productId, className = '', size = 'sm' }) => {
         disabled={isAdding || loading}
         className={`
           ${sizeClasses[size]}
-          bg-blue-600 hover:bg-blue-700 text-white
-          ${isAdding || loading ? 'opacity-50 cursor-not-allowed' : ''}
-          font-medium rounded-md transition-colors duration-200 flex items-center justify-center space-x-2
+          bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 
+          text-white rounded-xl shadow-lg hover:shadow-xl
+          ${isAdding || loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
+          transition-all duration-300 flex items-center justify-center space-x-2
+          border border-blue-500/20 w-full
           ${className}
         `}
       >
@@ -99,24 +101,58 @@ const ProductCardAddToCart = ({ productId, className = '', size = 'sm' }) => {
   }
 
   // If product is in cart, show quantity controls
+  const controlSizeClasses = {
+    sm: 'w-8 h-8',
+    md: 'w-9 h-9',
+    lg: 'w-12 h-12',
+  };
+
+  const textSizeClasses = {
+    sm: 'text-sm',
+    md: 'text-sm',
+    lg: 'text-lg font-bold',
+  };
+
   return (
-    <div className={`flex items-center justify-center space-x-2 ${className}`}>
+    <div
+      className={`flex items-center justify-center space-x-2 bg-white rounded-lg border border-gray-200 shadow-sm p-1 ${className}`}
+    >
       <button
         onClick={handleDecrement}
         disabled={isUpdating || currentQuantity <= 1}
-        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className={`
+          ${controlSizeClasses[size]} 
+          flex items-center justify-center 
+          bg-gray-100 hover:bg-red-50 
+          border border-gray-200 hover:border-red-300
+          rounded-md hover:scale-105
+          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+          transition-all duration-200
+          ${currentQuantity <= 1 ? 'text-gray-400' : 'text-gray-700 hover:text-red-600'}
+        `}
       >
         <Minus className="w-4 h-4" />
       </button>
 
-      <span className="w-8 text-center text-sm font-medium">
-        {isUpdating ? '...' : currentQuantity}
-      </span>
+      <div className="bg-gray-50 rounded-md px-4 py-2 min-w-[3rem]">
+        <span className={`text-center font-bold ${textSizeClasses[size]} text-gray-800`}>
+          {isUpdating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : currentQuantity}
+        </span>
+      </div>
 
       <button
         onClick={handleIncrement}
         disabled={isUpdating}
-        className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className={`
+          ${controlSizeClasses[size]} 
+          flex items-center justify-center 
+          bg-gray-100 hover:bg-green-50 
+          border border-gray-200 hover:border-green-300
+          rounded-md hover:scale-105
+          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+          transition-all duration-200
+          text-gray-700 hover:text-green-600
+        `}
       >
         <Plus className="w-4 h-4" />
       </button>

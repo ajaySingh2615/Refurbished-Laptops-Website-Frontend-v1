@@ -6,6 +6,7 @@ import ProductReviews from './ProductReviews.jsx';
 import { apiService } from '../services/api.js';
 import { Button } from './ui/Button.jsx';
 import { Input } from './ui/Input.jsx';
+import ProductCardAddToCart from './cart/ProductCardAddToCart.jsx';
 
 export default function ProductDetail({ product, loading, error }) {
   const [productImages, setProductImages] = React.useState([]);
@@ -489,24 +490,51 @@ export default function ProductDetail({ product, loading, error }) {
               {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    className={`w-full py-3 rounded-xl font-medium transition-all duration-200 ${
-                      product.inStock
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
-                        : 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                    }`}
-                    disabled={!product.inStock}
-                  >
-                    {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-                  </Button>
+                  {product.inStock ? (
+                    <ProductCardAddToCart productId={product.id} size="lg" className="w-full" />
+                  ) : (
+                    <button
+                      className="w-full py-3 px-6 rounded-xl font-bold text-lg bg-gradient-to-r from-gray-300 to-gray-400 text-gray-500 cursor-not-allowed shadow-md"
+                      disabled={true}
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"
+                          />
+                        </svg>
+                        <span>Out of Stock</span>
+                      </div>
+                    </button>
+                  )}
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    variant="outline"
-                    className="w-full py-3 rounded-xl font-medium border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-200"
-                  >
-                    Buy Now
-                  </Button>
+                  <button className="w-full py-3 px-6 rounded-xl font-bold text-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 border border-green-500/20">
+                    <div className="flex items-center justify-center space-x-2">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                      <span>Buy Now</span>
+                    </div>
+                  </button>
                 </motion.div>
               </div>
             </motion.div>

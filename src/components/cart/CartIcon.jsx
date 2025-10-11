@@ -10,7 +10,7 @@ const CartIcon = ({ className = '' }) => {
     <button
       onClick={toggleCart}
       disabled={loading}
-      className={`relative p-2 text-gray-600 hover:text-gray-900 transition-colors duration-200 ${className}`}
+      className={`relative p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 ${className}`}
       aria-label={`Shopping cart with ${itemCount} items`}
     >
       {/* Cart Icon */}
@@ -18,15 +18,15 @@ const CartIcon = ({ className = '' }) => {
 
       {/* Item Count Badge */}
       {itemCount > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+        <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
           {itemCount > 99 ? '99+' : itemCount}
         </span>
       )}
 
       {/* Loading Spinner */}
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Loader2 className="w-4 h-4 animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+          <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
         </div>
       )}
     </button>
