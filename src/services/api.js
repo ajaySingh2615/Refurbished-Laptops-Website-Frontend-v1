@@ -240,6 +240,60 @@ class ApiService {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
   }
+
+  // Image management methods
+  async uploadImage(formData, accessToken) {
+    return this.request('/api/images/upload', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: formData,
+    });
+  }
+
+  async getProductImages(productId) {
+    return this.request(`/api/images/product/${productId}`);
+  }
+
+  async getAllImages(params = {}, accessToken) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        searchParams.append(key, value);
+      }
+    });
+    return this.request(`/api/images/admin/all?${searchParams}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async deleteImage(imageId, accessToken) {
+    return this.request(`/api/images/admin/${imageId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async setPrimaryImage(productId, imageId, accessToken) {
+    return this.request('/api/images/admin/set-primary', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ productId, imageId }),
+    });
+  }
+
+  async updateImageOrder(imageId, sortOrder, accessToken) {
+    return this.request(`/api/images/admin/${imageId}/order`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sortOrder }),
+    });
+  }
 }
 
 export const apiService = new ApiService();
