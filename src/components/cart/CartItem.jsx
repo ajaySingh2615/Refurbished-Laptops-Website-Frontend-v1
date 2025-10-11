@@ -51,12 +51,18 @@ const CartItem = ({ item }) => {
               src={item.image}
               alt={item.imageAlt || item.productTitle}
               className="w-16 h-16 object-cover rounded-lg shadow-sm"
+              onError={(e) => {
+                console.log('Image failed to load:', item.image);
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
             />
-          ) : (
-            <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm">
-              <Image className="w-8 h-8 text-gray-400" />
-            </div>
-          )}
+          ) : null}
+          <div
+            className={`w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm ${item.image ? 'hidden' : 'flex'}`}
+          >
+            <Image className="w-8 h-8 text-gray-400" />
+          </div>
         </div>
 
         {/* Product Details */}

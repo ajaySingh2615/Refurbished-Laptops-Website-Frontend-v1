@@ -126,9 +126,22 @@ export const CartProvider = ({ children }) => {
       const sessionId = getSessionId();
       dispatch({ type: CART_ACTIONS.SET_SESSION_ID, payload: sessionId });
 
-      // Fetch cart summary
-      const response = await cartAPI.getCartSummary();
+      // Fetch full cart data with images
+      const response = await cartAPI.getCart();
       if (response.success) {
+        console.log('Cart data received:', response.data);
+        console.log('Cart items:', response.data.items);
+        console.log(
+          'Cart items details:',
+          response.data.items.map((item) => ({
+            id: item.id,
+            productId: item.productId,
+            productTitle: item.productTitle,
+            image: item.image,
+            imageAlt: item.imageAlt,
+            hasImage: !!item.image,
+          })),
+        );
         dispatch({ type: CART_ACTIONS.SET_CART, payload: response.data });
       }
     } catch (error) {

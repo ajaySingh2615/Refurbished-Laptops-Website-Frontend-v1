@@ -3,10 +3,21 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000
 class ApiService {
   async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
+
+    // Get session ID from cookie for cart operations
+    const getSessionId = () => {
+      const cookies = document.cookie.split(';');
+      const sessionCookie = cookies.find((cookie) => cookie.trim().startsWith('sessionId='));
+      return sessionCookie ? sessionCookie.split('=')[1] : null;
+    };
+
+    const sessionId = getSessionId();
+
     const config = {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        ...(sessionId && { 'x-session-id': sessionId }),
         ...options.headers,
       },
       ...options,
