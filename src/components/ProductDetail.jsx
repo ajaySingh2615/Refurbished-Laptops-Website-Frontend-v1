@@ -2,8 +2,39 @@ import React from 'react';
 
 import { formatPrice, formatDate } from '../utils/formatters.js';
 import RelatedProducts from './RelatedProducts.jsx';
+import { apiService } from '../services/api.js';
 
 export default function ProductDetail({ product, loading, error }) {
+  const [productImages, setProductImages] = React.useState([]);
+  const [imageLoading, setImageLoading] = React.useState(true);
+  const [selectedImageIndex, setSelectedImageIndex] = React.useState(0);
+
+  // Fetch product images
+  React.useEffect(() => {
+    const fetchImages = async () => {
+      if (!product?.id) return;
+
+      try {
+        setImageLoading(true);
+        const response = await apiService.getProductImages(product.id);
+        setProductImages(response.images || []);
+      } catch (error) {
+        console.error('Failed to fetch product images:', error);
+        setProductImages([]);
+      } finally {
+        setImageLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, [product?.id]);
+
+  // Get primary image or first image
+  const primaryImage = React.useMemo(() => {
+    if (productImages.length === 0) return null;
+    return productImages.find((img) => img.isPrimary) || productImages[0];
+  }, [productImages]);
+
   // Move all hooks to the top, before any conditional returns
   const variants = React.useMemo(
     () => (Array.isArray(product?.variants) ? product.variants : []),
@@ -148,14 +179,57 @@ export default function ProductDetail({ product, loading, error }) {
         {/* Left: Media */}
         <div className="lg:col-span-5">
           <div className="sticky top-4">
-            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-              <span className="text-gray-500">Product Image</span>
+            {/* Main Image */}
+            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden">
+              {imageLoading ? (
+                <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center animate-pulse">
+                  <svg className="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
+                  </svg>
+                </div>
+              ) : productImages.length > 0 ? (
+                <img
+                  src={productImages[selectedImageIndex]?.cloudinaryUrl}
+                  alt={productImages[selectedImageIndex]?.altText || product.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+
+              {/* Fallback when no image or image fails to load */}
+              <div
+                className="w-full h-full flex items-center justify-center bg-gray-200"
+                style={{ display: productImages.length > 0 ? 'none' : 'flex' }}
+              >
+                <span className="text-gray-500">No Image Available</span>
+              </div>
             </div>
-            <div className="mt-3 grid grid-cols-5 gap-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="aspect-square bg-gray-100 rounded" />
-              ))}
-            </div>
+
+            {/* Thumbnail Images */}
+            {productImages.length > 1 && (
+              <div className="mt-3 grid grid-cols-5 gap-2">
+                {productImages.slice(0, 5).map((image, index) => (
+                  <button
+                    key={image.id}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                      selectedImageIndex === index
+                        ? 'border-blue-500 ring-2 ring-blue-200'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <img
+                      src={image.cloudinaryUrl}
+                      alt={image.altText || `${product.title} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

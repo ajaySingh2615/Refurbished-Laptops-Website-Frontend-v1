@@ -2,8 +2,38 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../utils/formatters';
 import { motion } from 'framer-motion';
+import { apiService } from '../services/api.js';
 
 export default function ProductCard({ product }) {
+  const [productImages, setProductImages] = React.useState([]);
+  const [imageLoading, setImageLoading] = React.useState(true);
+
+  // Fetch product images
+  React.useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        setImageLoading(true);
+        const response = await apiService.getProductImages(product.id);
+        setProductImages(response.images || []);
+      } catch (error) {
+        console.error('Failed to fetch product images:', error);
+        setProductImages([]);
+      } finally {
+        setImageLoading(false);
+      }
+    };
+
+    if (product.id) {
+      fetchImages();
+    }
+  }, [product.id]);
+
+  // Get primary image or first image
+  const primaryImage = React.useMemo(() => {
+    if (productImages.length === 0) return null;
+    return productImages.find((img) => img.isPrimary) || productImages[0];
+  }, [productImages]);
+
   // Calculate discount amount and percentage
   const originalPrice = product.originalPrice || product.price * 1.5; // Mock original price
   const discountAmount = originalPrice - product.price;
@@ -31,13 +61,35 @@ export default function ProductCard({ product }) {
           </div>
         )}
         <div className="aspect-square bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg flex items-center justify-center relative overflow-hidden">
-          <div className="w-16 h-16 bg-slate-200 rounded-lg flex items-center justify-center">
-            <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
-            </svg>
+          {imageLoading ? (
+            <div className="w-16 h-16 bg-slate-200 rounded-lg flex items-center justify-center animate-pulse">
+              <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
+              </svg>
+            </div>
+          ) : primaryImage ? (
+            <img
+              src={primaryImage.cloudinaryUrl}
+              alt={primaryImage.altText || product.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+
+          {/* Fallback when no image or image fails to load */}
+          <div
+            className="w-full h-full flex items-center justify-center bg-slate-200"
+            style={{ display: primaryImage ? 'none' : 'flex' }}
+          >
+            <div className="w-16 h-16 bg-slate-300 rounded-lg flex items-center justify-center">
+              <svg className="w-8 h-8 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
+              </svg>
+            </div>
           </div>
-          {/* Mock laptop screen content */}
-          <div className="absolute inset-2 bg-gradient-to-br from-blue-400 to-purple-500 rounded opacity-20"></div>
         </div>
       </div>
 
