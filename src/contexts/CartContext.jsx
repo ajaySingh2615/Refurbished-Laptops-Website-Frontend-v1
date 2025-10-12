@@ -281,6 +281,28 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Remove coupon
+  const removeCoupon = async (couponId) => {
+    try {
+      dispatch({ type: CART_ACTIONS.SET_LOADING, payload: true });
+
+      const response = await cartAPI.removeCoupon(couponId);
+
+      if (response.success) {
+        // Fetch updated cart
+        const cartResponse = await cartAPI.getCart();
+        if (cartResponse.success) {
+          dispatch({ type: CART_ACTIONS.SET_CART, payload: cartResponse.data });
+        }
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      console.error('Error removing coupon:', error);
+      dispatch({ type: CART_ACTIONS.SET_ERROR, payload: error.message });
+    }
+  };
+
   // Toggle cart sidebar
   const toggleCart = () => {
     dispatch({ type: CART_ACTIONS.TOGGLE_CART });
@@ -334,6 +356,7 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     clearCart,
     applyCoupon,
+    removeCoupon,
     toggleCart,
     getCartSummary,
     isInCart,

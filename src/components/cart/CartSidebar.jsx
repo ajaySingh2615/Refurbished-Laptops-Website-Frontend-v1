@@ -1,29 +1,13 @@
 import React from 'react';
 import { useCart } from '../../contexts/CartContext.jsx';
 import CartItem from './CartItem.jsx';
+import CouponSection from './CouponSection.jsx';
 import { formatPrice } from '../../utils/formatters.js';
 import { X, ShoppingCart, Loader2 } from 'lucide-react';
 
 const CartSidebar = () => {
-  const { cart, loading, error, isOpen, toggleCart, clearCart, applyCoupon } = useCart();
-
-  const [couponCode, setCouponCode] = React.useState('');
-  const [isApplyingCoupon, setIsApplyingCoupon] = React.useState(false);
-
-  const handleApplyCoupon = async (e) => {
-    e.preventDefault();
-    if (!couponCode.trim()) return;
-
-    setIsApplyingCoupon(true);
-    try {
-      await applyCoupon(couponCode.trim());
-      setCouponCode('');
-    } catch (error) {
-      console.error('Error applying coupon:', error);
-    } finally {
-      setIsApplyingCoupon(false);
-    }
-  };
+  const { cart, loading, error, isOpen, toggleCart, clearCart, applyCoupon, removeCoupon } =
+    useCart();
 
   const handleClearCart = async () => {
     if (window.confirm('Are you sure you want to clear your cart?')) {
@@ -96,24 +80,13 @@ const CartSidebar = () => {
         {/* Footer */}
         {!loading && cart.items.length > 0 && (
           <div className="border-t bg-gradient-to-r from-gray-50 to-blue-50 p-6 space-y-4">
-            {/* Coupon Code */}
-            <form onSubmit={handleApplyCoupon} className="flex gap-2">
-              <input
-                type="text"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                placeholder="Enter coupon code"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                disabled={isApplyingCoupon}
-              />
-              <button
-                type="submit"
-                disabled={isApplyingCoupon || !couponCode.trim()}
-                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl"
-              >
-                {isApplyingCoupon ? 'Applying...' : 'Apply'}
-              </button>
-            </form>
+            {/* Coupon Section */}
+            <CouponSection
+              cart={cart}
+              onApplyCoupon={applyCoupon}
+              onRemoveCoupon={removeCoupon}
+              loading={loading}
+            />
 
             {/* Cart Summary */}
             <div className="bg-white rounded-lg p-4 space-y-3 border border-gray-200">

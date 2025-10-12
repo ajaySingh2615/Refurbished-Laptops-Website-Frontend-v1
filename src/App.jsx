@@ -15,6 +15,7 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
 import CategoryManagement from './pages/admin/CategoryManagement.jsx';
+import CouponsPage from './pages/admin/CouponsPage.jsx';
 import ImageManagement from './pages/admin/ImageManagement.jsx';
 import ReviewManagement from './pages/admin/ReviewManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
@@ -110,6 +111,16 @@ export default function App() {
               <RequireAdmin>
                 <AdminProvider>
                   <CategoryManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/coupons"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <CouponsPage />
                 </AdminProvider>
               </RequireAdmin>
             }

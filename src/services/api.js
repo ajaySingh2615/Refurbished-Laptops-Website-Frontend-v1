@@ -11,13 +11,20 @@ class ApiService {
       return sessionCookie ? sessionCookie.split('=')[1] : null;
     };
 
+    // Get authentication token from localStorage
+    const getAuthToken = () => {
+      return localStorage.getItem('accessToken');
+    };
+
     const sessionId = getSessionId();
+    const authToken = getAuthToken();
 
     const config = {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         ...(sessionId && { 'x-session-id': sessionId }),
+        ...(authToken && { Authorization: `Bearer ${authToken}` }),
         ...options.headers,
       },
       ...options,
@@ -447,6 +454,13 @@ export const cartAPI = {
     return apiService.request('/api/cart/coupon', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  },
+
+  // Remove coupon
+  async removeCoupon(couponId) {
+    return apiService.request(`/api/cart/coupon/${couponId}`, {
+      method: 'DELETE',
     });
   },
 
