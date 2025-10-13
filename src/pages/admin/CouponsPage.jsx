@@ -62,11 +62,11 @@ const CouponsPage = () => {
         apiService.request('/api/products?limit=1000'),
       ]);
 
-      setCategories(categoriesRes.data || []);
-      setProducts(productsRes.data || []);
+      setCategories(categoriesRes || []);
+      setProducts(productsRes?.products || []);
 
       // Extract unique brands
-      const uniqueBrands = [...new Set(productsRes.data?.map((p) => p.brand) || [])];
+      const uniqueBrands = [...new Set(productsRes?.products?.map((p) => p.brand) || [])];
       setBrands(uniqueBrands);
     } catch (error) {
       console.error('Error fetching supporting data:', error);
@@ -81,10 +81,14 @@ const CouponsPage = () => {
   // Handle coupon operations
   const handleCreateCoupon = async (couponData) => {
     try {
-      await apiService.request('/api/coupons', {
+      const response = await apiService.request('/api/coupons', {
         method: 'POST',
         body: JSON.stringify(couponData),
       });
+
+      if (response.success === false) {
+        throw new Error(response.message);
+      }
 
       await fetchCoupons();
       setIsFormOpen(false);
@@ -96,10 +100,14 @@ const CouponsPage = () => {
 
   const handleUpdateCoupon = async (couponData) => {
     try {
-      await apiService.request(`/api/coupons/${editingCoupon.id}`, {
+      const response = await apiService.request(`/api/coupons/${editingCoupon.id}`, {
         method: 'PUT',
         body: JSON.stringify(couponData),
       });
+
+      if (response.success === false) {
+        throw new Error(response.message);
+      }
 
       await fetchCoupons();
       setEditingCoupon(null);

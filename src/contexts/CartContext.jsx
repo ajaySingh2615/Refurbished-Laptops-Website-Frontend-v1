@@ -130,18 +130,6 @@ export const CartProvider = ({ children }) => {
       const response = await cartAPI.getCart();
       if (response.success) {
         console.log('Cart data received:', response.data);
-        console.log('Cart items:', response.data.items);
-        console.log(
-          'Cart items details:',
-          response.data.items.map((item) => ({
-            id: item.id,
-            productId: item.productId,
-            productTitle: item.productTitle,
-            image: item.image,
-            imageAlt: item.imageAlt,
-            hasImage: !!item.image,
-          })),
-        );
         dispatch({ type: CART_ACTIONS.SET_CART, payload: response.data });
       }
     } catch (error) {
@@ -264,7 +252,10 @@ export const CartProvider = ({ children }) => {
     try {
       dispatch({ type: CART_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await cartAPI.applyCoupon({ couponCode });
+      const response = await cartAPI.applyCoupon({
+        couponCode,
+        cartId: state.cart.id,
+      });
 
       if (response.success) {
         // Fetch updated cart
@@ -286,7 +277,7 @@ export const CartProvider = ({ children }) => {
     try {
       dispatch({ type: CART_ACTIONS.SET_LOADING, payload: true });
 
-      const response = await cartAPI.removeCoupon(couponId);
+      const response = await cartAPI.removeCoupon(couponId, state.cart.id);
 
       if (response.success) {
         // Fetch updated cart

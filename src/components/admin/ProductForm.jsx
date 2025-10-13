@@ -89,6 +89,23 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
     setForm((s) => ({ ...s, [k]: v }));
   }, []);
 
+  // Auto-calculate discount percentage when MRP or Price changes
+  React.useEffect(() => {
+    const mrp = parseFloat(form.mrp) || 0;
+    const price = parseFloat(form.price) || 0;
+
+    console.log('ProductForm - Pricing change detected:', { mrp, price });
+
+    if (mrp > 0 && price > 0 && mrp > price) {
+      const discountPercent = ((mrp - price) / mrp) * 100;
+      console.log('ProductForm - Discount calculated:', discountPercent.toFixed(2) + '%');
+      setForm((s) => ({ ...s, discountPercent: discountPercent.toFixed(2) }));
+    } else {
+      console.log('ProductForm - Discount cleared');
+      setForm((s) => ({ ...s, discountPercent: '' }));
+    }
+  }, [form.mrp, form.price]);
+
   // Use useRef to store handlers to prevent re-creation
   const handlersRef = React.useRef({});
 
@@ -380,8 +397,11 @@ export default function ProductForm({ initialData = {}, onSubmit, onCancel, subm
             type="number"
             value={form.discountPercent}
             onChange={(e) => update('discountPercent', e.target.value)}
-            placeholder="29"
+            placeholder="Auto-calculated"
+            readOnly
+            className="bg-slate-50 text-slate-600"
           />
+          <p className="text-xs text-slate-500 mt-1">Automatically calculated from MRP and Price</p>
         </Field>
         <Field label="GST (%)">
           <Input

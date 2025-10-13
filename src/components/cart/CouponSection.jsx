@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '../ui/Button.jsx';
 import { Input } from '../ui/Input.jsx';
 import { formatPrice } from '../../utils/formatters.js';
+import { apiService } from '../../services/api';
 import {
   Tag,
   Check,
@@ -30,33 +31,31 @@ const CouponSection = ({ cart, onApplyCoupon, onRemoveCoupon, loading }) => {
       return;
     }
 
+    if (isApplying) {
+      console.log('CouponSection - Already applying, ignoring duplicate call');
+      return;
+    }
+
     setIsApplying(true);
     setError('');
     setSuccess('');
 
     try {
-      const response = await fetch(`/api/coupons/apply/${cart.id}`, {
+      const data = await apiService.request(`/api/coupons/apply/${cart.id}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': localStorage.getItem('sessionId') || '',
-        },
-        credentials: 'include',
         body: JSON.stringify({ code: couponCode.trim().toUpperCase() }),
       });
-
-      const data = await response.json();
 
       if (data.success) {
         setSuccess(`Coupon "${couponCode}" applied successfully!`);
         setCouponCode('');
-        onApplyCoupon(data.data);
+        onApplyCoupon(couponCode.trim().toUpperCase());
       } else {
         setError(data.message || 'Failed to apply coupon');
       }
     } catch (error) {
       console.error('Error applying coupon:', error);
-      setError('Failed to apply coupon. Please try again.');
+      setError(error.message || 'Failed to apply coupon. Please try again.');
     } finally {
       setIsApplying(false);
     }
@@ -64,15 +63,9 @@ const CouponSection = ({ cart, onApplyCoupon, onRemoveCoupon, loading }) => {
 
   const handleRemoveCoupon = async (couponId) => {
     try {
-      const response = await fetch(`/api/coupons/remove/${cart.id}/${couponId}`, {
+      const data = await apiService.request(`/api/coupons/remove/${cart.id}/${couponId}`, {
         method: 'DELETE',
-        headers: {
-          'x-session-id': localStorage.getItem('sessionId') || '',
-        },
-        credentials: 'include',
       });
-
-      const data = await response.json();
 
       if (data.success) {
         onRemoveCoupon(couponId);
@@ -81,7 +74,7 @@ const CouponSection = ({ cart, onApplyCoupon, onRemoveCoupon, loading }) => {
       }
     } catch (error) {
       console.error('Error removing coupon:', error);
-      setError('Failed to remove coupon. Please try again.');
+      setError(error.message || 'Failed to remove coupon. Please try again.');
     }
   };
 

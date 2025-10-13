@@ -34,13 +34,26 @@ class ApiService {
       const response = await fetch(url, config);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Try to get the error response from the server
+        try {
+          const errorData = await response.json();
+          // Create a custom error with the server message
+          const error = new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          error.status = response.status;
+          error.data = errorData;
+          return Promise.reject(error);
+        } catch (jsonError) {
+          const error = new Error(`HTTP error! status: ${response.status}`);
+          error.status = response.status;
+          return Promise.reject(error);
+        }
       }
 
       return await response.json();
     } catch (error) {
       console.error('API request failed:', error);
-      throw new Error('Failed to fetch data, please try again');
+      // Re-throw the original error message instead of generic message
+      throw error;
     }
   }
 
@@ -451,15 +464,15 @@ export const cartAPI = {
 
   // Apply coupon
   async applyCoupon(data) {
-    return apiService.request('/api/cart/coupon', {
+    return apiService.request(`/api/coupons/apply/${data.cartId}`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ code: data.couponCode }),
     });
   },
 
   // Remove coupon
-  async removeCoupon(couponId) {
-    return apiService.request(`/api/cart/coupon/${couponId}`, {
+  async removeCoupon(couponId, cartId) {
+    return apiService.request(`/api/coupons/remove/${cartId}/${couponId}`, {
       method: 'DELETE',
     });
   },

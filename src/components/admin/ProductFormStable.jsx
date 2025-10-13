@@ -71,7 +71,7 @@ export default function ProductFormStable({
 }) {
   const formRef = React.useRef(null);
 
-  // Auto-generate SKU when key fields change
+  // Auto-generate SKU and calculate discount when key fields change
   React.useEffect(() => {
     const handleFieldChange = () => {
       const brand = document.querySelector('[name="brand"]')?.value || '';
@@ -90,9 +90,30 @@ export default function ProductFormStable({
       }
     };
 
+    const handlePricingChange = () => {
+      // Auto-calculate discount percentage
+      const mrp = parseFloat(document.querySelector('[name="mrp"]')?.value || 0);
+      const price = parseFloat(document.querySelector('[name="price"]')?.value || 0);
+      const discountField = document.getElementById('discount-percent-field');
+
+      console.log('Pricing change detected:', { mrp, price, discountField: !!discountField });
+
+      if (mrp > 0 && price > 0 && mrp > price && discountField) {
+        const discountPercent = ((mrp - price) / mrp) * 100;
+        discountField.value = discountPercent.toFixed(2);
+        console.log('Discount calculated:', discountPercent.toFixed(2) + '%');
+      } else if (discountField) {
+        discountField.value = '';
+        console.log('Discount cleared');
+      }
+    };
+
     // Add event listeners to key fields
-    const fields = ['brand', 'model', 'cpu', 'ramGb', 'storage'];
-    fields.forEach((fieldName) => {
+    const skuFields = ['brand', 'model', 'cpu', 'ramGb', 'storage'];
+    const pricingFields = ['mrp', 'price'];
+
+    // Add SKU generation listeners
+    skuFields.forEach((fieldName) => {
       const field = document.querySelector(`[name="${fieldName}"]`);
       if (field) {
         field.addEventListener('input', handleFieldChange);
@@ -100,16 +121,40 @@ export default function ProductFormStable({
       }
     });
 
+    // Add pricing calculation listeners
+    pricingFields.forEach((fieldName) => {
+      const field = document.querySelector(`[name="${fieldName}"]`);
+      if (field) {
+        field.addEventListener('input', handlePricingChange);
+        field.addEventListener('change', handlePricingChange);
+      }
+    });
+
     // Cleanup event listeners
     return () => {
-      fields.forEach((fieldName) => {
+      // Cleanup SKU generation listeners
+      skuFields.forEach((fieldName) => {
         const field = document.querySelector(`[name="${fieldName}"]`);
         if (field) {
           field.removeEventListener('input', handleFieldChange);
           field.removeEventListener('change', handleFieldChange);
         }
       });
+
+      // Cleanup pricing calculation listeners
+      pricingFields.forEach((fieldName) => {
+        const field = document.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+          field.removeEventListener('input', handlePricingChange);
+          field.removeEventListener('change', handlePricingChange);
+        }
+      });
     };
+
+    // Initial calculation if form already has values
+    setTimeout(() => {
+      handlePricingChange();
+    }, 100);
   }, []);
 
   // Generate SKU automatically based on product details
@@ -563,9 +608,13 @@ export default function ProductFormStable({
           <StableInput
             type="number"
             name="discountPercent"
+            id="discount-percent-field"
             defaultValue={initialData.discountPercent || ''}
-            placeholder="44"
+            placeholder="Auto-calculated"
+            readOnly
+            className="bg-slate-50 text-slate-600"
           />
+          <p className="text-xs text-slate-500 mt-1">Automatically calculated from MRP and Price</p>
         </Field>
         <Field label="GST (%)">
           <StableInput
