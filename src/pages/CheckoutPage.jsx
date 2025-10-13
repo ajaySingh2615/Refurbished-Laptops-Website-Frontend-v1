@@ -73,7 +73,12 @@ export default function CheckoutPage() {
     (async () => {
       if (!user) return;
       try {
-        await fetchAddresses();
+        const res = await fetchAddresses();
+        // Auto-open Delivery Address section on load
+        setStep(2);
+        if (res?.success && Array.isArray(res.data) && res.data.length === 0) {
+          setAddingAddress(true);
+        }
       } catch {}
     })();
   }, [user, fetchAddresses]);
@@ -165,7 +170,25 @@ export default function CheckoutPage() {
                 >
                   1
                 </div>
-                <div className="font-semibold">Login</div>
+                <div className="font-semibold flex items-center gap-2">
+                  Login
+                  {user && (
+                    <svg
+                      className="w-4 h-4 text-green-600"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M20 6L9 17L4 12"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
               </div>
               {!user && (
                 <a href="/login" className="text-blue-600 text-sm">
@@ -193,7 +216,25 @@ export default function CheckoutPage() {
                 >
                   2
                 </div>
-                <div className="font-semibold">Delivery Address</div>
+                <div className="font-semibold flex items-center gap-2">
+                  Delivery Address
+                  {step > 2 && (
+                    <svg
+                      className="w-4 h-4 text-green-600"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M20 6L9 17L4 12"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
               </div>
               {step !== 2 && (
                 <button
@@ -611,9 +652,6 @@ export default function CheckoutPage() {
                       <div className="font-medium">{it.productTitle || `#${it.productId}`}</div>
                       <div className="text-gray-600">Price: {formatPrice(it.unitPrice)}</div>
                       <div className="text-gray-600">Delivery by: 3-5 days</div>
-                      <div className="text-gray-600">
-                        Order confirmation email will be sent to your email
-                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -638,20 +676,30 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 ))}
-                <div className="flex justify-end">
-                  <button
-                    disabled={submitting}
-                    onClick={() => handleInitAndPay(true)}
-                    className="px-5 py-3 bg-green-600 text-white rounded"
-                  >
-                    {submitting ? 'Processing…' : 'Pay with Razorpay'}
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="text-sm text-gray-600">Your cart is empty.</div>
             )}
           </div>
+
+          {/* Confirmation and Payment */}
+          {cart.items?.length ? (
+            <div className="rounded-xl border bg-white p-4">
+              <div className="text-sm text-gray-700 mb-3">
+                Order confirmation email will be sent to{' '}
+                {user?.email ? user.email : 'your email address'}.
+              </div>
+              <div className="flex justify-end">
+                <button
+                  disabled={submitting}
+                  onClick={() => handleInitAndPay(true)}
+                  className="px-5 py-3 bg-green-600 text-white rounded"
+                >
+                  {submitting ? 'Processing…' : 'Pay with Razorpay'}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {/* Right: Price details */}
