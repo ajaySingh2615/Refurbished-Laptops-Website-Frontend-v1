@@ -109,12 +109,13 @@ export default function OrderPage() {
               className={`absolute top-5 left-0 h-1 ${order.status === 'confirmed' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500' : 'bg-gray-200'} -z-10`}
               style={{
                 width:
-                  order.status === 'confirmed' ||
-                  order.status === 'processing' ||
-                  order.status === 'shipped' ||
                   order.status === 'delivered'
                     ? '100%'
-                    : '33%',
+                    : order.status === 'shipped'
+                      ? '80%'
+                      : order.status === 'confirmed' || order.status === 'processing'
+                        ? '60%'
+                        : '33%',
               }}
             ></div>
 
@@ -146,14 +147,18 @@ export default function OrderPage() {
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-300 text-gray-600">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}
+              >
                 📦
               </div>
               <span className="text-xs mt-2 font-medium">Shipped</span>
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-300 text-gray-600">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${order.status === 'delivered' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}
+              >
                 ✓
               </div>
               <span className="text-xs mt-2 font-medium">Delivered</span>
