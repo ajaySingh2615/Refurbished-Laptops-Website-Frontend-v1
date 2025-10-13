@@ -212,20 +212,29 @@ export default function OrdersListPage() {
                 {/* Order Items Preview */}
                 <div className="px-6 py-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
-                      <svg
-                        className="w-10 h-10 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                    <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {order.previewImageUrl ? (
+                        <img
+                          src={order.previewImageUrl}
+                          alt={order.previewTitle || 'Product image'}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
                         />
-                      </svg>
+                      ) : (
+                        <svg
+                          className="w-10 h-10 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                          />
+                        </svg>
+                      )}
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-gray-600 mb-1">
@@ -233,8 +242,11 @@ export default function OrdersListPage() {
                         {order.paymentMethod?.toUpperCase() || 'N/A'}
                       </p>
                       <h3 className="font-medium text-gray-900 mb-2">
-                        Order contains {order.itemCount || 0} product
-                        {order.itemCount !== 1 ? 's' : ''}
+                        {order.previewTitle
+                          ? order.previewTitle
+                          : `Order contains ${order.itemCount || 0} product${
+                              order.itemCount !== 1 ? 's' : ''
+                            }`}
                       </h3>
                       {order.shippingAddress && (
                         <p className="text-sm text-gray-600">
