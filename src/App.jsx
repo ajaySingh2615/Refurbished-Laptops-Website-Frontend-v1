@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage.jsx';
 import ProductsPage from './pages/ProductsPage.jsx';
 import ProductPage from './pages/ProductPage.jsx';
 import CategoryPage from './pages/CategoryPage.jsx';
+import CheckoutPage from './pages/CheckoutPage.jsx';
+import OrderPage from './pages/OrderPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
@@ -63,6 +65,24 @@ export default function App() {
             element={
               <Layout onSearch={handleSearch}>
                 <CategoryPage />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/checkout"
+            element={
+              <Layout onSearch={handleSearch}>
+                <CheckoutPage />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/order/:id"
+            element={
+              <Layout onSearch={handleSearch}>
+                <OrderPage />
               </Layout>
             }
           />

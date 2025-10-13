@@ -272,6 +272,33 @@ class ApiService {
     });
   }
 
+  // Addresses
+  async listAddresses(accessToken) {
+    return this.request('/api/addresses', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+  async createAddress(body, accessToken) {
+    return this.request('/api/addresses', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(body),
+    });
+  }
+  async updateAddress(id, body, accessToken) {
+    return this.request(`/api/addresses/${id}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(body),
+    });
+  }
+  async deleteAddress(id, accessToken) {
+    return this.request(`/api/addresses/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
   // Image management methods
   async uploadImage(formData, accessToken) {
     return this.request('/api/images/upload', {
