@@ -624,7 +624,9 @@ export default function CheckoutPage() {
                     <div>
                       {selectedAddress.city}, {selectedAddress.state} {selectedAddress.postcode}
                     </div>
-                    <div>{selectedAddress.country}</div>
+                    {selectedAddress.country && selectedAddress.country !== 'IN' ? (
+                      <div>{selectedAddress.country}</div>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="text-gray-600">No address selected.</div>
