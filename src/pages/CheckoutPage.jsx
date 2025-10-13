@@ -41,7 +41,17 @@ export default function CheckoutPage() {
   const [editingAddressIdx, setEditingAddressIdx] = useState(null);
   const [editedAddress, setEditedAddress] = useState(null);
 
-  const canProceedAddress = useMemo(() => !!user, [user]);
+  const canProceedAddress = useMemo(() => {
+    const hasSelected = selectedAddressIdx !== null && addresses[selectedAddressIdx];
+    const hasInlineAddress =
+      shipping.name?.trim() &&
+      shipping.phone?.trim() &&
+      shipping.line1?.trim() &&
+      shipping.city?.trim() &&
+      shipping.state?.trim() &&
+      shipping.postcode?.trim();
+    return !!user && (hasSelected || (!!addingAddress && !!hasInlineAddress));
+  }, [user, selectedAddressIdx, addresses, shipping, addingAddress]);
   const selectedAddress = useMemo(
     () => (selectedAddressIdx != null ? addresses[selectedAddressIdx] : null),
     [addresses, selectedAddressIdx],
@@ -176,377 +186,410 @@ export default function CheckoutPage() {
 
           {/* Step 2: Delivery Address */}
           <div className="rounded-xl border bg-white p-4">
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-white ${step > 2 ? 'bg-green-600' : 'bg-blue-600'}`}
-              >
-                2
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-white ${step > 2 ? 'bg-green-600' : 'bg-blue-600'}`}
+                >
+                  2
+                </div>
+                <div className="font-semibold">Delivery Address</div>
               </div>
-              <div className="font-semibold">Delivery Address</div>
+              {step !== 2 && (
+                <button
+                  type="button"
+                  className="text-blue-600 text-sm"
+                  onClick={() => {
+                    setStep(2);
+                    setAddingAddress(false);
+                  }}
+                >
+                  Change
+                </button>
+              )}
             </div>
 
-            <div className="mt-4 space-y-3">
-              {addressMsg && (
-                <div className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1">
-                  {addressMsg}
-                </div>
-              )}
-              {addresses.length > 0 ? (
-                <div className="space-y-2">
-                  {addresses.map((addr, idx) => (
-                    <div
-                      key={addr.id || idx}
-                      className={`border rounded p-3 ${selectedAddressIdx === idx ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}`}
-                    >
-                      <label className="flex items-start cursor-pointer">
-                        <input
-                          type="radio"
-                          className="mr-2 mt-1"
-                          checked={selectedAddressIdx === idx}
-                          onChange={() => setSelectedAddressIdx(idx)}
-                        />
-                        <div className="flex-1 text-sm">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{addr.name}</span>
-                            {addr.isDefault ? (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                                Default
-                              </span>
-                            ) : null}
+            {step === 2 ? (
+              <div className="mt-4 space-y-3">
+                {addressMsg && (
+                  <div className="text-xs text-green-700 bg-green-50 border border-green-200 rounded px-2 py-1">
+                    {addressMsg}
+                  </div>
+                )}
+                {addresses.length > 0 ? (
+                  <div className="space-y-2">
+                    {addresses.map((addr, idx) => (
+                      <div
+                        key={addr.id || idx}
+                        className={`border rounded p-3 ${selectedAddressIdx === idx ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}`}
+                      >
+                        <label className="flex items-start cursor-pointer">
+                          <input
+                            type="radio"
+                            className="mr-2 mt-1"
+                            checked={selectedAddressIdx === idx}
+                            onChange={() => setSelectedAddressIdx(idx)}
+                          />
+                          <div className="flex-1 text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{addr.name}</span>
+                              {addr.isDefault ? (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                                  Default
+                                </span>
+                              ) : null}
+                            </div>
+                            <div>
+                              {addr.line1}
+                              {addr.line2 ? `, ${addr.line2}` : ''}
+                            </div>
+                            <div>
+                              {addr.city}, {addr.state} {addr.postcode}
+                            </div>
+                            <div>{addr.country}</div>
                           </div>
-                          <div>
-                            {addr.line1}
-                            {addr.line2 ? `, ${addr.line2}` : ''}
-                          </div>
-                          <div>
-                            {addr.city}, {addr.state} {addr.postcode}
-                          </div>
-                          <div>{addr.country}</div>
-                        </div>
-                      </label>
+                        </label>
 
-                      {/* Actions */}
-                      <div className="mt-2 flex items-center gap-3 text-xs">
-                        {!addr.isDefault && (
-                          <button
-                            className="text-blue-600"
-                            onClick={async () => {
-                              try {
-                                const token = localStorage.getItem('accessToken');
-                                // unset previous default locally and on server
-                                const prevDefaultIdx = addresses.findIndex((a) => a.isDefault);
-                                if (prevDefaultIdx !== -1) {
-                                  const prev = addresses[prevDefaultIdx];
-                                  await apiService.updateAddress(
-                                    prev.id,
-                                    { ...prev, isDefault: false },
-                                    token,
-                                  );
-                                }
-                                await apiService.updateAddress(
-                                  addr.id,
-                                  { ...addr, isDefault: true },
-                                  token,
-                                );
-                                setAddresses((prev) =>
-                                  prev.map((a, i) =>
-                                    i === idx
-                                      ? { ...a, isDefault: true }
-                                      : { ...a, isDefault: false },
-                                  ),
-                                );
-                              } catch {}
-                            }}
-                          >
-                            Make default
-                          </button>
-                        )}
-                        <button
-                          className="text-gray-700"
-                          onClick={() => {
-                            setEditingAddressIdx(idx);
-                            setEditedAddress({ ...addr });
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="text-red-600"
-                          onClick={async () => {
-                            if (!addr.id) return;
-                            if (!window.confirm('Delete this address?')) return;
-                            try {
-                              const token = localStorage.getItem('accessToken');
-                              await apiService.deleteAddress(addr.id, token);
-                              setAddresses((prev) => prev.filter((_, i) => i !== idx));
-                              if (selectedAddressIdx === idx) setSelectedAddressIdx(null);
-                            } catch {}
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-
-                      {editingAddressIdx === idx && editedAddress && (
-                        <div className="mt-3 grid grid-cols-2 gap-2 border rounded p-3 bg-white">
-                          <input
-                            className="border p-2 w-full col-span-2"
-                            placeholder="Name"
-                            value={editedAddress.name || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, name: e.target.value })
-                            }
-                          />
-                          <input
-                            className="border p-2 w-full"
-                            placeholder="Phone"
-                            value={editedAddress.phone || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, phone: e.target.value })
-                            }
-                          />
-                          <input
-                            className="border p-2 w-full"
-                            placeholder="Email"
-                            value={editedAddress.email || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, email: e.target.value })
-                            }
-                          />
-                          <input
-                            className="border p-2 w-full col-span-2"
-                            placeholder="Address line 1"
-                            value={editedAddress.line1 || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, line1: e.target.value })
-                            }
-                          />
-                          <input
-                            className="border p-2 w-full col-span-2"
-                            placeholder="Address line 2"
-                            value={editedAddress.line2 || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, line2: e.target.value })
-                            }
-                          />
-                          <input
-                            className="border p-2 w-full"
-                            placeholder="City"
-                            value={editedAddress.city || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, city: e.target.value })
-                            }
-                          />
-                          <input
-                            className="border p-2 w-full"
-                            placeholder="State"
-                            value={editedAddress.state || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, state: e.target.value })
-                            }
-                          />
-                          <input
-                            className="border p-2 w-full"
-                            placeholder="Postcode"
-                            value={editedAddress.postcode || ''}
-                            onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, postcode: e.target.value })
-                            }
-                          />
-                          <div className="col-span-2 flex gap-2 justify-end">
+                        {/* Actions */}
+                        <div className="mt-2 flex items-center gap-3 text-xs">
+                          {!addr.isDefault && (
                             <button
-                              className="px-3 py-2 border rounded"
-                              onClick={() => {
-                                setEditingAddressIdx(null);
-                                setEditedAddress(null);
-                              }}
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              className="px-3 py-2 bg-blue-600 text-white rounded"
+                              className="text-blue-600"
                               onClick={async () => {
                                 try {
                                   const token = localStorage.getItem('accessToken');
+                                  const prevDefaultIdx = addresses.findIndex((a) => a.isDefault);
+                                  if (prevDefaultIdx !== -1) {
+                                    const prev = addresses[prevDefaultIdx];
+                                    await apiService.updateAddress(
+                                      prev.id,
+                                      { ...prev, isDefault: false },
+                                      token,
+                                    );
+                                  }
                                   await apiService.updateAddress(
-                                    editedAddress.id,
-                                    editedAddress,
+                                    addr.id,
+                                    { ...addr, isDefault: true },
                                     token,
                                   );
                                   setAddresses((prev) =>
-                                    prev.map((a, i) => (i === idx ? { ...editedAddress } : a)),
+                                    prev.map((a, i) =>
+                                      i === idx
+                                        ? { ...a, isDefault: true }
+                                        : { ...a, isDefault: false },
+                                    ),
                                   );
-                                  setEditingAddressIdx(null);
-                                  setEditedAddress(null);
                                 } catch {}
                               }}
                             >
-                              Save
+                              Make default
                             </button>
-                          </div>
+                          )}
+                          <button
+                            className="text-gray-700"
+                            onClick={() => {
+                              setEditingAddressIdx(idx);
+                              setEditedAddress({ ...addr });
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="text-red-600"
+                            onClick={async () => {
+                              if (!addr.id) return;
+                              if (!window.confirm('Delete this address?')) return;
+                              try {
+                                const token = localStorage.getItem('accessToken');
+                                await apiService.deleteAddress(addr.id, token);
+                                setAddresses((prev) => prev.filter((_, i) => i !== idx));
+                                if (selectedAddressIdx === idx) setSelectedAddressIdx(null);
+                              } catch {}
+                            }}
+                          >
+                            Delete
+                          </button>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-gray-600">No saved addresses.</div>
-              )}
 
-              <button
-                onClick={() => setAddingAddress(true)}
-                className="px-3 py-2 rounded border text-sm"
-              >
-                Add new address
-              </button>
+                        {editingAddressIdx === idx && editedAddress && (
+                          <div className="mt-3 grid grid-cols-2 gap-2 border rounded p-3 bg-white">
+                            <input
+                              className="border p-2 w-full col-span-2"
+                              placeholder="Name"
+                              value={editedAddress.name || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, name: e.target.value })
+                              }
+                            />
+                            <input
+                              className="border p-2 w-full"
+                              placeholder="Phone"
+                              value={editedAddress.phone || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, phone: e.target.value })
+                              }
+                            />
+                            <input
+                              className="border p-2 w-full"
+                              placeholder="Email"
+                              value={editedAddress.email || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, email: e.target.value })
+                              }
+                            />
+                            <input
+                              className="border p-2 w-full col-span-2"
+                              placeholder="Address line 1"
+                              value={editedAddress.line1 || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, line1: e.target.value })
+                              }
+                            />
+                            <input
+                              className="border p-2 w-full col-span-2"
+                              placeholder="Address line 2"
+                              value={editedAddress.line2 || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, line2: e.target.value })
+                              }
+                            />
+                            <input
+                              className="border p-2 w-full"
+                              placeholder="City"
+                              value={editedAddress.city || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, city: e.target.value })
+                              }
+                            />
+                            <input
+                              className="border p-2 w-full"
+                              placeholder="State"
+                              value={editedAddress.state || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, state: e.target.value })
+                              }
+                            />
+                            <input
+                              className="border p-2 w-full"
+                              placeholder="Postcode"
+                              value={editedAddress.postcode || ''}
+                              onChange={(e) =>
+                                setEditedAddress({ ...editedAddress, postcode: e.target.value })
+                              }
+                            />
+                            <div className="col-span-2 flex gap-2 justify-end">
+                              <button
+                                className="px-3 py-2 border rounded"
+                                onClick={() => {
+                                  setEditingAddressIdx(null);
+                                  setEditedAddress(null);
+                                }}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="px-3 py-2 bg-blue-600 text-white rounded"
+                                onClick={async () => {
+                                  try {
+                                    const token = localStorage.getItem('accessToken');
+                                    await apiService.updateAddress(
+                                      editedAddress.id,
+                                      editedAddress,
+                                      token,
+                                    );
+                                    setAddresses((prev) =>
+                                      prev.map((a, i) => (i === idx ? { ...editedAddress } : a)),
+                                    );
+                                    setEditingAddressIdx(null);
+                                    setEditedAddress(null);
+                                  } catch {}
+                                }}
+                              >
+                                Save
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600">No saved addresses.</div>
+                )}
 
-              {addingAddress && (
-                <div className="grid grid-cols-2 gap-2 border rounded p-3">
-                  <input
-                    className="border p-2 w-full col-span-2"
-                    placeholder="Name"
-                    value={shipping.name}
-                    onChange={(e) => setShipping({ ...shipping, name: e.target.value })}
-                  />
-                  <input
-                    className="border p-2 w-full"
-                    placeholder="Phone"
-                    value={shipping.phone}
-                    onChange={(e) => setShipping({ ...shipping, phone: e.target.value })}
-                  />
-                  <input
-                    className="border p-2 w-full"
-                    placeholder="Email"
-                    value={shipping.email}
-                    onChange={(e) => setShipping({ ...shipping, email: e.target.value })}
-                  />
-                  <input
-                    className="border p-2 w-full col-span-2"
-                    placeholder="Address line 1"
-                    value={shipping.line1}
-                    onChange={(e) => setShipping({ ...shipping, line1: e.target.value })}
-                  />
-                  <input
-                    className="border p-2 w-full col-span-2"
-                    placeholder="Address line 2"
-                    value={shipping.line2}
-                    onChange={(e) => setShipping({ ...shipping, line2: e.target.value })}
-                  />
-                  <input
-                    className="border p-2 w-full"
-                    placeholder="City"
-                    value={shipping.city}
-                    onChange={(e) => setShipping({ ...shipping, city: e.target.value })}
-                  />
-                  <input
-                    className="border p-2 w-full"
-                    placeholder="State"
-                    value={shipping.state}
-                    onChange={(e) => setShipping({ ...shipping, state: e.target.value })}
-                  />
-                  <input
-                    className="border p-2 w-full"
-                    placeholder="Postcode"
-                    value={shipping.postcode}
-                    onChange={(e) => setShipping({ ...shipping, postcode: e.target.value })}
-                  />
-                  <div className="col-span-2 flex gap-2 justify-end">
-                    <button
-                      className="px-3 py-2 border rounded"
-                      onClick={() => setAddingAddress(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="px-3 py-2 bg-blue-600 text-white rounded"
-                      onClick={async () => {
-                        try {
-                          let token = accessToken || localStorage.getItem('accessToken');
-                          if (!token) {
-                            const ok = await refresh();
-                            token = ok ? localStorage.getItem('accessToken') : '';
-                          }
-                          if (!token) {
-                            alert('Please login to save address');
-                            return;
-                          }
-                          const payload = {
-                            type: 'shipping',
-                            name: (shipping.name || '').trim(),
-                            phone: (shipping.phone || '').trim(),
-                            email: (shipping.email || '').trim() || undefined,
-                            line1: (shipping.line1 || '').trim(),
-                            line2: (shipping.line2 || '').trim() || undefined,
-                            city: (shipping.city || '').trim(),
-                            state: (shipping.state || '').trim(),
-                            postcode: (shipping.postcode || '').trim(),
-                            country: (shipping.country || 'IN').trim(),
-                          };
-                          const reqd = ['name', 'phone', 'line1', 'city', 'state', 'postcode'];
-                          for (const k of reqd) {
-                            if (!payload[k]) {
-                              alert(`Please fill ${k}`);
+                <button
+                  onClick={() => setAddingAddress(true)}
+                  className="px-3 py-2 rounded border text-sm"
+                >
+                  Add new address
+                </button>
+
+                {addingAddress && (
+                  <div className="grid grid-cols-2 gap-2 border rounded p-3">
+                    {/* Add form inputs (unchanged) */}
+                    <input
+                      className="border p-2 w-full col-span-2"
+                      placeholder="Name"
+                      value={shipping.name}
+                      onChange={(e) => setShipping({ ...shipping, name: e.target.value })}
+                    />
+                    <input
+                      className="border p-2 w-full"
+                      placeholder="Phone"
+                      value={shipping.phone}
+                      onChange={(e) => setShipping({ ...shipping, phone: e.target.value })}
+                    />
+                    <input
+                      className="border p-2 w-full"
+                      placeholder="Email"
+                      value={shipping.email}
+                      onChange={(e) => setShipping({ ...shipping, email: e.target.value })}
+                    />
+                    <input
+                      className="border p-2 w-full col-span-2"
+                      placeholder="Address line 1"
+                      value={shipping.line1}
+                      onChange={(e) => setShipping({ ...shipping, line1: e.target.value })}
+                    />
+                    <input
+                      className="border p-2 w-full col-span-2"
+                      placeholder="Address line 2"
+                      value={shipping.line2}
+                      onChange={(e) => setShipping({ ...shipping, line2: e.target.value })}
+                    />
+                    <input
+                      className="border p-2 w-full"
+                      placeholder="City"
+                      value={shipping.city}
+                      onChange={(e) => setShipping({ ...shipping, city: e.target.value })}
+                    />
+                    <input
+                      className="border p-2 w-full"
+                      placeholder="State"
+                      value={shipping.state}
+                      onChange={(e) => setShipping({ ...shipping, state: e.target.value })}
+                    />
+                    <input
+                      className="border p-2 w-full"
+                      placeholder="Postcode"
+                      value={shipping.postcode}
+                      onChange={(e) => setShipping({ ...shipping, postcode: e.target.value })}
+                    />
+                    <div className="col-span-2 flex gap-2 justify-end">
+                      <button
+                        className="px-3 py-2 border rounded"
+                        onClick={() => setAddingAddress(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="px-3 py-2 bg-blue-600 text-white rounded"
+                        onClick={async () => {
+                          try {
+                            let token = accessToken || localStorage.getItem('accessToken');
+                            if (!token) {
+                              const ok = await refresh();
+                              token = ok ? localStorage.getItem('accessToken') : '';
+                            }
+                            if (!token) {
+                              alert('Please login to save address');
                               return;
                             }
+                            const payload = {
+                              type: 'shipping',
+                              name: (shipping.name || '').trim(),
+                              phone: (shipping.phone || '').trim(),
+                              email: (shipping.email || '').trim() || undefined,
+                              line1: (shipping.line1 || '').trim(),
+                              line2: (shipping.line2 || '').trim() || undefined,
+                              city: (shipping.city || '').trim(),
+                              state: (shipping.state || '').trim(),
+                              postcode: (shipping.postcode || '').trim(),
+                              country: (shipping.country || 'IN').trim(),
+                            };
+                            const reqd = ['name', 'phone', 'line1', 'city', 'state', 'postcode'];
+                            for (const k of reqd) {
+                              if (!payload[k]) {
+                                alert(`Please fill ${k}`);
+                                return;
+                              }
+                            }
+                            const resp = await apiService.createAddress(payload, token);
+                            if (resp?.success && resp.data?.id) {
+                              const newAddr = { id: resp.data.id, ...payload };
+                              setAddresses((prev) => {
+                                const next = [...prev, newAddr];
+                                setSelectedAddressIdx(next.length - 1);
+                                return next;
+                              });
+                              setAddressMsg('Address added successfully');
+                              setAddingAddress(false);
+                              setShipping({
+                                name: '',
+                                phone: '',
+                                email: '',
+                                line1: '',
+                                line2: '',
+                                city: '',
+                                state: '',
+                                postcode: '',
+                                country: 'IN',
+                              });
+                            } else if (resp?.message) {
+                              alert(resp.message);
+                            }
+                          } catch (e) {
+                            console.error('Create address failed:', e);
                           }
-                          const resp = await apiService.createAddress(payload, token);
-                          if (resp?.success && resp.data?.id) {
-                            const newAddr = { id: resp.data.id, ...payload };
-                            setAddresses((prev) => {
-                              const next = [...prev, newAddr];
-                              setSelectedAddressIdx(next.length - 1);
-                              return next;
-                            });
-                            setAddressMsg('Address added successfully');
-                            setAddingAddress(false);
-                            setShipping({
-                              name: '',
-                              phone: '',
-                              email: '',
-                              line1: '',
-                              line2: '',
-                              city: '',
-                              state: '',
-                              postcode: '',
-                              country: 'IN',
-                            });
-                          } else if (resp?.message) {
-                            alert(resp.message);
-                          }
-                        } catch (e) {
-                          console.error('Create address failed:', e);
-                        }
-                      }}
-                    >
-                      Save
-                    </button>
+                        }}
+                      >
+                        Save
+                      </button>
+                    </div>
                   </div>
+                )}
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    disabled={!canProceedAddress}
+                    className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+                    onClick={() => {
+                      setAddingAddress(false);
+                      setStep(3);
+                    }}
+                  >
+                    Continue
+                  </button>
                 </div>
-              )}
-
-              <div className="pt-2">
-                <label className="text-sm font-medium">Shipping Method</label>
-                <select
-                  className="border p-2 w-full mt-1"
-                  value={shippingMethod}
-                  onChange={(e) => setShippingMethod(e.target.value)}
-                >
-                  <option value="standard">Standard</option>
-                  <option value="express">Express</option>
-                </select>
               </div>
-
-              <div className="flex justify-end pt-2">
-                <button
-                  disabled={!canProceedAddress}
-                  className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-                  onClick={() => setStep(3)}
-                >
-                  Continue
-                </button>
+            ) : (
+              <div className="mt-3 text-sm text-gray-700">
+                {selectedAddress ? (
+                  <div>
+                    <div className="font-medium">
+                      {selectedAddress.name}{' '}
+                      {selectedAddress.isDefault ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 ml-2">
+                          Default
+                        </span>
+                      ) : null}
+                    </div>
+                    <div>
+                      {selectedAddress.line1}
+                      {selectedAddress.line2 ? `, ${selectedAddress.line2}` : ''}
+                    </div>
+                    <div>
+                      {selectedAddress.city}, {selectedAddress.state} {selectedAddress.postcode}
+                    </div>
+                    <div>{selectedAddress.country}</div>
+                  </div>
+                ) : (
+                  <div className="text-gray-600">No address selected.</div>
+                )}
               </div>
-            </div>
+            )}
           </div>
 
           {/* Step 3: Order Summary */}
