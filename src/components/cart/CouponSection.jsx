@@ -138,7 +138,7 @@ const CouponSection = ({ cart, onApplyCoupon, onRemoveCoupon, loading }) => {
                   -{formatPrice(coupon.discountAmount)}
                 </span>
                 <button
-                  onClick={() => handleRemoveCoupon(coupon.couponId)}
+                  onClick={() => handleRemoveCoupon(coupon.id)}
                   className="p-1 text-green-600 hover:text-red-600 hover:bg-red-50 rounded transition-all duration-200"
                   title="Remove coupon"
                 >

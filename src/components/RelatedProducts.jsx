@@ -192,10 +192,20 @@ export default function RelatedProducts({ product }) {
             const images = productImages[item.id] || [];
             const primaryImage = images.find((img) => img.isPrimary) || images[0];
 
-            // Calculate discount
-            const originalPrice = item.originalPrice || item.price * 1.3;
-            const discountAmount = originalPrice - item.price;
-            const discountPercentage = Math.round((discountAmount / originalPrice) * 100);
+            // Calculate discount from actual MRP vs Price
+            const mrp = parseFloat(item.mrp) || 0;
+            const price = parseFloat(item.price) || 0;
+
+            // Use actual MRP if available, otherwise calculate from stored discountPercent
+            const originalPrice =
+              mrp > 0
+                ? mrp
+                : item.discountPercent
+                  ? item.price / (1 - item.discountPercent / 100)
+                  : item.price * 1.2;
+            const discountAmount = originalPrice - price;
+            const discountPercentage =
+              originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0;
 
             return (
               <motion.div

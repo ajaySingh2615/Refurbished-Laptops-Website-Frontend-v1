@@ -58,10 +58,20 @@ export default function ProductCard({ product }) {
     return productImages.find((img) => img.isPrimary) || productImages[0];
   }, [productImages]);
 
-  // Calculate discount amount and percentage
-  const originalPrice = product.originalPrice || product.price * 1.5; // Mock original price
-  const discountAmount = originalPrice - product.price;
-  const discountPercentage = Math.round((discountAmount / originalPrice) * 100);
+  // Calculate discount amount and percentage from actual MRP vs Price
+  const mrp = parseFloat(product.mrp) || 0;
+  const price = parseFloat(product.price) || 0;
+
+  // Use actual MRP if available, otherwise calculate from stored discountPercent
+  const originalPrice =
+    mrp > 0
+      ? mrp
+      : product.discountPercent
+        ? product.price / (1 - product.discountPercent / 100)
+        : product.price * 1.2;
+  const discountAmount = originalPrice - price;
+  const discountPercentage =
+    originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0;
 
   // Real review data
   const hasReviews = reviewStats && reviewStats.totalReviews > 0;
