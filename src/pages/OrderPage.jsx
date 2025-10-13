@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { apiService } from '../services/api.js';
+import { apiService, downloadInvoice } from '../services/api.js';
 import { formatPrice } from '../utils/formatters.js';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 
@@ -9,6 +9,7 @@ export default function OrderPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -57,6 +58,17 @@ export default function OrderPage() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleDownloadInvoice = async () => {
+    try {
+      setDownloadingInvoice(true);
+      await downloadInvoice(id);
+    } catch (err) {
+      alert('Failed to download invoice: ' + err.message);
+    } finally {
+      setDownloadingInvoice(false);
+    }
   };
 
   return (
@@ -367,6 +379,15 @@ export default function OrderPage() {
             </div>
 
             {/* Actions */}
+            {order.orderStatus === 'confirmed' && (
+              <button
+                onClick={handleDownloadInvoice}
+                disabled={downloadingInvoice}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm font-medium mb-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {downloadingInvoice ? 'Downloading...' : 'Download Invoice'}
+              </button>
+            )}
             <Link
               to="/"
               className="block w-full px-4 py-2 bg-white border border-gray-300 text-center rounded hover:bg-gray-50 transition text-sm font-medium"

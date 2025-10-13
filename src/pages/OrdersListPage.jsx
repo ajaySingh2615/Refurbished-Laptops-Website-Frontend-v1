@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { apiService } from '../services/api.js';
+import { apiService, downloadInvoice } from '../services/api.js';
 import { formatPrice } from '../utils/formatters.js';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
@@ -11,6 +11,7 @@ export default function OrdersListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all'); // all, pending, confirmed, cancelled
+  const [downloadingInvoice, setDownloadingInvoice] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -64,6 +65,17 @@ export default function OrdersListPage() {
     if (filter === 'all') return true;
     return order.orderStatus?.toLowerCase() === filter || order.status?.toLowerCase() === filter;
   });
+
+  const handleDownloadInvoice = async (orderId) => {
+    try {
+      setDownloadingInvoice(orderId);
+      await downloadInvoice(orderId);
+    } catch (err) {
+      alert('Failed to download invoice: ' + err.message);
+    } finally {
+      setDownloadingInvoice(null);
+    }
+  };
 
   if (loading) return <LoadingSpinner />;
 
@@ -294,8 +306,12 @@ export default function OrdersListPage() {
                       Track Order
                     </Link>
                     {order.orderStatus === 'confirmed' && (
-                      <button className="px-4 py-2 border border-gray-300 rounded hover:bg-white transition text-sm font-medium">
-                        Download Invoice
+                      <button
+                        onClick={() => handleDownloadInvoice(order.id)}
+                        disabled={downloadingInvoice === order.id}
+                        className="px-4 py-2 border border-gray-300 rounded hover:bg-white transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {downloadingInvoice === order.id ? 'Downloading...' : 'Download Invoice'}
                       </button>
                     )}
                   </div>

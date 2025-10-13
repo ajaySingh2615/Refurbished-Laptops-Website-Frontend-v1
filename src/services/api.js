@@ -534,4 +534,34 @@ export const cartAPI = {
   },
 };
 
+// Download invoice for an order
+export async function downloadInvoice(orderId) {
+  const authToken = localStorage.getItem('accessToken');
+  const url = `${API_BASE_URL}/api/invoices/${orderId}`;
+
+  const response = await fetch(url, {
+    credentials: 'include',
+    headers: {
+      ...(authToken && { Authorization: `Bearer ${authToken}` }),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to download invoice');
+  }
+
+  // Get the blob from response
+  const blob = await response.blob();
+
+  // Create a download link
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = `invoice-${orderId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(downloadUrl);
+}
+
 export const apiService = new ApiService();
