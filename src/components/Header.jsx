@@ -2,18 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { Button } from './ui/Button.jsx';
 import { FloatingNav } from './ui/FloatingNav.jsx';
 import CartIcon from './cart/CartIcon.jsx';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  ModalBody,
-  ModalFooter,
-} from './ui/Modal.jsx';
 
 export default function Header({ onSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,7 +11,6 @@ export default function Header({ onSearch }) {
   const { user, logout } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = React.useRef(null);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   React.useEffect(() => {
     function onDocClick(e) {
@@ -203,15 +192,13 @@ export default function Header({ onSearch }) {
                       >
                         My Orders
                       </Link>
-                      <button
-                        onClick={() => {
-                          setProfileOpen(false);
-                          setProfileModalOpen(true);
-                        }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+                      <Link
+                        to="/profile"
+                        onClick={() => setProfileOpen(false)}
+                        className="block w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
                       >
                         Profile
-                      </button>
+                      </Link>
                       <div className="h-px bg-slate-200" />
                       <button
                         onClick={() => {
@@ -321,53 +308,6 @@ export default function Header({ onSearch }) {
           </div>
         )}
       </header>
-      {profileModalOpen && (
-        <Modal onClose={() => setProfileModalOpen(false)}>
-          <ModalOverlay />
-          <ModalContent className="max-w-lg w-full">
-            <ModalHeader>
-              <ModalTitle>Account</ModalTitle>
-            </ModalHeader>
-            <ModalBody>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold">
-                  {(user?.name || user?.email || '?').toString().trim().charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <div className="text-slate-900 font-semibold">{user?.name || 'Your name'}</div>
-                  <div className="text-slate-600 text-sm">{user?.email}</div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg border border-slate-200 p-3">
-                  <div className="text-xs text-slate-500">Status</div>
-                  <div className="text-sm font-medium">
-                    {user?.emailVerifiedAt ? 'Verified' : 'Unverified'}
-                  </div>
-                </div>
-                <div className="rounded-lg border border-slate-200 p-3">
-                  <div className="text-xs text-slate-500">Role</div>
-                  <div className="text-sm font-medium">{user?.role || 'customer'}</div>
-                </div>
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="outline" onClick={() => setProfileModalOpen(false)}>
-                Close
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  setProfileModalOpen(false);
-                  logout();
-                }}
-              >
-                Logout
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      )}
     </>
   );
 }

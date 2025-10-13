@@ -15,6 +15,7 @@ import Register from './pages/auth/Register.jsx';
 import VerifyEmail from './pages/auth/VerifyEmail.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
@@ -22,6 +23,7 @@ import CategoryManagement from './pages/admin/CategoryManagement.jsx';
 import CouponsPage from './pages/admin/CouponsPage.jsx';
 import ImageManagement from './pages/admin/ImageManagement.jsx';
 import ReviewManagement from './pages/admin/ReviewManagement.jsx';
+import OrderManagement from './pages/admin/OrderManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
 import { CartProvider } from './contexts/CartContext.jsx';
 import { RequireAdmin } from './contexts/Guards.jsx';
@@ -107,6 +109,15 @@ export default function App() {
             }
           />
 
+          <Route
+            path="/profile"
+            element={
+              <Layout onSearch={handleSearch}>
+                <ProfilePage />
+              </Layout>
+            }
+          />
+
           {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -181,6 +192,16 @@ export default function App() {
               <RequireAdmin>
                 <AdminProvider>
                   <ReviewManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <OrderManagement />
                 </AdminProvider>
               </RequireAdmin>
             }

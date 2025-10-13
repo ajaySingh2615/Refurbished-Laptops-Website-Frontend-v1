@@ -154,12 +154,13 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
                   >
                     My Orders
                   </Link>
-                  <button
+                  <Link
+                    to="/profile"
                     onClick={() => setProfileOpen(false)}
-                    className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+                    className="block w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
                   >
                     Profile
-                  </button>
+                  </Link>
                   <div className="h-px bg-slate-200" />
                   <button
                     onClick={() => {

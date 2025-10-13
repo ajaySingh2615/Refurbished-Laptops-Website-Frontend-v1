@@ -272,6 +272,89 @@ class ApiService {
     });
   }
 
+  // Admin Orders
+  async adminListOrders(params = {}, accessToken) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        searchParams.append(key, value);
+      }
+    });
+    return this.request(`/api/admin/orders?${searchParams}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async adminGetOrderDetails(id, accessToken) {
+    return this.request(`/api/admin/orders/${id}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async adminUpdateOrderStatus(id, data, accessToken) {
+    return this.request(`/api/admin/orders/${id}/status`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminUpdatePaymentStatus(id, data, accessToken) {
+    return this.request(`/api/admin/orders/${id}/payment`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async adminDeleteOrder(id, accessToken) {
+    return this.request(`/api/admin/orders/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async adminGetOrderStatistics(period, accessToken) {
+    return this.request(`/api/admin/orders/statistics?period=${period || 'all'}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  // Profile
+  async getProfile(accessToken) {
+    return this.request('/api/profile', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async updateProfile(body, accessToken) {
+    return this.request('/api/profile', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  }
+
+  async changePassword(body, accessToken) {
+    return this.request('/api/profile/change-password', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  }
+
   // Addresses
   async listAddresses(accessToken) {
     return this.request('/api/addresses', {

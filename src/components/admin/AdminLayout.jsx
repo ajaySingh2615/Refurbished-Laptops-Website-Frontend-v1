@@ -9,6 +9,7 @@ export default function AdminLayout({ children }) {
 
   const navItems = [
     { path: '/admin', label: 'Dashboard', icon: '📊' },
+    { path: '/admin/orders', label: 'Orders', icon: '📦' },
     { path: '/admin/products', label: 'Products', icon: '💻', badge: lowStockCount },
     { path: '/admin/categories', label: 'Categories', icon: '📁' },
     { path: '/admin/coupons', label: 'Coupons', icon: '🎫' },

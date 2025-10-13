@@ -41,11 +41,19 @@ export default function OrdersListPage() {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'confirmed':
+        return 'text-blue-700 bg-blue-100 border-blue-200';
+      case 'processing':
+        return 'text-purple-700 bg-purple-100 border-purple-200';
+      case 'shipped':
+        return 'text-indigo-700 bg-indigo-100 border-indigo-200';
+      case 'delivered':
         return 'text-green-700 bg-green-100 border-green-200';
       case 'pending':
         return 'text-yellow-700 bg-yellow-100 border-yellow-200';
       case 'cancelled':
         return 'text-red-700 bg-red-100 border-red-200';
+      case 'failed':
+        return 'text-gray-700 bg-gray-100 border-gray-200';
       default:
         return 'text-gray-700 bg-gray-100 border-gray-200';
     }
@@ -63,7 +71,8 @@ export default function OrdersListPage() {
 
   const filteredOrders = orders.filter((order) => {
     if (filter === 'all') return true;
-    return order.orderStatus?.toLowerCase() === filter || order.status?.toLowerCase() === filter;
+    // Check status first (updated by admin), then orderStatus as fallback
+    return order.status?.toLowerCase() === filter || order.orderStatus?.toLowerCase() === filter;
   });
 
   const handleDownloadInvoice = async (orderId) => {
@@ -110,7 +119,7 @@ export default function OrdersListPage() {
               }`}
             >
               Pending (
-              {orders.filter((o) => o.orderStatus === 'pending' || o.status === 'pending').length})
+              {orders.filter((o) => o.status === 'pending' || o.orderStatus === 'pending').length})
             </button>
             <button
               onClick={() => setFilter('confirmed')}
@@ -122,7 +131,7 @@ export default function OrdersListPage() {
             >
               Confirmed (
               {
-                orders.filter((o) => o.orderStatus === 'confirmed' || o.status === 'confirmed')
+                orders.filter((o) => o.status === 'confirmed' || o.orderStatus === 'confirmed')
                   .length
               }
               )
@@ -137,7 +146,7 @@ export default function OrdersListPage() {
             >
               Cancelled (
               {
-                orders.filter((o) => o.orderStatus === 'cancelled' || o.status === 'cancelled')
+                orders.filter((o) => o.status === 'cancelled' || o.orderStatus === 'cancelled')
                   .length
               }
               )
@@ -208,9 +217,9 @@ export default function OrdersListPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(order.orderStatus || order.status)}`}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(order.status || order.orderStatus)}`}
                     >
-                      {(order.orderStatus || order.status || 'Unknown').toUpperCase()}
+                      {(order.status || order.orderStatus || 'Unknown').toUpperCase()}
                     </span>
                     <Link
                       to={`/order/${order.id}`}
@@ -268,7 +277,9 @@ export default function OrdersListPage() {
                       )}
                     </div>
                     <div className="text-right">
-                      {order.orderStatus === 'confirmed' && (
+                      {(order.status === 'confirmed' ||
+                        order.status === 'processing' ||
+                        order.status === 'shipped') && (
                         <div className="flex items-center gap-2 text-green-600 text-sm mb-2">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path
@@ -277,10 +288,19 @@ export default function OrdersListPage() {
                               clipRule="evenodd"
                             />
                           </svg>
-                          <span className="font-medium">Confirmed</span>
+                          <span className="font-medium capitalize">{order.status}</span>
                         </div>
                       )}
-                      {order.orderStatus === 'pending' && (
+                      {order.status === 'delivered' && (
+                        <div className="flex items-center gap-2 text-green-600 text-sm mb-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                          </svg>
+                          <span className="font-medium">Delivered</span>
+                        </div>
+                      )}
+                      {order.status === 'pending' && (
                         <div className="flex items-center gap-2 text-yellow-600 text-sm mb-2">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path
@@ -305,7 +325,10 @@ export default function OrdersListPage() {
                     >
                       Track Order
                     </Link>
-                    {order.orderStatus === 'confirmed' && (
+                    {(order.status === 'confirmed' ||
+                      order.status === 'processing' ||
+                      order.status === 'shipped' ||
+                      order.status === 'delivered') && (
                       <button
                         onClick={() => handleDownloadInvoice(order.id)}
                         disabled={downloadingInvoice === order.id}
@@ -315,7 +338,7 @@ export default function OrdersListPage() {
                       </button>
                     )}
                   </div>
-                  {order.orderStatus === 'pending' && (
+                  {order.status === 'pending' && (
                     <button className="text-red-600 hover:text-red-700 text-sm font-medium">
                       Cancel Order
                     </button>

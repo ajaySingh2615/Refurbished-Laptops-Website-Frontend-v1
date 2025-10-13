@@ -36,15 +36,21 @@ export default function OrderPage() {
     switch (status?.toLowerCase()) {
       case 'confirmed':
       case 'paid':
-        return 'text-green-600 bg-green-50';
+        return 'text-blue-600 bg-blue-50 border border-blue-200';
+      case 'processing':
+        return 'text-purple-600 bg-purple-50 border border-purple-200';
+      case 'shipped':
+        return 'text-indigo-600 bg-indigo-50 border border-indigo-200';
+      case 'delivered':
+        return 'text-green-600 bg-green-50 border border-green-200';
       case 'pending':
       case 'unpaid':
-        return 'text-yellow-600 bg-yellow-50';
+        return 'text-yellow-600 bg-yellow-50 border border-yellow-200';
       case 'cancelled':
       case 'failed':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-600 bg-red-50 border border-red-200';
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50 border border-gray-200';
     }
   };
 
@@ -86,9 +92,9 @@ export default function OrderPage() {
             </div>
             <div className="text-right">
               <div
-                className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(order.orderStatus || order.status)}`}
+                className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(order.status || order.orderStatus)}`}
               >
-                {(order.orderStatus || order.status || 'Unknown').toUpperCase()}
+                {(order.status || order.orderStatus || 'Unknown').toUpperCase()}
               </div>
               <p className="text-xs text-gray-500 mt-2">
                 Placed on {formatDate(order.placedAt || order.createdAt)}
@@ -100,13 +106,21 @@ export default function OrderPage() {
           <div className="flex items-center justify-between mt-6 relative">
             <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 -z-10"></div>
             <div
-              className={`absolute top-5 left-0 h-1 ${order.orderStatus === 'confirmed' ? 'bg-green-500' : 'bg-gray-200'} -z-10`}
-              style={{ width: order.orderStatus === 'confirmed' ? '100%' : '33%' }}
+              className={`absolute top-5 left-0 h-1 ${order.status === 'confirmed' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500' : 'bg-gray-200'} -z-10`}
+              style={{
+                width:
+                  order.status === 'confirmed' ||
+                  order.status === 'processing' ||
+                  order.status === 'shipped' ||
+                  order.status === 'delivered'
+                    ? '100%'
+                    : '33%',
+              }}
             ></div>
 
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${order.orderStatus ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${order.status ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}
               >
                 ✓
               </div>
@@ -124,7 +138,7 @@ export default function OrderPage() {
 
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${order.orderStatus === 'confirmed' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${order.status === 'confirmed' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}
               >
                 ✓
               </div>
@@ -285,12 +299,22 @@ export default function OrderPage() {
                     </div>
                   </div>
                 )}
-                {order.orderStatus === 'confirmed' && (
+                {(order.status === 'confirmed' ||
+                  order.status === 'processing' ||
+                  order.status === 'shipped' ||
+                  order.status === 'delivered') && (
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Order Confirmed</p>
-                      <p className="text-xs text-gray-500">Your order is being processed</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        Order {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {order.status === 'confirmed' && 'Your order is being processed'}
+                        {order.status === 'processing' && 'Your order is being prepared'}
+                        {order.status === 'shipped' && 'Your order is on the way'}
+                        {order.status === 'delivered' && 'Your order has been delivered'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -379,7 +403,10 @@ export default function OrderPage() {
             </div>
 
             {/* Actions */}
-            {order.orderStatus === 'confirmed' && (
+            {(order.status === 'confirmed' ||
+              order.status === 'processing' ||
+              order.status === 'shipped' ||
+              order.status === 'delivered') && (
               <button
                 onClick={handleDownloadInvoice}
                 disabled={downloadingInvoice}
