@@ -7,6 +7,8 @@ import ProductPage from './pages/ProductPage.jsx';
 import CategoryPage from './pages/CategoryPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
 import OrderPage from './pages/OrderPage.jsx';
+import OrdersListPage from './pages/OrdersListPage.jsx';
+import OrderConfirmationPage from './pages/OrderConfirmationPage.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Login from './pages/auth/Login.jsx';
 import Register from './pages/auth/Register.jsx';
@@ -79,10 +81,28 @@ export default function App() {
           />
 
           <Route
+            path="/orders"
+            element={
+              <Layout onSearch={handleSearch}>
+                <OrdersListPage />
+              </Layout>
+            }
+          />
+
+          <Route
             path="/order/:id"
             element={
               <Layout onSearch={handleSearch}>
                 <OrderPage />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/order-confirmation/:orderId"
+            element={
+              <Layout onSearch={handleSearch}>
+                <OrderConfirmationPage />
               </Layout>
             }
           />

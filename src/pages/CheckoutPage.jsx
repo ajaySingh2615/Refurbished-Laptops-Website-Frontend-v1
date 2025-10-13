@@ -132,7 +132,7 @@ export default function CheckoutPage() {
               method: 'POST',
               body: JSON.stringify({ orderId: init.data.orderId, providerPayload: response }),
             });
-            window.location.href = `/order/${init.data.orderId}`;
+            window.location.href = `/order-confirmation/${init.data.orderId}`;
           },
           modal: {
             ondismiss: async function () {
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
         rzp.open();
         return;
       } else {
-        window.location.href = `/order/${init.data.orderId}`;
+        window.location.href = `/order-confirmation/${init.data.orderId}`;
       }
     } catch (e) {
       setError(e.message || 'Checkout failed');
