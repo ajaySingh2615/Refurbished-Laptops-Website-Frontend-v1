@@ -65,6 +65,32 @@ class ApiService {
     });
   }
 
+  // Admin Newsletter
+  async getNewsletterSubscriptions(params = {}, accessToken) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        searchParams.append(key, value);
+      }
+    });
+    return this.request(`/api/newsletter/admin/subscriptions?${searchParams}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async getNewsletterStats(accessToken) {
+    return this.request('/api/newsletter/admin/stats', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  async deleteNewsletterSubscription(id, accessToken) {
+    return this.request(`/api/newsletter/admin/subscriptions/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
   // Products
   async getProducts(page = 1, limit = 12) {
     return this.request(`/api/products?page=${page}&limit=${limit}`);
@@ -656,3 +682,13 @@ export async function downloadInvoice(orderId) {
 }
 
 export const apiService = new ApiService();
+
+// Newsletter API
+export const newsletterApi = {
+  async subscribe(email, source) {
+    return apiService.request('/api/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ email, source }),
+    });
+  },
+};

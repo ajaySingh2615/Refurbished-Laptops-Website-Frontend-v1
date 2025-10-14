@@ -24,6 +24,7 @@ import CouponsPage from './pages/admin/CouponsPage.jsx';
 import ImageManagement from './pages/admin/ImageManagement.jsx';
 import ReviewManagement from './pages/admin/ReviewManagement.jsx';
 import OrderManagement from './pages/admin/OrderManagement.jsx';
+import NewsletterManagement from './pages/admin/NewsletterManagement.jsx';
 import { AdminProvider } from './contexts/AdminContext.jsx';
 import { CartProvider } from './contexts/CartContext.jsx';
 import { RequireAdmin } from './contexts/Guards.jsx';
@@ -202,6 +203,16 @@ export default function App() {
               <RequireAdmin>
                 <AdminProvider>
                   <OrderManagement />
+                </AdminProvider>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="/admin/newsletter"
+            element={
+              <RequireAdmin>
+                <AdminProvider>
+                  <NewsletterManagement />
                 </AdminProvider>
               </RequireAdmin>
             }

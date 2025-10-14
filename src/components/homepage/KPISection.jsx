@@ -44,7 +44,7 @@ export default function KPISection({ scrollY }) {
   );
 
   return (
-    <section className="kpi-section relative overflow-hidden py-14 md:py-16 bg-white">
+    <section className="kpi-section relative overflow-hidden py-14 md:py-16">
       {/* BACKGROUND LAYERS */}
       <AnimatedBackground />
 
@@ -57,7 +57,7 @@ export default function KPISection({ scrollY }) {
           transition={{ type: 'spring', stiffness: 90, damping: 14 }}
           className="mx-auto mb-8 md:mb-10 max-w-2xl text-center"
         >
-          <h2 className="text-2xl md:text-3xl font-black tracking-tight text-gray-800">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 text-gray-800">
             Numbers that prove our impact
           </h2>
         </motion.div>
@@ -228,5 +228,11 @@ function useMagneticTilt(ref) {
 
 /* --------------------------- Animated Background ----------------------- */
 function AnimatedBackground() {
-  return <div aria-hidden className="pointer-events-none absolute inset-0 bg-white" />;
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{ backgroundColor: '#f8f6f3' }}
+    />
+  );
 }

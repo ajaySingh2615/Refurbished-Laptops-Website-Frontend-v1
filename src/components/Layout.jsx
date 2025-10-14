@@ -1,20 +1,26 @@
 import React from 'react';
 import Header from './Header.jsx';
+import Footer from './Footer.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { apiService } from '../services/api.js';
+import { useLocation } from 'react-router-dom';
 
 export default function Layout({ children, onSearch }) {
   const { user, accessToken } = useAuth();
   const [bannerVisible, setBannerVisible] = React.useState(true);
   const [sending, setSending] = React.useState(false);
   const [message, setMessage] = React.useState('');
+  const location = useLocation();
 
   const showVerify = user && !user.emailVerifiedAt && bannerVisible;
+  const isHomePage = location.pathname === '/';
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f8f6f3' }}>
       <Header onSearch={onSearch} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-20 sm:pt-24">
+      <main
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isHomePage ? 'pt-0' : 'pt-20 sm:pt-24'}`}
+      >
         {showVerify && (
           <div className="mb-4 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
             <div className="text-sm">
@@ -61,6 +67,7 @@ export default function Layout({ children, onSearch }) {
         )}
         {children}
       </main>
+      <Footer />
     </div>
   );
 }

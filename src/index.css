@@ -13,6 +13,8 @@
   }
   body {
     background-color: #f8f6f3;
+    margin: 0;
+    padding: 0;
   }
 
   /* Custom scrollbar for brand filter */
@@ -109,6 +111,9 @@
   /* Banner Carousel Responsive Styles */
   .banner-carousel-section {
     background-color: #f8f6f3;
+    /* Remove full-width treatment for banner carousel */
+    position: relative;
+    z-index: 1;
   }
 
   .banner-carousel-container {
@@ -157,7 +162,7 @@
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
-    background-color: #f8fafc; /* Light gray - bg-slate-50 */
+    background-color: #f8f6f3; /* Consistent background color */
   }
 
   /* Brand card image optimization */
@@ -190,7 +195,7 @@
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
-    background-color: #f8fafc; /* Light gray - bg-slate-50 */
+    background-color: #f8f6f3; /* Consistent background color */
   }
 
   /* Shop by OS Section Styles */
@@ -212,7 +217,7 @@
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
-    background-color: #ffffff; /* White background */
+    background-color: #f8f6f3; /* Consistent background color */
   }
 
   /* Newsletter Section Styles */
@@ -266,6 +271,7 @@
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height for mobile */
+    overflow: hidden; /* Prevent overflow */
   }
 
   .home-hero::before {
