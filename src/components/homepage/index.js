@@ -7,4 +7,5 @@ export { ShopByProcessorSection } from './ShopByProcessorSection';
 export { CompanyLogoSection } from './CompanyLogoSection';
 export { ShopByOSSection } from './ShopByOSSection';
 export { KPISection } from './KPISection';
+export { NewsletterSection } from './NewsletterSection';
 export { HomePage } from './HomePage';

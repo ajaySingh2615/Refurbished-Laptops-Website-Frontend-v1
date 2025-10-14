@@ -11,6 +11,7 @@ import {
   CompanyLogoSection,
   ShopByOSSection,
   KPISection,
+  NewsletterSection,
 } from '../components/homepage';
 
 export default function HomePage() {
@@ -100,6 +101,9 @@ export default function HomePage() {
 
       {/* KPI Section */}
       <KPISection scrollY={scrollY} />
+
+      {/* Newsletter Section */}
+      <NewsletterSection />
     </>
   );
 }

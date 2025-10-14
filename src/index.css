@@ -215,6 +215,20 @@
     background-color: #ffffff; /* White background */
   }
 
+  /* Newsletter Section Styles */
+  .newsletter-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #0b1b3a; /* Dark blue */
+    background-image:
+      radial-gradient(1200px 600px at 50% -10%, rgba(59, 130, 246, 0.15), transparent),
+      radial-gradient(900px 480px at 100% 20%, rgba(2, 132, 199, 0.12), transparent);
+  }
+
   /* Company Logos Scrolling Animation */
   @keyframes scrollLogos {
     0% {

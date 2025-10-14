@@ -57,6 +57,14 @@ class ApiService {
     }
   }
 
+  // Newsletter
+  async subscribeNewsletter(email, source = 'homepage') {
+    return this.request('/api/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ email, source }),
+    });
+  }
+
   // Products
   async getProducts(page = 1, limit = 12) {
     return this.request(`/api/products?page=${page}&limit=${limit}`);
