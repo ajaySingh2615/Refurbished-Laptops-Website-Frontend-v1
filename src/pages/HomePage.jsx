@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { apiService } from '../services/api.js';
 import ProductList from '../components/ProductList.jsx';
-import { HeroSection } from '../components/homepage';
+import { HeroSection, BannerCarousel } from '../components/homepage';
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
@@ -70,6 +70,9 @@ export default function HomePage() {
     <>
       {/* Hero Section - Full width */}
       <HeroSection scrollY={scrollY} />
+
+      {/* Banner Carousel */}
+      <BannerCarousel />
     </>
   );
 }

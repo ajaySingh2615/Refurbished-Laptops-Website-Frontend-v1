@@ -24,6 +24,19 @@ This folder contains all the components for the homepage sections.
   - Hover to pause animation
   - Fallback text for missing logos
 
+### BannerCarousel
+
+- **File**: `BannerCarousel.jsx`
+- **Purpose**: Responsive banner carousel with smooth animations
+- **Features**:
+  - Auto-rotating slides (5-second intervals)
+  - Smooth slide transitions with Framer Motion
+  - Navigation arrows and dots
+  - Progress bar indicator
+  - Responsive design for all devices
+  - Touch-friendly controls
+  - Accessible navigation
+
 ### HomePage
 
 - **File**: `HomePage.jsx`
@@ -35,11 +48,12 @@ This folder contains all the components for the homepage sections.
 ## Usage
 
 ```jsx
-import { HeroSection, BrandStrip, HomePage } from '../components/homepage';
+import { HeroSection, BrandStrip, BannerCarousel, HomePage } from '../components/homepage';
 
 // Use individual components
 <HeroSection scrollY={scrollY} />
 <BrandStrip />
+<BannerCarousel />
 
 // Or use the complete homepage
 <HomePage />
@@ -51,11 +65,13 @@ The components use images from:
 
 - `/public/hero-section/` - Hero background images
 - `/public/companies_logo/` - Brand logos
+- `/public/banners/` - Banner carousel images
 
 ## Dependencies
 
 - `framer-motion` - For animations
 - `react-icons` - For icons (HiShoppingBag)
+- `lucide-react` - For navigation icons (ChevronLeft, ChevronRight)
 
 ## Styling
 
@@ -63,3 +79,4 @@ CSS animations and styles are defined in `/src/index.css`:
 
 - `.animate-scroll` - Brand strip scrolling animation
 - `.home-hero` - Hero section background styling
+- `.carousel-slide-enter/exit` - Banner carousel slide animations

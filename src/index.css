@@ -75,6 +75,69 @@
     animation: fadeInUp 0.8s ease-out;
   }
 
+  /* Banner Carousel Animations */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideOut {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+  }
+
+  .carousel-slide-enter {
+    animation: slideIn 0.5s ease-in-out;
+  }
+
+  .carousel-slide-exit {
+    animation: slideOut 0.5s ease-in-out;
+  }
+
+  /* Banner Carousel Responsive Styles */
+  .banner-carousel-section {
+    background-color: #f8f6f3;
+  }
+
+  .banner-carousel-container {
+    aspect-ratio: 4/1;
+    max-width: 1280px;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Ensure images cover the container properly */
+  .banner-carousel-container .bg-cover {
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+  }
+
+  @media (max-width: 768px) {
+    .banner-carousel-container {
+      aspect-ratio: 16/9; /* More mobile-friendly aspect ratio */
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .banner-carousel-container {
+      aspect-ratio: 2/1; /* Even more compact for small phones */
+    }
+  }
+
   /* Hero Section Styles */
   .home-hero {
     position: relative;
