@@ -33,4 +33,105 @@
   .brand-filter-scroll::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
   }
+
+  /* Hero Section Animations */
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
+    will-change: transform;
+  }
+
+  .animate-scroll:hover {
+    animation-play-state: paused;
+  }
+
+  /* Mobile animation optimizations */
+  @media (max-width: 768px) {
+    .animate-scroll {
+      animation: scroll 25s linear infinite; /* Slightly faster on mobile */
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  /* Hero Section Styles */
+  .home-hero {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/hero-section/hero-image-1.webp') center/cover;
+    background-attachment: fixed;
+    opacity: 0.3;
+    z-index: 0;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .home-hero::before {
+      background-attachment: scroll; /* Better performance on mobile */
+    }
+
+    .home-hero {
+      min-height: 100vh;
+      min-height: 100svh; /* Small viewport height for mobile */
+    }
+  }
+
+  /* Prevent zoom on mobile */
+  @media (max-width: 768px) {
+    .home-hero {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+
+    /* Better touch targets */
+    .home-hero button {
+      min-height: 44px; /* iOS recommended touch target size */
+      min-width: 44px;
+    }
+
+    /* Prevent text selection on buttons */
+    .home-hero button {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  }
 }
