@@ -116,7 +116,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
   }, [searchQuery]); // Removed onSearch from dependencies to prevent infinite loops
 
   return (
-    <div ref={searchRef} className="relative w-full z-[70]">
+    <div ref={searchRef} className="relative w-full z-[30]">
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative group">
           <Input
@@ -181,7 +181,7 @@ export default function SearchBar({ onSearch, placeholder = 'Search laptops...' 
 
       {/* Suggestions or History Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 right-0 mt-1 z-[80]">
+        <div className="absolute left-0 right-0 mt-1 z-[60]">
           <SearchSuggestions
             ref={suggestionsRef}
             suggestions={suggestions}
