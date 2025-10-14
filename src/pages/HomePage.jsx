@@ -2,7 +2,12 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { apiService } from '../services/api.js';
 import ProductList from '../components/ProductList.jsx';
-import { HeroSection, BannerCarousel, FeaturedSection } from '../components/homepage';
+import {
+  HeroSection,
+  BannerCarousel,
+  FeaturedSection,
+  ShopByBrandSection,
+} from '../components/homepage';
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
@@ -76,6 +81,9 @@ export default function HomePage() {
 
       {/* Featured Section */}
       <FeaturedSection />
+
+      {/* Shop by Brand Section */}
+      <ShopByBrandSection />
     </>
   );
 }

@@ -48,7 +48,20 @@ This folder contains all the components for the homepage sections.
   - Animated icons with hover effects
   - Staggered animations on scroll
   - Call-to-action button
-  - Green color scheme for trust and quality
+  - Light blue color scheme for trust and quality
+
+### ShopByBrandSection
+
+- **File**: `ShopByBrandSection.jsx`
+- **Purpose**: Brand showcase section with clickable brand cards
+- **Features**:
+  - Four brand cards (Apple, Dell, HP, Lenovo)
+  - Clickable cards that navigate to products page with brand filter
+  - Responsive grid layout (1 column mobile, 2 tablet, 4 desktop)
+  - Hover effects with image scaling and overlay
+  - Brand name overlay on each card
+  - Error handling for missing images
+  - Light gray background with full-width design
 
 ### HomePage
 
@@ -61,13 +74,14 @@ This folder contains all the components for the homepage sections.
 ## Usage
 
 ```jsx
-import { HeroSection, BrandStrip, BannerCarousel, FeaturedSection, HomePage } from '../components/homepage';
+import { HeroSection, BrandStrip, BannerCarousel, FeaturedSection, ShopByBrandSection, HomePage } from '../components/homepage';
 
 // Use individual components
 <HeroSection scrollY={scrollY} />
 <BrandStrip />
 <BannerCarousel />
 <FeaturedSection />
+<ShopByBrandSection />
 
 // Or use the complete homepage
 <HomePage />
@@ -80,6 +94,7 @@ The components use images from:
 - `/public/hero-section/` - Hero background images
 - `/public/companies_logo/` - Brand logos
 - `/public/banners/` - Banner carousel images
+- `/public/shop_by_brand/` - Brand showcase images
 
 ## Dependencies
 

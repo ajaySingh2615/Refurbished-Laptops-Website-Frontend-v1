@@ -17,15 +17,28 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery] = useState(searchParams.get('q') || '');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    brand: [],
-    condition: [],
-    minPrice: '',
-    maxPrice: '',
-    ramGb: [],
-    storage: [],
-    inStock: null,
-  });
+  // Initialize filters from URL parameters
+  const initializeFiltersFromUrl = () => {
+    const brandParam = searchParams.get('brand');
+    const conditionParam = searchParams.get('condition');
+    const minPriceParam = searchParams.get('minPrice');
+    const maxPriceParam = searchParams.get('maxPrice');
+    const ramGbParam = searchParams.get('ramGb');
+    const storageParam = searchParams.get('storage');
+    const inStockParam = searchParams.get('inStock');
+
+    return {
+      brand: brandParam ? brandParam.split(',').map((b) => b.trim()) : [],
+      condition: conditionParam ? conditionParam.split(',').map((c) => c.trim()) : [],
+      minPrice: minPriceParam || '',
+      maxPrice: maxPriceParam || '',
+      ramGb: ramGbParam ? ramGbParam.split(',').map((r) => r.trim()) : [],
+      storage: storageParam ? storageParam.split(',').map((s) => s.trim()) : [],
+      inStock: inStockParam ? inStockParam === 'true' : null,
+    };
+  };
+
+  const [filters, setFilters] = useState(initializeFiltersFromUrl);
 
   const loadProducts = useCallback(
     async (page = 1, currentFilters = filters) => {
@@ -68,6 +81,12 @@ export default function ProductsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [searchParams],
   );
+
+  // Update filters when URL parameters change
+  useEffect(() => {
+    const newFilters = initializeFiltersFromUrl();
+    setFilters(newFilters);
+  }, [searchParams]);
 
   useEffect(() => {
     loadProducts();
