@@ -6,4 +6,5 @@ export { ShopByBrandSection } from './ShopByBrandSection';
 export { ShopByProcessorSection } from './ShopByProcessorSection';
 export { CompanyLogoSection } from './CompanyLogoSection';
 export { ShopByOSSection } from './ShopByOSSection';
+export { KPISection } from './KPISection';
 export { HomePage } from './HomePage';

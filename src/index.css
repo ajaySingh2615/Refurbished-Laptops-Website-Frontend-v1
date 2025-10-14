@@ -204,6 +204,17 @@
     background-color: #f0f9ff; /* Light blue - bg-sky-50 */
   }
 
+  /* KPI Section Styles */
+  .kpi-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #ffffff; /* White background */
+  }
+
   /* Company Logos Scrolling Animation */
   @keyframes scrollLogos {
     0% {

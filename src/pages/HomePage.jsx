@@ -10,6 +10,7 @@ import {
   ShopByProcessorSection,
   CompanyLogoSection,
   ShopByOSSection,
+  KPISection,
 } from '../components/homepage';
 
 export default function HomePage() {
@@ -96,6 +97,9 @@ export default function HomePage() {
 
       {/* Shop by OS Section */}
       <ShopByOSSection />
+
+      {/* KPI Section */}
+      <KPISection scrollY={scrollY} />
     </>
   );
 }
