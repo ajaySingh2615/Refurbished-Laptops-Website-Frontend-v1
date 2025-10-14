@@ -26,6 +26,7 @@ export default function ProductsPage() {
     const ramGbParam = searchParams.get('ramGb');
     const storageParam = searchParams.get('storage');
     const inStockParam = searchParams.get('inStock');
+    const processorParam = searchParams.get('processor');
 
     return {
       brand: brandParam ? brandParam.split(',').map((b) => b.trim()) : [],
@@ -35,6 +36,7 @@ export default function ProductsPage() {
       ramGb: ramGbParam ? ramGbParam.split(',').map((r) => r.trim()) : [],
       storage: storageParam ? storageParam.split(',').map((s) => s.trim()) : [],
       inStock: inStockParam ? inStockParam === 'true' : null,
+      processor: processorParam || '',
     };
   };
 
@@ -67,6 +69,7 @@ export default function ProductsPage() {
           if (currentFilters.storage && currentFilters.storage.length)
             params.storage = currentFilters.storage.join(',');
           if (typeof currentFilters.inStock === 'boolean') params.inStock = currentFilters.inStock;
+          if (currentFilters.processor) params.processor = currentFilters.processor;
           response = await apiService.filterProducts(params);
           setProducts(response.products);
           setPagination(response.pagination || {});

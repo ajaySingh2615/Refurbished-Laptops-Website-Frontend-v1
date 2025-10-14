@@ -59,9 +59,35 @@ This folder contains all the components for the homepage sections.
   - Clickable cards that navigate to products page with brand filter
   - Responsive grid layout (1 column mobile, 2 tablet, 4 desktop)
   - Hover effects with image scaling and overlay
-  - Brand name overlay on each card
   - Error handling for missing images
   - Light gray background with full-width design
+
+### ShopByProcessorSection
+
+- **File**: `ShopByProcessorSection.jsx`
+- **Purpose**: Processor showcase section with clickable processor cards
+- **Features**:
+  - Three processor cards (Intel, AMD, Apple)
+  - Clickable cards that navigate to products page with processor filter
+  - Responsive grid layout (1 column mobile, 2 tablet, 3 desktop)
+  - Hover effects with image scaling
+  - Intel/AMD filter by CPU field, Apple by brand
+  - Light blue background with full-width design
+  - 3:2 aspect ratio images (1200x800)
+
+### CompanyLogoSection
+
+- **File**: `CompanyLogoSection.jsx`
+- **Purpose**: Company logos showcase section for brand trust
+- **Features**:
+  - Twelve company logos in infinite horizontal scroll
+  - Continuous scrolling animation (40s duration)
+  - Pause on hover for better user interaction
+  - Grayscale logos with color on hover
+  - White cards with subtle shadows
+  - Responsive sizing for all devices
+  - Light gray background with full-width design
+  - Trust-building messaging
 
 ### HomePage
 
@@ -74,7 +100,7 @@ This folder contains all the components for the homepage sections.
 ## Usage
 
 ```jsx
-import { HeroSection, BrandStrip, BannerCarousel, FeaturedSection, ShopByBrandSection, HomePage } from '../components/homepage';
+import { HeroSection, BrandStrip, BannerCarousel, FeaturedSection, ShopByBrandSection, ShopByProcessorSection, CompanyLogoSection, HomePage } from '../components/homepage';
 
 // Use individual components
 <HeroSection scrollY={scrollY} />
@@ -82,6 +108,8 @@ import { HeroSection, BrandStrip, BannerCarousel, FeaturedSection, ShopByBrandSe
 <BannerCarousel />
 <FeaturedSection />
 <ShopByBrandSection />
+<ShopByProcessorSection />
+<CompanyLogoSection />
 
 // Or use the complete homepage
 <HomePage />
@@ -95,6 +123,7 @@ The components use images from:
 - `/public/companies_logo/` - Brand logos
 - `/public/banners/` - Banner carousel images
 - `/public/shop_by_brand/` - Brand showcase images
+- `/public/shop_by_processor/` - Processor showcase images (1200x800)
 
 ## Dependencies
 

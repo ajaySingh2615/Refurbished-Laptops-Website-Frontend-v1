@@ -171,6 +171,54 @@
     border-radius: 8px;
   }
 
+  /* Shop by Processor Section Styles */
+  .shop-by-processor-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #eff6ff; /* Light blue - bg-blue-50 */
+  }
+
+  /* Company Logo Section Styles */
+  .company-logo-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #f8fafc; /* Light gray - bg-slate-50 */
+  }
+
+  /* Company Logos Scrolling Animation */
+  @keyframes scrollLogos {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .company-logos-scroll {
+    animation: scrollLogos 20s linear infinite;
+    will-change: transform;
+  }
+
+  .company-logos-scroll:hover {
+    animation-play-state: paused;
+  }
+
+  /* Mobile animation optimizations */
+  @media (max-width: 768px) {
+    .company-logos-scroll {
+      animation: scrollLogos 18s linear infinite; /* Slightly faster on mobile */
+    }
+  }
+
   /* Hero Section Styles */
   .home-hero {
     position: relative;

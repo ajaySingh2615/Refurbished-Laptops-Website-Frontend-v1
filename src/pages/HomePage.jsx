@@ -7,6 +7,8 @@ import {
   BannerCarousel,
   FeaturedSection,
   ShopByBrandSection,
+  ShopByProcessorSection,
+  CompanyLogoSection,
 } from '../components/homepage';
 
 export default function HomePage() {
@@ -84,6 +86,12 @@ export default function HomePage() {
 
       {/* Shop by Brand Section */}
       <ShopByBrandSection />
+
+      {/* Shop by Processor Section */}
+      <ShopByProcessorSection />
+
+      {/* Company Logo Section */}
+      <CompanyLogoSection />
     </>
   );
 }

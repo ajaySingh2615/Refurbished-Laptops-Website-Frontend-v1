@@ -3,4 +3,6 @@ export { BrandStrip } from './BrandStrip';
 export { BannerCarousel } from './BannerCarousel';
 export { FeaturedSection } from './FeaturedSection';
 export { ShopByBrandSection } from './ShopByBrandSection';
+export { ShopByProcessorSection } from './ShopByProcessorSection';
+export { CompanyLogoSection } from './CompanyLogoSection';
 export { HomePage } from './HomePage';
