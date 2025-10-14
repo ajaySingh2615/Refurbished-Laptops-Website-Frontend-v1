@@ -36,6 +36,19 @@ This folder contains all the components for the homepage sections.
   - Responsive design for all devices
   - Touch-friendly controls
   - Accessible navigation
+  - Hidden on mobile and tablet (desktop only)
+
+### FeaturedSection
+
+- **File**: `FeaturedSection.jsx`
+- **Purpose**: Features showcase section highlighting company benefits
+- **Features**:
+  - Three key features with icons (Quality Check, Replacement, Warranty)
+  - Responsive grid layout (1 column mobile, 2 tablet, 3 desktop)
+  - Animated icons with hover effects
+  - Staggered animations on scroll
+  - Call-to-action button
+  - Green color scheme for trust and quality
 
 ### HomePage
 
@@ -48,12 +61,13 @@ This folder contains all the components for the homepage sections.
 ## Usage
 
 ```jsx
-import { HeroSection, BrandStrip, BannerCarousel, HomePage } from '../components/homepage';
+import { HeroSection, BrandStrip, BannerCarousel, FeaturedSection, HomePage } from '../components/homepage';
 
 // Use individual components
 <HeroSection scrollY={scrollY} />
 <BrandStrip />
 <BannerCarousel />
+<FeaturedSection />
 
 // Or use the complete homepage
 <HomePage />

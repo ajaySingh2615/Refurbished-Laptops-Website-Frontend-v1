@@ -138,6 +138,17 @@
     }
   }
 
+  /* Featured Section Styles */
+  .featured-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #eff6ff; /* Light blue - bg-blue-50 */
+  }
+
   /* Hero Section Styles */
   .home-hero {
     position: relative;
