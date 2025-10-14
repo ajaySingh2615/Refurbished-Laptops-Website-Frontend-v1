@@ -193,6 +193,17 @@
     background-color: #f8fafc; /* Light gray - bg-slate-50 */
   }
 
+  /* Shop by OS Section Styles */
+  .shop-by-os-section {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #f0f9ff; /* Light blue - bg-sky-50 */
+  }
+
   /* Company Logos Scrolling Animation */
   @keyframes scrollLogos {
     0% {

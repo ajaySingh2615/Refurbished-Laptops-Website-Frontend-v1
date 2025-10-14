@@ -5,4 +5,5 @@ export { FeaturedSection } from './FeaturedSection';
 export { ShopByBrandSection } from './ShopByBrandSection';
 export { ShopByProcessorSection } from './ShopByProcessorSection';
 export { CompanyLogoSection } from './CompanyLogoSection';
+export { ShopByOSSection } from './ShopByOSSection';
 export { HomePage } from './HomePage';

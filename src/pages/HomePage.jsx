@@ -9,6 +9,7 @@ import {
   ShopByBrandSection,
   ShopByProcessorSection,
   CompanyLogoSection,
+  ShopByOSSection,
 } from '../components/homepage';
 
 export default function HomePage() {
@@ -92,6 +93,9 @@ export default function HomePage() {
 
       {/* Company Logo Section */}
       <CompanyLogoSection />
+
+      {/* Shop by OS Section */}
+      <ShopByOSSection />
     </>
   );
 }
