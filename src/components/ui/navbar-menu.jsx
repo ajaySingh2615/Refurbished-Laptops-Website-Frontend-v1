@@ -77,8 +77,14 @@ export const ProductItem = ({ title, description, href, src }) => {
 
 export const HoveredLink = ({ children, ...rest }) => {
   return (
-    <Link {...rest} className="text-slate-700 hover:text-slate-900 transition-colors">
-      {children}
+    <Link
+      {...rest}
+      className="group relative text-slate-700/90 hover:text-slate-900 text-[13px] sm:text-sm px-2 py-1 transition-colors"
+    >
+      <span className="relative">
+        {children}
+        <span className="pointer-events-none absolute left-0 right-0 -bottom-1 mx-auto h-px w-0 bg-gradient-to-r from-blue-500 via-fuchsia-500 to-purple-600 transition-all duration-200 group-hover:w-full" />
+      </span>
     </Link>
   );
 };

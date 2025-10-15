@@ -67,7 +67,7 @@ export default function Header({ onSearch }) {
     visibleCategories.forEach((cat) => {
       items.push({
         name: cat.name,
-        link: `/products?categoryId=${cat.id}`,
+        link: `/products?category=${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`,
       });
     });
 
@@ -78,7 +78,7 @@ export default function Header({ onSearch }) {
         isDropdown: true,
         children: categories.slice(2).map((cat) => ({
           name: cat.name,
-          link: `/products?categoryId=${cat.id}`,
+          link: `/products?category=${cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')}`,
         })),
       });
     }

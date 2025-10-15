@@ -27,7 +27,8 @@ export default function ProductsPage() {
     const storageParam = searchParams.get('storage');
     const inStockParam = searchParams.get('inStock');
     const processorParam = searchParams.get('processor');
-    const categoryIdParam = searchParams.get('categoryId'); // New: category filter
+    const categoryParam = searchParams.get('category'); // New: category slug filter
+    const categoryIdParam = searchParams.get('categoryId'); // Legacy: category ID filter
 
     return {
       brand: brandParam ? brandParam.split(',').map((b) => b.trim()) : [],
@@ -38,7 +39,8 @@ export default function ProductsPage() {
       storage: storageParam ? storageParam.split(',').map((s) => s.trim()) : [],
       inStock: inStockParam ? inStockParam === 'true' : null,
       processor: processorParam || '',
-      categoryId: categoryIdParam || '', // New: category filter
+      category: categoryParam || '', // New: category slug filter
+      categoryId: categoryIdParam || '', // Legacy: category ID filter
     };
   };
 
@@ -72,7 +74,8 @@ export default function ProductsPage() {
             params.storage = currentFilters.storage.join(',');
           if (typeof currentFilters.inStock === 'boolean') params.inStock = currentFilters.inStock;
           if (currentFilters.processor) params.processor = currentFilters.processor;
-          if (currentFilters.categoryId) params.categoryId = currentFilters.categoryId; // New: category filter
+          if (currentFilters.category) params.category = currentFilters.category; // New: category slug filter
+          if (currentFilters.categoryId) params.categoryId = currentFilters.categoryId; // Legacy: category ID filter
           response = await apiService.filterProducts(params);
           setProducts(response.products);
           setPagination(response.pagination || {});
