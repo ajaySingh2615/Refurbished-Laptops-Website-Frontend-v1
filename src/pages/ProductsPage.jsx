@@ -17,8 +17,9 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery] = useState(searchParams.get('q') || '');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   // Initialize filters from URL parameters
-  const initializeFiltersFromUrl = () => {
+  const initializeFiltersFromUrl = useCallback(() => {
     const brandParam = searchParams.get('brand');
     const conditionParam = searchParams.get('condition');
     const minPriceParam = searchParams.get('minPrice');
@@ -42,9 +43,9 @@ export default function ProductsPage() {
       category: categoryParam || '', // New: category slug filter
       categoryId: categoryIdParam || '', // Legacy: category ID filter
     };
-  };
+  }, [searchParams]);
 
-  const [filters, setFilters] = useState(initializeFiltersFromUrl);
+  const [filters, setFilters] = useState(() => initializeFiltersFromUrl());
 
   const loadProducts = useCallback(
     async (page = 1, currentFilters = filters) => {
@@ -76,6 +77,7 @@ export default function ProductsPage() {
           if (currentFilters.processor) params.processor = currentFilters.processor;
           if (currentFilters.category) params.category = currentFilters.category; // New: category slug filter
           if (currentFilters.categoryId) params.categoryId = currentFilters.categoryId; // Legacy: category ID filter
+
           response = await apiService.filterProducts(params);
           setProducts(response.products);
           setPagination(response.pagination || {});
@@ -95,11 +97,9 @@ export default function ProductsPage() {
   useEffect(() => {
     const newFilters = initializeFiltersFromUrl();
     setFilters(newFilters);
-  }, [searchParams]);
-
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
+    // Load products immediately with new filters
+    loadProducts(1, newFilters);
+  }, [searchParams, initializeFiltersFromUrl, loadProducts]);
 
   const handleSearch = useCallback(
     async (query) => {

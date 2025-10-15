@@ -7,6 +7,7 @@ import PriceRangeFilter from './PriceRangeFilter.jsx';
 import BrandFilter from './BrandFilter.jsx';
 import ConditionFilter from './ConditionFilter.jsx';
 import SpecFilter from './SpecFilter.jsx';
+import CategoryFilter from './CategoryFilter.jsx';
 import ActiveFilters from './ActiveFilters.jsx';
 
 export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
@@ -133,6 +134,12 @@ export default function FilterSidebar({ isOpen, onClose, filters, onChange }) {
 
           {/* Filter Sections */}
           <div className="space-y-4">
+            {/* Category Filter */}
+            <CategoryFilter
+              selectedCategory={filters.category}
+              onCategoryChange={(category) => updateFilter('category', category)}
+            />
+
             {/* Price Range */}
             <PriceRangeFilter
               minPrice={filters.minPrice}

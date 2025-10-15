@@ -129,7 +129,6 @@ export const CartProvider = ({ children }) => {
       // Fetch full cart data with images
       const response = await cartAPI.getCart();
       if (response.success) {
-        console.log('Cart data received:', response.data);
         dispatch({ type: CART_ACTIONS.SET_CART, payload: response.data });
       }
     } catch (error) {

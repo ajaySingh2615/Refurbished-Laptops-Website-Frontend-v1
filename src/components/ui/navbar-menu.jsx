@@ -14,12 +14,53 @@ const transition = {
 
 export const MenuItem = ({ setActive, active, item, children }) => {
   const buttonRef = useRef(null);
+  const touchHandledRef = useRef(false);
+
+  const handleClick = (e) => {
+    // If touch was already handled, ignore the click event
+    if (touchHandledRef.current) {
+      touchHandledRef.current = false;
+      return;
+    }
+
+    e.stopPropagation();
+    // Toggle dropdown on mobile (click)
+    if (active === item) {
+      setActive(null);
+    } else {
+      setActive(item);
+    }
+  };
+
+  const handleMouseEnter = () => {
+    // Only use hover on desktop (not mobile)
+    if (window.innerWidth >= 640) {
+      // sm breakpoint
+      setActive(item);
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    e.stopPropagation();
+
+    // Mark that touch was handled to prevent click event
+    touchHandledRef.current = true;
+
+    // Toggle dropdown on touch
+    if (active === item) {
+      setActive(null);
+    } else {
+      setActive(item);
+    }
+  };
 
   return (
-    <div ref={buttonRef} onMouseEnter={() => setActive(item)} className="relative z-50">
+    <div ref={buttonRef} onMouseEnter={handleMouseEnter} className="relative z-50" data-dropdown>
       <motion.p
         transition={{ duration: 0.3 }}
         className="cursor-pointer text-slate-700 hover:text-slate-900 text-[13px] sm:text-sm px-2 py-1"
+        onClick={handleClick}
+        onTouchStart={handleTouchStart}
       >
         {item}
       </motion.p>
@@ -29,7 +70,8 @@ export const MenuItem = ({ setActive, active, item, children }) => {
           animate={{ opacity: 1, scale: 1 }}
           transition={transition}
           onMouseEnter={() => setActive(item)}
-          className="absolute z-[100] top-0 left-1/2 transform -translate-x-1/2 pt-12"
+          className="fixed sm:absolute z-[9999] top-[60px] sm:top-0 left-1/2 transform -translate-x-1/2 sm:pt-12"
+          style={{ minWidth: '200px' }}
         >
           <motion.div
             transition={transition}
@@ -75,10 +117,17 @@ export const ProductItem = ({ title, description, href, src }) => {
   );
 };
 
-export const HoveredLink = ({ children, ...rest }) => {
+export const HoveredLink = ({ children, onClick, ...rest }) => {
+  const handleClick = (e) => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <Link
       {...rest}
+      onClick={handleClick}
       className="group relative text-slate-700/90 hover:text-slate-900 text-[13px] sm:text-sm px-2 py-1 transition-colors"
     >
       <span className="relative">

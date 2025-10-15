@@ -53,6 +53,10 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
       if (profileOpen && profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
+      // Close dropdown when clicking outside on mobile
+      if (active && !e.target.closest('[data-dropdown]')) {
+        setActive(null);
+      }
     }
     function onKey(e) {
       if (e.key === 'Escape') {
@@ -61,12 +65,14 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
       }
     }
     document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('touchstart', onDocClick); // Add touch support for mobile
     window.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('touchstart', onDocClick);
       window.removeEventListener('keydown', onKey);
     };
-  }, [profileOpen]);
+  }, [profileOpen, active]); // Added active to dependencies
 
   return (
     <motion.nav
@@ -83,7 +89,7 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
         {/* Links scroller */}
         <div className="flex-1 min-w-0">
           <div
-            className="flex items-center gap-3 sm:gap-4 px-1 sm:px-2"
+            className="flex items-center gap-3 sm:gap-4 px-1 sm:px-2 overflow-x-auto overflow-y-visible scrollbar-hide sm:overflow-x-visible"
             onMouseLeave={() => setActive(null)}
           >
             {navItems?.map((item, idx) => {
@@ -92,7 +98,7 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
                   <MenuItem key={idx} setActive={setActive} active={active} item={item.name}>
                     <div className="flex flex-col space-y-4 text-sm">
                       {item.children?.map((child, childIdx) => (
-                        <HoveredLink key={childIdx} to={child.link}>
+                        <HoveredLink key={childIdx} to={child.link} onClick={() => setActive(null)}>
                           {child.name}
                         </HoveredLink>
                       ))}
