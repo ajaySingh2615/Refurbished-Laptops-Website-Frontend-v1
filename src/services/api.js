@@ -113,6 +113,11 @@ class ApiService {
     return this.request(`/api/products/filter?${params}`);
   }
 
+  // Categories
+  async getAllCategories() {
+    return this.request('/api/categories');
+  }
+
   async getLowStockSummary(threshold = 5) {
     return this.request(`/api/products/low-stock/summary?threshold=${threshold}`);
   }

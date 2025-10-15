@@ -3,11 +3,13 @@ import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import CartIcon from '../cart/CartIcon.jsx';
+import { MenuItem, HoveredLink } from './navbar-menu.jsx';
 
 export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className = '' }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = React.useState(false);
+  const [active, setActive] = React.useState(null); // For Aceternity UI Menu
   const profileRef = React.useRef(null);
   const { scrollY } = useScroll();
   const visibleRef = React.useRef(true);
@@ -48,13 +50,15 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
 
   React.useEffect(() => {
     function onDocClick(e) {
-      if (!profileOpen) return;
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
+      if (profileOpen && profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
     }
     function onKey(e) {
-      if (e.key === 'Escape') setProfileOpen(false);
+      if (e.key === 'Escape') {
+        setProfileOpen(false);
+        setActive(null);
+      }
     }
     document.addEventListener('mousedown', onDocClick);
     window.addEventListener('keydown', onKey);
@@ -78,19 +82,38 @@ export function FloatingNav({ navItems, onLoginClick, onRegisterClick, className
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Links scroller */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar whitespace-nowrap px-1 sm:px-2">
-            {navItems?.map((item, idx) => (
-              <Link
-                key={idx}
-                to={item.link}
-                className="group relative text-slate-700/90 hover:text-slate-900 text-[13px] sm:text-sm px-2 py-1 transition-colors"
-              >
-                <span className="relative">
-                  {item.name}
-                  <span className="pointer-events-none absolute left-0 right-0 -bottom-1 mx-auto h-px w-0 bg-gradient-to-r from-blue-500 via-fuchsia-500 to-purple-600 transition-all duration-200 group-hover:w-full" />
-                </span>
-              </Link>
-            ))}
+          <div
+            className="flex items-center gap-3 sm:gap-4 px-1 sm:px-2"
+            onMouseLeave={() => setActive(null)}
+          >
+            {navItems?.map((item, idx) => {
+              if (item.isDropdown) {
+                return (
+                  <MenuItem key={idx} setActive={setActive} active={active} item={item.name}>
+                    <div className="flex flex-col space-y-4 text-sm">
+                      {item.children?.map((child, childIdx) => (
+                        <HoveredLink key={childIdx} to={child.link}>
+                          {child.name}
+                        </HoveredLink>
+                      ))}
+                    </div>
+                  </MenuItem>
+                );
+              }
+
+              return (
+                <Link
+                  key={idx}
+                  to={item.link}
+                  className="group relative text-slate-700/90 hover:text-slate-900 text-[13px] sm:text-sm px-2 py-1 transition-colors"
+                >
+                  <span className="relative">
+                    {item.name}
+                    <span className="pointer-events-none absolute left-0 right-0 -bottom-1 mx-auto h-px w-0 bg-gradient-to-r from-blue-500 via-fuchsia-500 to-purple-600 transition-all duration-200 group-hover:w-full" />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
         {/* Actions */}

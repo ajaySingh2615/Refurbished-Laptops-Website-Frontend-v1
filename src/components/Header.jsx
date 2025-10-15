@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { FloatingNav } from './ui/FloatingNav.jsx';
 import CartIcon from './cart/CartIcon.jsx';
+import { apiService } from '../services/api.js';
 
 export default function Header({ onSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,6 +12,7 @@ export default function Header({ onSearch }) {
   const { user, logout } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = React.useRef(null);
+  const [categories, setCategories] = useState([]);
 
   React.useEffect(() => {
     function onDocClick(e) {
@@ -30,6 +32,22 @@ export default function Header({ onSearch }) {
     };
   }, [profileOpen]);
 
+  // Fetch categories on mount
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const data = await apiService.getAllCategories();
+        // Filter only parent categories (those without parentId)
+        const parentCategories = data.filter((cat) => !cat.parentId);
+        setCategories(parentCategories);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        setCategories([]);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (onSearch && searchQuery.trim()) {
@@ -37,15 +55,41 @@ export default function Header({ onSearch }) {
     }
   };
 
+  // Build navigation items dynamically
+  const buildNavItems = () => {
+    const items = [
+      { name: 'Home', link: '/' },
+      { name: 'Products', link: '/products' },
+    ];
+
+    // Show first 2 parent categories
+    const visibleCategories = categories.slice(0, 2);
+    visibleCategories.forEach((cat) => {
+      items.push({
+        name: cat.name,
+        link: `/products?categoryId=${cat.id}`,
+      });
+    });
+
+    // If there are more than 2 categories, add "Others" dropdown
+    if (categories.length > 2) {
+      items.push({
+        name: 'Others',
+        isDropdown: true,
+        children: categories.slice(2).map((cat) => ({
+          name: cat.name,
+          link: `/products?categoryId=${cat.id}`,
+        })),
+      });
+    }
+
+    return items;
+  };
+
   return (
     <>
       <FloatingNav
-        navItems={[
-          { name: 'Home', link: '/' },
-          { name: 'Products', link: '/products' },
-          { name: 'Electronics', link: '/c/electronics' },
-          { name: 'Peripherals', link: '/c/peripherals' },
-        ]}
+        navItems={buildNavItems()}
         onLoginClick={() => (window.location.href = '/login')}
         onRegisterClick={() => (window.location.href = '/register')}
       />
@@ -251,30 +295,31 @@ export default function Header({ onSearch }) {
                 <Link
                   to="/"
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMobileOpen(false)}
                 >
                   Home
                 </Link>
                 <Link
                   to="/products"
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMobileOpen(false)}
                 >
                   Products
                 </Link>
-                <Link
-                  to="/c/electronics"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                >
-                  Electronics
-                </Link>
-                <Link
-                  to="/c/peripherals"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-                >
-                  Peripherals
-                </Link>
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    to={`/products?categoryId=${cat.id}`}
+                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
                 <Link
                   to="/admin"
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                  onClick={() => setMobileOpen(false)}
                 >
                   Admin
                 </Link>
