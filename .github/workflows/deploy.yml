@@ -1,0 +1,63 @@
+name: Deploy Frontend to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "🚀 Starting Frontend Deployment..."
+
+            # Navigate to project directory
+            cd /var/www/refurbished-laptops/frontend || exit 1
+
+            # Pull latest code
+            echo "📥 Pulling latest code..."
+            git pull origin main
+
+            # Navigate to main directory
+            cd ..
+
+            # Rebuild and restart frontend container
+            echo "🐳 Rebuilding Docker container..."
+            docker-compose up -d --build frontend
+
+            # Wait for container to start
+            echo "⏳ Waiting for container to start..."
+            sleep 10
+
+            # Check if container is running
+            if docker ps | grep -q refurbished-frontend; then
+              echo "✅ Frontend deployed successfully!"
+              docker logs --tail 20 refurbished-frontend
+            else
+              echo "❌ Frontend deployment failed!"
+              docker logs refurbished-frontend
+              exit 1
+            fi
+
+            echo "🎉 Deployment Complete!"
+
+      - name: Notify on Success
+        if: success()
+        run: echo "✅ Frontend deployed successfully to production!"
+
+      - name: Notify on Failure
+        if: failure()
+        run: echo "❌ Frontend deployment failed!"
